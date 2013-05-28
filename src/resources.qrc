@@ -1,1 +1,5 @@
-<RCC/>
+<RCC>
+    <qresource prefix="/">
+        <file>images/hat.svg</file>
+    </qresource>
+</RCC>

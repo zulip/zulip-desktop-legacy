@@ -1,4 +1,5 @@
 #include "HumbugWindow.h"
+#include "HumbugTrayIcon.h"
 #include "ui_HumbugWindow.h"
 
 #include <QMenuBar>
@@ -13,6 +14,11 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     ui->webView->load(QUrl("http://staging.humbughq.com"));
 
     statusBar()->hide();
+
+    HumbugTrayIcon *tray = new HumbugTrayIcon(this);
+    tray->setIcon(QIcon(":/images/hat.svg"));
+    tray->show();
+
 }
 
 HumbugWindow::~HumbugWindow()
