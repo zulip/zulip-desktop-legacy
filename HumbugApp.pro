@@ -8,10 +8,12 @@ TEMPLATE = app
 
 SOURCES += src/main.cpp\
            src/HumbugWindow.cpp \
-           src/HumbugTrayIcon.cpp
+           src/HumbugTrayIcon.cpp \
+    src/HumbugWebBridge.cpp
 
 HEADERS  += src/HumbugWindow.h \
-            src/HumbugTrayIcon.h
+            src/HumbugTrayIcon.h \
+    src/HumbugWebBridge.h
 
 FORMS    += src/HumbugWindow.ui
 

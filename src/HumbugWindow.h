@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
+#include "HumbugWebBridge.h"
 
 
 namespace Ui {
@@ -20,9 +21,13 @@ public:
 public slots:
     void userQuit();
     void trayClicked();
+    void addJavaScriptObject();
+    void linkClicked(QUrl url);
 
 private:
     Ui::HumbugWindow *ui;
+    HumbugWebBridge *wb;
+    QUrl *start;
 };
 
 #endif // HUMBUGWINDOW_H
