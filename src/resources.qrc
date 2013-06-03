@@ -2,4 +2,304 @@
     <qresource prefix="/">
         <file>images/hat.svg</file>
     </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-1.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-2.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-3.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-4.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-5.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-6.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-7.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-8.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-9.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-10.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-11.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-12.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-13.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-14.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-15.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-16.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-17.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-18.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-19.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-20.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-21.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-22.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-23.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-24.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-25.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-26.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-27.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-28.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-29.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-30.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-31.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-32.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-33.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-34.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-35.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-36.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-37.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-38.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-39.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-40.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-41.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-42.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-43.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-44.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-45.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-46.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-47.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-48.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-49.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-50.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-51.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-52.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-53.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-54.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-55.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-56.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-57.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-58.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-59.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-60.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-61.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-62.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-63.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-64.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-65.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-66.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-67.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-68.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-69.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-70.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-71.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-72.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-73.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-74.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-75.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-76.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-77.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-78.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-79.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-80.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-81.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-82.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-83.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-84.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-85.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-86.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-87.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-88.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-89.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-90.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-91.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-92.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-93.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-94.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-95.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-96.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-97.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-98.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-99.png</file>
+    </qresource>
+    <qresource prefix="/">
+            <file>images/favicon/favicon-infinite.png</file>
+    </qresource>
 </RCC>

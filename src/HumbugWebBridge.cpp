@@ -4,33 +4,34 @@
 #include <stdio.h>
 #include <QDebug>
 
-HumbugWebBridge::HumbugWebBridge(QObject *parent, QWebView *wv, HumbugTrayIcon *ti) :
-    QObject(parent)
+HumbugWebBridge::HumbugWebBridge(QObject *parent) :
+  QObject(parent)
 {
-    webView = wv;
-    trayIcon = ti;
-    unreadCount = 0;
+  m_unreadCount = 0;
 }
 
-QVariantMap HumbugWebBridge::systemInfo() {
-    QVariantMap info = QVariantMap();
-    info["supportsPopups"] = trayIcon->supportsMessages();
-    return info;
+QVariantMap HumbugWebBridge::systemInfo()
+{
+  QVariantMap info = QVariantMap();
+  info["supportsPopups"] = trayIcon->supportsMessages();
+  return info;
 }
 
 void HumbugWebBridge::notify(const QVariant &msg)
 {
-    qDebug() << msg;
-    //trayIcon->showMessage(msg->value("title").toString(), msg->value("content").toString(), QSystemTrayIcon::Information);
+  QMap<QString, QVariant> map = msg.toMap();
+  messageReceived(map.value("title").toString(), map.value("content").toString());
 }
 
 void HumbugWebBridge::updateCount(int count)
 {
-    unreadCount = count;
-    printf("Count updated to %i\n", count);
+  // Stash the old value since we want a getCount() call to return current after the signal is emitted
+  int old = m_unreadCount;
+  m_unreadCount = count;
+  countUpdated(count, old);
 }
 
 int HumbugWebBridge::getCount()
 {
-    return unreadCount;
+  return m_unreadCount;
 }
