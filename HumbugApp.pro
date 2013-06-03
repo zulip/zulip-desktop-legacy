@@ -19,3 +19,6 @@ FORMS    += src/HumbugWindow.ui
 
 RESOURCES += \
     src/resources.qrc
+
+
+CONFIG += debug
