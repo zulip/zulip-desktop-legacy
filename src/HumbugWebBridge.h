@@ -25,7 +25,7 @@ private:
 
 signals:
     void countUpdated(int current, int previous);
-    void notificationRequested(QString* title, QString* content);
+    void notificationRequested(const QString& title, const QString& content);
 
 };
 

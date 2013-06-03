@@ -20,7 +20,7 @@ QVariantMap HumbugWebBridge::systemInfo()
 void HumbugWebBridge::notify(const QVariant &msg)
 {
     QMap<QString, QVariant> map = msg.toMap();
-    messageReceived(map.value("title").toString(), map.value("content").toString());
+    notificationRequested(map.value("title").toString(), map.value("content").toString());
 }
 
 void HumbugWebBridge::updateCount(int count)
