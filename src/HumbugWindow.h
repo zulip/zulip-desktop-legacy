@@ -13,23 +13,23 @@ class HumbugWindow;
 
 class HumbugWindow : public QMainWindow
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit HumbugWindow(QWidget *parent = 0);
-  ~HumbugWindow();
-  bool supportsNotifications();
+    explicit HumbugWindow(QWidget *parent = 0);
+    ~HumbugWindow();
+    bool supportsNotifications();
 
 public slots:
-  void userQuit();
-  void trayClicked();
-  void addJavaScriptObject();
-  void linkClicked(QUrl url);
+    void userQuit();
+    void trayClicked();
+    void addJavaScriptObject();
+    void linkClicked(QUrl url);
 
 private:
-  Ui::HumbugWindow *ui;
-  HumbugWebBridge *wb;
-  QUrl *start;
+    Ui::HumbugWindow *ui;
+    HumbugWebBridge *wb;
+    QUrl *start;
 };
 
 #endif // HUMBUGWINDOW_H

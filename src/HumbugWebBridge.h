@@ -8,24 +8,24 @@
 
 class HumbugWebBridge : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit HumbugWebBridge(QObject *parent = 0);
+    explicit HumbugWebBridge(QObject *parent = 0);
 
 public slots:
-  QVariantMap systemInfo();
-  void notify(const QVariant &msg);
-  void updateCount(int count);
-  int getCount();
+    QVariantMap systemInfo();
+    void notify(const QVariant &msg);
+    void updateCount(int count);
+    int getCount();
 
 private:
-  QWebView *m_webView;
-  HumbugTrayIcon *m_trayIcon;
-  int m_unreadCount;
+    QWebView *m_webView;
+    HumbugTrayIcon *m_trayIcon;
+    int m_unreadCount;
 
 signals:
-  void countUpdated(int current, int previous);
-  void notificationRequested(QString* title, QString* content);
+    void countUpdated(int current, int previous);
+    void notificationRequested(QString* title, QString* content);
 
 };
 
