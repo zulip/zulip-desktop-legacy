@@ -16,9 +16,9 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    start = new QUrl("http://localhost:9991/");
+    start = QUrl("http://localhost:9991/");
 
-    ui->webView->load(*start);
+    ui->webView->load(start);
     this->setMinimumWidth(400);
 
     statusBar()->hide();
@@ -54,11 +54,11 @@ void HumbugWindow::trayClicked()
     this->activateWindow();
 }
 
-void HumbugWindow::linkClicked(QUrl url)
+void HumbugWindow::linkClicked(const QUrl& url)
 {
     std::cerr << "handling";
     std::flush(std::cout);
-    if (url.host() == start->host()) {
+    if (url.host() == start.host()) {
         this->ui->webView->load(url);
     } else {
         QDesktopServices::openUrl(url);
@@ -72,7 +72,7 @@ void HumbugWindow::addJavaScriptObject()
     std::cerr << "maybe adding";
 
     // Don't expose the JS bridge outside our start domain
-    if (this->ui->webView->url().host() != start->host()) {
+    if (this->ui->webView->url().host() != start.host()) {
         std::cerr << "bail";
         std::cerr << this->ui->webView->url().host().toStdString();
         std::cerr << "ed\n";

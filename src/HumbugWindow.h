@@ -24,12 +24,12 @@ public slots:
     void userQuit();
     void trayClicked();
     void addJavaScriptObject();
-    void linkClicked(QUrl url);
+    void linkClicked(const QUrl &url);
 
 private:
     Ui::HumbugWindow *ui;
     HumbugWebBridge *wb;
-    QUrl *start;
+    QUrl start;
 };
 
 #endif // HUMBUGWINDOW_H
