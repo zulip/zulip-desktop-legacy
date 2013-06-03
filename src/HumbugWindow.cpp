@@ -33,7 +33,7 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     tray->setContextMenu(menu);
     tray->show();
 
-    wb = new HumbugWebBridge(this, ui->webView, tray);
+    wb = new HumbugWebBridge(this);
     connect(ui->webView->page(), SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
     connect(ui->webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));
 
