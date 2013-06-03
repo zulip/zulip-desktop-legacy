@@ -2,7 +2,7 @@
 #include <QSystemTrayIcon>
 #include <QSysInfo>
 #include <stdio.h>
-#include <QDebug>
+#include "HumbugWindow.h"
 
 HumbugWebBridge::HumbugWebBridge(QObject *parent) :
     QObject(parent)
@@ -13,7 +13,6 @@ HumbugWebBridge::HumbugWebBridge(QObject *parent) :
 QVariantMap HumbugWebBridge::systemInfo()
 {
     QVariantMap info = QVariantMap();
-    info["supportsPopups"] = true;
     return info;
 }
 

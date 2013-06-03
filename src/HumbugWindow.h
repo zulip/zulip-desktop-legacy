@@ -18,17 +18,19 @@ class HumbugWindow : public QMainWindow
 public:
     explicit HumbugWindow(QWidget *parent = 0);
     ~HumbugWindow();
-    bool supportsNotifications();
 
 public slots:
     void userQuit();
     void trayClicked();
     void addJavaScriptObject();
     void linkClicked(const QUrl &url);
+    void updateIcon(int current, int previous);
+    void displayPopup(const QString& title, const QString& content);
 
 private:
-    Ui::HumbugWindow *ui;
-    HumbugWebBridge *wb;
+    Ui::HumbugWindow *m_ui;
+    HumbugWebBridge *m_bridge;
+    HumbugTrayIcon *m_tray;
     QUrl start;
 };
 
