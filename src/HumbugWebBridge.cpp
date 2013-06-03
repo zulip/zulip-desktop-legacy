@@ -13,7 +13,7 @@ HumbugWebBridge::HumbugWebBridge(QObject *parent) :
 QVariantMap HumbugWebBridge::systemInfo()
 {
     QVariantMap info = QVariantMap();
-    info["supportsPopups"] = trayIcon->supportsMessages();
+    info["supportsPopups"] = true;
     return info;
 }
 
