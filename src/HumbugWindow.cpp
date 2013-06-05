@@ -10,15 +10,17 @@
 
 #include <stdio.h>
 
+
 HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::HumbugWindow)
 {
     m_ui->setupUi(this);
 
-    start = QUrl("http://localhost:9991/");
+    m_start = QUrl("https://humbughq.com/");
 
-    m_ui->webView->load(start);
+    m_ui->webView->load(m_start);
+    m_ui->webView->settings()->setAttribute(QWebSettings::PluginsEnabled, true);
     this->setMinimumWidth(400);
 
     statusBar()->hide();
@@ -43,6 +45,13 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
 
 }
 
+void HumbugWindow::setUrl(const QUrl &url)
+{
+    m_start = url;
+
+    m_ui->webView->load(m_start);
+}
+
 void HumbugWindow::userQuit()
 {
     QApplication::quit();
@@ -56,7 +65,7 @@ void HumbugWindow::trayClicked()
 
 void HumbugWindow::linkClicked(const QUrl& url)
 {
-    if (url.host() == start.host()) {
+    if (url.host() == m_start.host()) {
         this->m_ui->webView->load(url);
     } else {
         QDesktopServices::openUrl(url);
@@ -69,7 +78,7 @@ void HumbugWindow::addJavaScriptObject()
     // Ref: http://www.developer.nokia.com/Community/Wiki/Exposing_QObjects_to_Qt_Webkit
 
     // Don't expose the JS bridge outside our start domain
-    if (m_ui->webView->url().host() != start.host()) {
+    if (m_ui->webView->url().host() != m_start.host()) {
         return;
     }
 

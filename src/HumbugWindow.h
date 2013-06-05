@@ -17,6 +17,7 @@ class HumbugWindow : public QMainWindow
 
 public:
     explicit HumbugWindow(QWidget *parent = 0);
+    void setUrl(const QUrl &url);
     ~HumbugWindow();
 
 public slots:
@@ -31,7 +32,7 @@ private:
     Ui::HumbugWindow *m_ui;
     HumbugWebBridge *m_bridge;
     HumbugTrayIcon *m_tray;
-    QUrl start;
+    QUrl m_start;
 };
 
 #endif // HUMBUGWINDOW_H
