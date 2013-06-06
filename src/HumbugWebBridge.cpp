@@ -22,6 +22,11 @@ void HumbugWebBridge::notify(const QVariant &msg)
     notificationRequested(map.value("title").toString(), map.value("content").toString());
 }
 
+void HumbugWebBridge::bell()
+{
+    bellTriggered();
+}
+
 void HumbugWebBridge::updateCount(int count)
 {
     // Stash the old value since we want a getCount() call to return current after the signal is emitted

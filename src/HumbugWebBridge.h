@@ -15,6 +15,7 @@ public:
 public slots:
     QVariantMap systemInfo();
     void notify(const QVariant &msg);
+    void bell();
     void updateCount(int count);
     int getCount();
 
@@ -26,6 +27,7 @@ private:
 signals:
     void countUpdated(int current, int previous);
     void notificationRequested(const QString& title, const QString& content);
+    void bellTriggered();
 
 };
 

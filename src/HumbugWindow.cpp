@@ -7,7 +7,9 @@
 #include <QSystemTrayIcon>
 #include <QWebFrame>
 #include <QDesktopServices>
-
+#include <phonon/MediaObject>
+#include <phonon/MediaSource>
+#include <phonon/AudioOutput>
 #include <stdio.h>
 
 
@@ -35,11 +37,17 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     m_tray->setContextMenu(menu);
     m_tray->show();
 
+
+    m_bellsound = new Phonon::MediaObject(this);
+    Phonon::createPath(m_bellsound, new Phonon::AudioOutput(Phonon::MusicCategory, this));
+    m_bellsound->setCurrentSource(Phonon::MediaSource(QString("/home/lfaraone/orgs/humbug/desktop/src/humbug.ogg")));
+
     m_bridge = new HumbugWebBridge(this);
     connect(m_ui->webView->page(), SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
     connect(m_ui->webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));
     connect(m_bridge, SIGNAL(notificationRequested(QString,QString)), this, SLOT(displayPopup(QString,QString)));
     connect(m_bridge, SIGNAL(countUpdated(int,int)), this, SLOT(updateIcon(int,int)));
+    connect(m_bridge, SIGNAL(bellTriggered()), this, SLOT(playAudibleBell()));
 
     m_ui->webView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 
@@ -99,6 +107,12 @@ void HumbugWindow::updateIcon(int current, int previous)
     } else {
         m_tray->setIcon(QIcon(QString().sprintf(":/images/favicon/favicon-%i.png", current)));
     }
+}
+
+void HumbugWindow::playAudibleBell()
+{
+    m_bellsound->play();
+
 }
 
 void HumbugWindow::displayPopup(const QString &title, const QString &content)
