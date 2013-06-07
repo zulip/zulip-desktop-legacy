@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>Tomahawk</string>
+	<key>CFBundleIdentifier</key>
+        <string>com.humbug.Humbug</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleVersion</key>
+        <string>HUMBUG_VERSION</string>
+	<key>CFBundleShortVersionString</key>
+        <string>HUMBUG_VERSION</string>
+	<key>CFBundleSignature</key>
+        <string>humbug</string>
+	<key>CFBundleIconFile</key>
+        <string>Humbug.icns</string>
+	<key>CFBundleName</key>
+        <string>Humbug</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.5.0</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSHighResolutionCapable</key>
+	<true />
+	<key>SUFeedURL</key>
+        <string>http://download.humbughq.com/sparkle/update.php</string>
+	<key>SUPublicDSAKeyFile</key>
+	<string>sparkle_pub.pem</string>
+	<key>SUEnableSystemProfiling</key>
+	<true/>
+</dict>
+</plist>
