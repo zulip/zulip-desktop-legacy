@@ -27,7 +27,6 @@ public slots:
     void linkClicked(const QUrl &url);
     void updateIcon(int current, int previous);
     void displayPopup(const QString& title, const QString& content);
-    void playAudibleBell();
 
 private:
     Ui::HumbugWindow *m_ui;

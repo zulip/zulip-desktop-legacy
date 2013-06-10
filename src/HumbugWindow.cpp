@@ -47,7 +47,7 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     connect(m_ui->webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));
     connect(m_bridge, SIGNAL(notificationRequested(QString,QString)), this, SLOT(displayPopup(QString,QString)));
     connect(m_bridge, SIGNAL(countUpdated(int,int)), this, SLOT(updateIcon(int,int)));
-    connect(m_bridge, SIGNAL(bellTriggered()), this, SLOT(playAudibleBell()));
+    connect(m_bridge, SIGNAL(bellTriggered()), m_bellsound, SLOT(play()));
 
     m_ui->webView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 
@@ -107,12 +107,6 @@ void HumbugWindow::updateIcon(int current, int previous)
     } else {
         m_tray->setIcon(QIcon(QString().sprintf(":/images/favicon/favicon-%i.png", current)));
     }
-}
-
-void HumbugWindow::playAudibleBell()
-{
-    m_bellsound->play();
-
 }
 
 void HumbugWindow::displayPopup(const QString &title, const QString &content)
