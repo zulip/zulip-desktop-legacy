@@ -5,9 +5,8 @@
 #include "HumbugWindow.h"
 
 HumbugWebBridge::HumbugWebBridge(QObject *parent) :
-    QObject(parent)
+    QObject(parent), m_unreadCount(0)
 {
-    m_unreadCount = 0;
 }
 
 QVariantMap HumbugWebBridge::systemInfo()
