@@ -105,7 +105,7 @@ void HumbugWindow::updateIcon(int current, int previous)
     } else if (current >= 99) {
         m_tray->setIcon(QIcon(":/images/favicon/favicon-infinite.png"));
     } else {
-        m_tray->setIcon(QIcon(QString().sprintf(":/images/favicon/favicon-%i.png", current)));
+        m_tray->setIcon(QIcon(QString(":/images/favicon/favicon-%1.png").arg(current)));
     }
 }
 
