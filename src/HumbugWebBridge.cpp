@@ -11,8 +11,7 @@ HumbugWebBridge::HumbugWebBridge(QObject *parent) :
 
 QVariantMap HumbugWebBridge::systemInfo()
 {
-    QVariantMap info = QVariantMap();
-    return info;
+    return QVariantMap();
 }
 
 void HumbugWebBridge::notify(const QVariant &msg)
