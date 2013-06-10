@@ -16,8 +16,8 @@ QVariantMap HumbugWebBridge::systemInfo()
 
 void HumbugWebBridge::desktopNotification(const QVariant &msg)
 {
-    QMap<QString, QVariant> map = msg.toMap();
-    notificationRequested(map.value("title").toString(), map.value("content").toString());
+    QVariantMap map = msg.toMap();
+    emit notificationRequested(map.value("title").toString(), map.value("content").toString());
 }
 
 void HumbugWebBridge::bell()
