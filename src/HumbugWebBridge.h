@@ -14,7 +14,7 @@ public:
 
 public slots:
     QVariantMap systemInfo();
-    void notify(const QVariant &msg);
+    void desktopNotification(const QVariant &msg);
     void bell();
     void updateCount(int count);
     int getCount();
