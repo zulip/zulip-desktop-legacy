@@ -23,7 +23,7 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
 
     m_ui->webView->load(m_start);
     m_ui->webView->settings()->setAttribute(QWebSettings::PluginsEnabled, true);
-    this->setMinimumWidth(400);
+    setMinimumWidth(400);
 
     statusBar()->hide();
 
@@ -67,14 +67,14 @@ void HumbugWindow::userQuit()
 
 void HumbugWindow::trayClicked()
 {
-    this->raise();
-    this->activateWindow();
+    raise();
+    activateWindow();
 }
 
 void HumbugWindow::linkClicked(const QUrl& url)
 {
     if (url.host() == m_start.host()) {
-        this->m_ui->webView->load(url);
+        m_ui->webView->load(url);
     } else {
         QDesktopServices::openUrl(url);
     }
@@ -90,7 +90,7 @@ void HumbugWindow::addJavaScriptObject()
         return;
     }
 
-    this->m_ui->webView->page()
+    m_ui->webView->page()
     ->mainFrame()
     ->addToJavaScriptWindowObject("bridge",
                                   m_bridge);
