@@ -22,13 +22,13 @@ void HumbugWebBridge::desktopNotification(const QVariant &msg)
 
 void HumbugWebBridge::bell()
 {
-    bellTriggered();
+    emit bellTriggered();
 }
 
 void HumbugWebBridge::updateCount(int count)
 {
     // Stash the old value since we want a getCount() call to return current after the signal is emitted
-    int old = m_unreadCount;
+    const int old = m_unreadCount;
     m_unreadCount = count;
     countUpdated(count, old);
 }
