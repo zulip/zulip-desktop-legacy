@@ -77,7 +77,6 @@ QDataStream &operator>>(QDataStream &stream, QList<QNetworkCookie> &list)
 }
 QT_END_NAMESPACE
 
-// private:
 CookieJar::CookieJar(QString cookiesFile, QObject *parent)
     : QNetworkCookieJar(parent)
     , m_cookieStorage(new QSettings(cookiesFile, QSettings::IniFormat, this))
@@ -93,6 +92,7 @@ CookieJar::~CookieJar()
     save();
 }
 
+// private:
 bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl &url)
 {
     // Update cookies in memory
