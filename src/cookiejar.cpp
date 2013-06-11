@@ -28,12 +28,12 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "config.h"
 #include "cookiejar.h"
 
 #include <QDateTime>
 #include <QSettings>
 #include <QTimer>
+#include <QDebug>
 
 #define COOKIE_JAR_VERSION      1
 
@@ -84,23 +84,6 @@ CookieJar::CookieJar(QString cookiesFile, QObject *parent)
     , m_enabled(true)
 {
     load();
-}
-
-// public:
-CookieJar *CookieJar::instance(QString cookiesFile)
-{
-    static CookieJar *singleton = NULL;
-    if (!singleton) {
-        if (cookiesFile.isEmpty()) {
-            qDebug() << "CookieJar - Created but will not store cookies (use option '--cookies-file=<filename>' to enable persisten cookie storage)";
-        } else {
-            qDebug() << "CookieJar - Created and will store cookies in:" << cookiesFile;
-        }
-        // Create singleton and assign ownershipt to the Phantom singleton object
-        // NOTE: First time this is done is when we set "once and for all" the Cookies' File
-        singleton = new CookieJar(cookiesFile, Phantom::instance());
-    }
-    return singleton;
 }
 
 CookieJar::~CookieJar()

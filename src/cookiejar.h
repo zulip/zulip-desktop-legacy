@@ -44,7 +44,6 @@ private:
     CookieJar(QString cookiesFile, QObject *parent = NULL);
 
 public:
-    static CookieJar *instance(QString cookiesFile = QString());
     virtual ~CookieJar();
 
     bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl & url);
