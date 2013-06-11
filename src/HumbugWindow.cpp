@@ -30,8 +30,8 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
 
     CookieJar *m_cookies = new CookieJar(data_dir.absoluteFilePath("default.dat"));
 
-    m_ui->webView->load(m_start);
     m_ui->webView->page()->networkAccessManager()->setCookieJar(m_cookies);
+    m_ui->webView->load(m_start);
 
     statusBar()->hide();
 
