@@ -4,15 +4,18 @@ set( humbug_SRCS
       HumbugTrayIcon.cpp
       HumbugWebBridge.cpp
       HumbugWindow.cpp
+      HumbugAboutDialog.cpp
       main.cpp )
 
 set( humbug_HDRS
       HumbugTrayIcon.h
       HumbugWebBridge.h
+      HumbugAboutDialog.h
       HumbugWindow.h )
 
 set( humbug_UIS
-    HumbugWindow.ui )
+    HumbugWindow.ui
+    HumbugAboutDialog.h )
 
 set( humbug_RESOURCES resources.qrc )
 

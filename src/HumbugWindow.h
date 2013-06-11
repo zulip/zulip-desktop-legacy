@@ -22,6 +22,7 @@ public:
 
 public slots:
     void userQuit();
+    void showAbout();
     void trayClicked();
     void addJavaScriptObject();
     void linkClicked(const QUrl &url);

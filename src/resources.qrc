@@ -102,5 +102,6 @@
         <file>images/favicon/favicon-99.png</file>
         <file>images/favicon/favicon-infinite.png</file>
         <file>humbug.ogg</file>
+        <file>about.html</file>
     </qresource>
 </RCC>

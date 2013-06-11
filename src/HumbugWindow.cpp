@@ -1,4 +1,5 @@
 #include "HumbugWindow.h"
+#include "HumbugAboutDialog.h"
 #include "HumbugTrayIcon.h"
 #include "ui_HumbugWindow.h"
 
@@ -31,6 +32,9 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     m_tray->setIcon(QIcon(":/images/hat.svg"));
 
     QMenu *menu = new QMenu(this);
+    QAction *about_action = menu->addAction("About");
+    connect(about_action, SIGNAL(triggered()), this, SLOT(showAbout()));
+
     QAction *exit_action = menu->addAction("Exit");
     connect(exit_action, SIGNAL(triggered()), this, SLOT(userQuit()));
     connect(m_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayClicked()));
@@ -58,6 +62,12 @@ void HumbugWindow::setUrl(const QUrl &url)
     m_start = url;
 
     m_ui->webView->load(m_start);
+}
+
+void HumbugWindow::showAbout()
+{
+    HumbugAboutDialog *d = new HumbugAboutDialog(this);
+    d->show();
 }
 
 void HumbugWindow::userQuit()

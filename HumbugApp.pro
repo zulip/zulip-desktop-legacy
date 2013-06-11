@@ -9,13 +9,16 @@ TEMPLATE = app
 SOURCES += src/main.cpp\
            src/HumbugWindow.cpp \
            src/HumbugTrayIcon.cpp \
-    src/HumbugWebBridge.cpp
+    src/HumbugWebBridge.cpp \
+    src/HumbugAboutDialog.cpp
 
 HEADERS  += src/HumbugWindow.h \
             src/HumbugTrayIcon.h \
-    src/HumbugWebBridge.h
+    src/HumbugWebBridge.h \
+    src/HumbugAboutDialog.h
 
-FORMS    += src/HumbugWindow.ui
+FORMS    += src/HumbugWindow.ui \
+    src/HumbugAboutDialog.ui
 
 RESOURCES += \
     src/resources.qrc
