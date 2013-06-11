@@ -28,7 +28,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "phantom.h"
 #include "config.h"
 #include "cookiejar.h"
 
