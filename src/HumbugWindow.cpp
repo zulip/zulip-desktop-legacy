@@ -32,7 +32,6 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
 
     m_ui->webView->load(m_start);
     m_ui->webView->page()->networkAccessManager()->setCookieJar(m_cookies);
-    setMinimumWidth(400);
 
     statusBar()->hide();
 
