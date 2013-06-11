@@ -1,6 +1,7 @@
 project( humbug )
 
 set( humbug_SRCS
+      cookiejar.cpp
       HumbugTrayIcon.cpp
       HumbugWebBridge.cpp
       HumbugWindow.cpp
@@ -8,6 +9,7 @@ set( humbug_SRCS
       main.cpp )
 
 set( humbug_HDRS
+      cookiejar.h
       HumbugTrayIcon.h
       HumbugWebBridge.h
       HumbugAboutDialog.h

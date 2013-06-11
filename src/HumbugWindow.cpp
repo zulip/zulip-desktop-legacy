@@ -4,15 +4,17 @@
 #include "ui_HumbugWindow.h"
 
 #include <iostream>
+#include <QDir>
 #include <QMenuBar>
 #include <QSystemTrayIcon>
 #include <QWebFrame>
+#include <QWebSettings>
+#include <QNetworkAccessManager>
 #include <QDesktopServices>
 #include <phonon/MediaObject>
 #include <phonon/MediaSource>
 #include <phonon/AudioOutput>
 #include <stdio.h>
-
 
 HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,8 +24,14 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
 
     m_start = QUrl("https://humbughq.com/");
 
+    QDir data_dir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    // Create the directory if it doesn't already exist
+    data_dir.mkdir(data_dir.absolutePath());
+
+    CookieJar *m_cookies = new CookieJar(data_dir.absoluteFilePath("default.dat"));
+
     m_ui->webView->load(m_start);
-    m_ui->webView->settings()->setAttribute(QWebSettings::PluginsEnabled, true);
+    m_ui->webView->page()->networkAccessManager()->setCookieJar(m_cookies);
     setMinimumWidth(400);
 
     statusBar()->hide();

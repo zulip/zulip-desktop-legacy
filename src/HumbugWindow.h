@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include "HumbugWebBridge.h"
+#include "cookiejar.h"
 #include <phonon/MediaObject>
 
 namespace Ui
@@ -35,6 +36,7 @@ private:
     HumbugTrayIcon *m_tray;
     QUrl m_start;
     Phonon::MediaObject *m_bellsound;
+    CookieJar *m_cookies;
 };
 
 #endif // HUMBUGWINDOW_H

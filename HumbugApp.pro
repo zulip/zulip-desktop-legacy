@@ -1,4 +1,4 @@
-QT       += core gui webkit phonon
+QT       += core gui webkit phonon network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets
 
@@ -10,11 +10,13 @@ SOURCES += src/main.cpp\
            src/HumbugWindow.cpp \
            src/HumbugTrayIcon.cpp \
     src/HumbugWebBridge.cpp \
+    src/cookiejar.cpp \
     src/HumbugAboutDialog.cpp
 
 HEADERS  += src/HumbugWindow.h \
             src/HumbugTrayIcon.h \
     src/HumbugWebBridge.h \
+    src/cookiejar.h \
     src/HumbugAboutDialog.h
 
 FORMS    += src/HumbugWindow.ui \
