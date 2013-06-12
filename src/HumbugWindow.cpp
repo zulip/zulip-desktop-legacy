@@ -1,6 +1,7 @@
 #include "HumbugWindow.h"
 #include "HumbugAboutDialog.h"
 #include "HumbugTrayIcon.h"
+#include "WheelFilter.h"
 #include "ui_HumbugWindow.h"
 
 #include <iostream>
@@ -34,6 +35,12 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     m_ui->webView->load(m_start);
 
     statusBar()->hide();
+
+#ifdef Q_OS_MAC
+    // Hack for OS X trackpad scrolling overwhelming QWebView
+    WheelFilter* filter = new WheelFilter(m_ui->webView, this);
+    m_ui->webView->installEventFilter(filter);
+#endif
 
     m_tray = new HumbugTrayIcon(this);
     m_tray->setIcon(QIcon(":/images/hat.svg"));

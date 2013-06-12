@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>Tomahawk</string>
+	<string>Humbug</string>
 	<key>CFBundleIdentifier</key>
         <string>com.humbug.Humbug</string>
 	<key>CFBundleInfoDictionaryVersion</key>

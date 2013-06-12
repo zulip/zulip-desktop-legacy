@@ -6,6 +6,7 @@ set( humbug_SRCS
       HumbugWebBridge.cpp
       HumbugWindow.cpp
       HumbugAboutDialog.cpp
+      WheelFilter.cpp
       main.cpp )
 
 set( humbug_HDRS
@@ -13,6 +14,7 @@ set( humbug_HDRS
       HumbugTrayIcon.h
       HumbugWebBridge.h
       HumbugAboutDialog.h
+      WheelFilter.h
       HumbugWindow.h )
 
 set( humbug_UIS
