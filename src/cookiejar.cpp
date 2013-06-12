@@ -432,12 +432,6 @@ void CookieJar::save()
         // Get rid of all the Cookies that have expired
         purgeExpiredCookies();
 
-#ifndef QT_NO_DEBUG_OUTPUT
-        foreach (QNetworkCookie cookie, allCookies()) {
-            qDebug() << "CookieJar - Saved" << cookie.toRawForm();
-        }
-#endif
-
         // Store cookies
         m_cookieStorage->setValue(QLatin1String("cookies"), QVariant::fromValue<QList<QNetworkCookie> >(allCookies()));
     }
@@ -456,12 +450,6 @@ void CookieJar::load()
         if (purgeExpiredCookies()) {
             save();
         }
-
-#ifndef QT_NO_DEBUG_OUTPUT
-        foreach (QNetworkCookie cookie, allCookies()) {
-            qDebug() << "CookieJar - Loaded" << cookie.toRawForm();
-        }
-#endif
     }
 }
 
