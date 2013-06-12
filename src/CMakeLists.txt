@@ -17,7 +17,7 @@ set( humbug_HDRS
 
 set( humbug_UIS
     HumbugWindow.ui
-    HumbugAboutDialog.h )
+    HumbugAboutDialog.ui )
 
 set( humbug_RESOURCES resources.qrc )
 
