@@ -9,6 +9,7 @@
 #include <QMenuBar>
 #include <QSystemTrayIcon>
 #include <QWebFrame>
+#include <QCloseEvent>
 #include <QWebSettings>
 #include <QNetworkAccessManager>
 #include <QDesktopServices>
@@ -42,6 +43,28 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     m_ui->webView->installEventFilter(filter);
 #endif
 
+    setupTray();
+    setupSounds();
+
+    m_bridge = new HumbugWebBridge(this);
+    connect(m_ui->webView->page(), SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
+    connect(m_ui->webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));
+    connect(m_bridge, SIGNAL(notificationRequested(QString,QString)), this, SLOT(displayPopup(QString,QString)));
+    connect(m_bridge, SIGNAL(countUpdated(int,int)), this, SLOT(updateIcon(int,int)));
+    connect(m_bridge, SIGNAL(bellTriggered()), m_bellsound, SLOT(play()));
+
+    m_ui->webView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+
+    readSettings();
+}
+
+
+HumbugWindow::~HumbugWindow()
+{
+    delete m_ui;
+}
+
+void HumbugWindow::setupTray() {
     m_tray = new HumbugTrayIcon(this);
     m_tray->setIcon(QIcon(":/images/hat.svg"));
 
@@ -54,21 +77,26 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     connect(m_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayClicked()));
     m_tray->setContextMenu(menu);
     m_tray->show();
+}
 
-
+void HumbugWindow::setupSounds() {
     m_bellsound = new Phonon::MediaObject(this);
     Phonon::createPath(m_bellsound, new Phonon::AudioOutput(Phonon::MusicCategory, this));
     m_bellsound->setCurrentSource(Phonon::MediaSource(QString("/home/lfaraone/orgs/humbug/desktop/src/humbug.ogg")));
 
-    m_bridge = new HumbugWebBridge(this);
-    connect(m_ui->webView->page(), SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
-    connect(m_ui->webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));
-    connect(m_bridge, SIGNAL(notificationRequested(QString,QString)), this, SLOT(displayPopup(QString,QString)));
-    connect(m_bridge, SIGNAL(countUpdated(int,int)), this, SLOT(updateIcon(int,int)));
-    connect(m_bridge, SIGNAL(bellTriggered()), m_bellsound, SLOT(play()));
+}
 
-    m_ui->webView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+void HumbugWindow::closeEvent(QCloseEvent *ev) {
+    QSettings settings;
+    settings.setValue("MainWindow/geometry", saveGeometry());
+    settings.setValue("MainWindow/windowState", saveState());
+    QMainWindow::closeEvent(ev);
+}
 
+void HumbugWindow::readSettings() {
+    QSettings settings;
+    restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
+    restoreState(settings.value("MainWindow/windowState").toByteArray());
 }
 
 void HumbugWindow::setUrl(const QUrl &url)
@@ -136,10 +164,4 @@ void HumbugWindow::updateIcon(int current, int previous)
 void HumbugWindow::displayPopup(const QString &title, const QString &content)
 {
     m_tray->showMessage(title, content);
-}
-
-
-HumbugWindow::~HumbugWindow()
-{
-    delete m_ui;
 }

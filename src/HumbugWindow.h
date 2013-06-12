@@ -12,6 +12,8 @@ namespace Ui
 class HumbugWindow;
 }
 
+class QCloseEvent;
+
 class HumbugWindow : public QMainWindow
 {
     Q_OBJECT
@@ -22,6 +24,8 @@ public:
     ~HumbugWindow();
 
 public slots:
+    void closeEvent(QCloseEvent *);
+
     void userQuit();
     void showAbout();
     void trayClicked();
@@ -31,6 +35,11 @@ public slots:
     void displayPopup(const QString& title, const QString& content);
 
 private:
+    void setupTray();
+    void setupSounds();
+
+    void readSettings();
+
     Ui::HumbugWindow *m_ui;
     HumbugWebBridge *m_bridge;
     HumbugTrayIcon *m_tray;
