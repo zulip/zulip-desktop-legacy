@@ -25,9 +25,9 @@ public:
         webView->page()->networkAccessManager()->setCookieJar(m_cookies);
 
         connect(webView, SIGNAL(linkClicked(QUrl)), q, SIGNAL(linkClicked(QUrl)));
-        connect(bridge, SIGNAL(notificationRequested(QString,QString)), q, SIGNAL(notificationRequested(QString,QString)));
-        connect(bridge, SIGNAL(countUpdated(int,int)), q, SIGNAL(countUpdated(int,int)));
-        connect(bridge, SIGNAL(bellTriggered()), q,  SIGNAL(bellTriggered()));
+        connect(bridge, SIGNAL(doDesktopNotification(QString,QString)), q, SIGNAL(desktopNotification(QString,QString)));
+        connect(bridge, SIGNAL(doUpdateCount(int)), q, SIGNAL(updateCount(int)));
+        connect(bridge, SIGNAL(doBell()), q, SIGNAL(bell()));
 
         connect(webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));
     }

@@ -5,7 +5,7 @@
 #include "HumbugWindow.h"
 
 HumbugWebBridge::HumbugWebBridge(QObject *parent) :
-    QObject(parent), m_unreadCount(0)
+    QObject(parent)
 {
 }
 
@@ -14,26 +14,17 @@ QVariantMap HumbugWebBridge::systemInfo()
     return QVariantMap();
 }
 
-void HumbugWebBridge::desktopNotification(const QVariant &msg)
+void HumbugWebBridge::desktopNotification(const QString& title, const QString& content)
 {
-    QVariantMap map = msg.toMap();
-    emit notificationRequested(map.value("title").toString(), map.value("content").toString());
+    emit doDesktopNotification(title, content);
 }
 
 void HumbugWebBridge::bell()
 {
-    emit bellTriggered();
+    emit doBell();
 }
 
 void HumbugWebBridge::updateCount(int count)
 {
-    // Stash the old value since we want a getCount() call to return current after the signal is emitted
-    const int old = m_unreadCount;
-    m_unreadCount = count;
-    countUpdated(count, old);
-}
-
-int HumbugWebBridge::getCount()
-{
-    return m_unreadCount;
+    emit doUpdateCount(count);
 }

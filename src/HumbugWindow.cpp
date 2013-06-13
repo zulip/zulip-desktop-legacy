@@ -21,7 +21,8 @@
 
 HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
-    m_ui(new Ui::HumbugWindow)
+    m_ui(new Ui::HumbugWindow),
+    m_unreadCount(0)
 {
     m_ui->setupUi(this);
 
@@ -39,9 +40,9 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     setupSounds();
 
     connect(m_ui->webView, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
-    connect(m_ui->webView, SIGNAL(notificationRequested(QString,QString)), this, SLOT(displayPopup(QString,QString)));
-    connect(m_ui->webView, SIGNAL(countUpdated(int,int)), this, SLOT(updateIcon(int,int)));
-    connect(m_ui->webView, SIGNAL(bellTriggered()), m_bellsound, SLOT(play()));
+    connect(m_ui->webView, SIGNAL(desktopNotification(QString,QString)), this, SLOT(displayPopup(QString,QString)));
+    connect(m_ui->webView, SIGNAL(updateCount(int)), this, SLOT(countUpdated(int)));
+    connect(m_ui->webView, SIGNAL(bell()), m_bellsound, SLOT(play()));
 
     readSettings();
 }
@@ -126,16 +127,18 @@ void HumbugWindow::linkClicked(const QUrl& url)
     }
 }
 
-void HumbugWindow::updateIcon(int current, int previous)
+void HumbugWindow::countUpdated(int newCount)
 {
-    if (current == previous) {
+    const int old = m_unreadCount;
+    m_unreadCount = newCount;
+    if (newCount == old) {
         return;
-    } else if (current <= 0) {
+    } else if (newCount <= 0) {
         m_tray->setIcon(QIcon(":/images/hat.svg"));
-    } else if (current >= 99) {
+    } else if (newCount >= 99) {
         m_tray->setIcon(QIcon(":/images/favicon/favicon-infinite.png"));
     } else {
-        m_tray->setIcon(QIcon(QString(":/images/favicon/favicon-%1.png").arg(current)));
+        m_tray->setIcon(QIcon(QString(":/images/favicon/favicon-%1.png").arg(newCount)));
     }
 }
 

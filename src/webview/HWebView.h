@@ -29,9 +29,9 @@ signals:
     void linkClicked(const QUrl& url);
 
     // Humbug notifications
-    void notificationRequested(const QString&,const QString&);
-    void countUpdated(int,int);
-    void bellTriggered();
+    void desktopNotification(const QString& ,const QString&);
+    void updateCount(int);
+    void bell();
 
 private:
     friend class ::HWebViewPrivate;

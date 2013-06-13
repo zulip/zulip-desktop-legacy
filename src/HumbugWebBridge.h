@@ -14,20 +14,15 @@ public:
 
 public slots:
     QVariantMap systemInfo();
-    void desktopNotification(const QVariant &msg);
+
+    void desktopNotification(const QString &title, const QString &content);
     void bell();
     void updateCount(int count);
-    int getCount();
-
-private:
-    QWebView *m_webView;
-    HumbugTrayIcon *m_trayIcon;
-    int m_unreadCount;
 
 signals:
-    void countUpdated(int current, int previous);
-    void notificationRequested(const QString& title, const QString& content);
-    void bellTriggered();
+    void doUpdateCount(int newCount);
+    void doDesktopNotification(const QString& title, const QString& content);
+    void doBell();
 
 };
 

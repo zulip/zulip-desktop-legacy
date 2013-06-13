@@ -23,8 +23,23 @@
 {
     HWebViewPrivate* q;
 }
+// Init with our reference to our HWebViewPrivate
 - (id)initWithPrivate:(HWebViewPrivate*)q;
+
+// Handle clicked links
 - (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id < WebPolicyDecisionListener >)listener;
+
+// Hook for adding our own JS window object
+- (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame;
++ (BOOL)isSelectorExcludedFromWebScript:(SEL)selector;
++ (BOOL)isKeyExcludedFromWebScript:(const char *)property;
++ (NSString *) webScriptNameForSelector:(SEL)sel;
+
+
+// Methods we're sharing with JavaScript
+- (void)updateCount:(int)newCount;
+- (void)bell;
+- (void)desktopNotification:(NSString*)title withContent:(NSString*)content;
 @end
 
 class HWebViewPrivate : public QObject {
@@ -36,6 +51,18 @@ public:
 
     void linkClicked(const QUrl& url) {
         emit q->linkClicked(url);
+    }
+
+    void updateCount(int newCount) {
+        emit q->updateCount(newCount);
+    }
+
+    void bell() {
+        emit q->bell();
+    }
+
+    void desktopNotification(const QString& title, const QString& content) {
+        emit q->desktopNotification(title, content);
     }
 
 public:
@@ -99,6 +126,52 @@ public:
 
     [listener ignore];
 }
+
+- (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
+    NSLog(@"Setting up Cocoa<->WebScript bridge!");
+    [windowObject setValue:self forKey:@"bridge"];
+}
+
++ (BOOL)isSelectorExcludedFromWebScript:(SEL)selector {
+//    NSLog(@"%@ received %@ for '%@'", self, NSStringFromSelector(_cmd), NSStringFromSelector(selector));
+    if (selector == @selector(updateCount:) ||
+        selector == @selector(bell) ||
+        selector == @selector(desktopNotification:withContent:)) {
+//        NSLog(@"Letting through...");
+        return NO;
+    }
+    return YES;
+}
+
++ (BOOL)isKeyExcludedFromWebScript:(const char *)property {
+    // Don't expose any variables to javascript
+    return YES;
+}
+
++ (NSString *) webScriptNameForSelector:(SEL)sel {
+//    NSLog(@"%@ received %@ with sel='%@'", self, NSStringFromSelector(_cmd), NSStringFromSelector(sel));
+    if (sel == @selector(updateCount:)) {
+        return @"updateCount";
+    } else if (sel == @selector(desktopNotification:withContent:)) {
+        return @"desktopNotification";
+    }
+    return nil;
+}
+
+- (void)updateCount:(int)newCount {
+    q->updateCount(newCount);
+//    NSLog(@"JAVASCRIPT COUNT UPDATED, %d", newCount);
+}
+
+-(void)bell {
+    q->bell();
+//    NSLog(@"Bell sounded!");
+}
+
+- (void)desktopNotification:(NSString*)title withContent:(NSString*)content {
+    q->desktopNotification(toQString(title), toQString(content));
+//    NSLog(@"DESKTOP NOTIFICIATION! %@ %@", title, content);
+}
 @end
 
 HWebView::HWebView(QWidget *parent)
@@ -116,6 +189,7 @@ HWebView::HWebView(QWidget *parent)
 
     dptr->delegate = [[HumbugWebDelegate alloc] initWithPrivate:dptr];
     [dptr->webView setPolicyDelegate:dptr->delegate];
+    [dptr->webView setFrameLoadDelegate:dptr->delegate];
 
     [webView release];
 

@@ -31,7 +31,7 @@ public slots:
     void showAbout();
     void trayClicked();
     void linkClicked(const QUrl &url);
-    void updateIcon(int current, int previous);
+    void countUpdated(int newCount);
     void displayPopup(const QString& title, const QString& content);
 
 private:
@@ -47,6 +47,7 @@ private:
     CookieJar *m_cookies;
     QTemporaryFile m_sound_temp;
 
+    int m_unreadCount;
 };
 
 #endif // HUMBUGWINDOW_H
