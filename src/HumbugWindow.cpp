@@ -10,6 +10,7 @@
 #include <QSystemTrayIcon>
 #include <QWebFrame>
 #include <QCloseEvent>
+#include <QResource>
 #include <QWebSettings>
 #include <QNetworkAccessManager>
 #include <QDesktopServices>
@@ -69,7 +70,14 @@ void HumbugWindow::setupTray() {
 void HumbugWindow::setupSounds() {
     m_bellsound = new Phonon::MediaObject(this);
     Phonon::createPath(m_bellsound, new Phonon::AudioOutput(Phonon::MusicCategory, this));
-    m_bellsound->setCurrentSource(Phonon::MediaSource(QString("/home/lfaraone/orgs/humbug/desktop/src/humbug.ogg")));
+
+    m_sound_temp.open();
+    QResource memory_soundfile(":/humbug.ogg");
+    m_sound_temp.write((char*) memory_soundfile.data(), memory_soundfile.size());
+    m_sound_temp.flush();
+    m_sound_temp.close();
+
+    m_bellsound->setCurrentSource(Phonon::MediaSource(m_sound_temp.fileName()));
 }
 
 void HumbugWindow::closeEvent(QCloseEvent *ev) {

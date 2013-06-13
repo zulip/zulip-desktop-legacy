@@ -2,6 +2,7 @@
 #define HUMBUGWINDOW_H
 
 #include <QMainWindow>
+#include <QTemporaryFile>
 #include <QSystemTrayIcon>
 #include "cookiejar.h"
 #include <phonon/MediaObject>
@@ -44,6 +45,8 @@ private:
     QUrl m_start;
     Phonon::MediaObject *m_bellsound;
     CookieJar *m_cookies;
+    QTemporaryFile m_sound_temp;
+
 };
 
 #endif // HUMBUGWINDOW_H
