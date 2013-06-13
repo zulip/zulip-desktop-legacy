@@ -70,4 +70,11 @@ static inline NSURL* fromQUrl(const QUrl& url) {
     return nsU;
 }
 
+static inline QUrl toQUrl(NSURL* url) {
+    if (!url)
+        return QUrl();
+
+    return QUrl(toQString([url absoluteString]));
+}
+
 #endif

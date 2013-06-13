@@ -124,7 +124,6 @@ void HumbugWindow::linkClicked(const QUrl& url)
     } else {
         QDesktopServices::openUrl(url);
     }
-    return;
 }
 
 void HumbugWindow::updateIcon(int current, int previous)

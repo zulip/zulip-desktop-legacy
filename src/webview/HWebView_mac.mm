@@ -19,19 +19,29 @@
 #define KEYCODE_C 8
 #define KEYCODE_V 9
 
+@interface HumbugWebDelegate : NSObject
+{
+    HWebViewPrivate* q;
+}
+- (id)initWithPrivate:(HWebViewPrivate*)q;
+- (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id < WebPolicyDecisionListener >)listener;
+@end
+
 class HWebViewPrivate : public QObject {
     Q_OBJECT
 public:
-    HWebViewPrivate(HWebView* qq) : QObject(qq), q(qq), webView(0)
-    {
-
-    }
+    HWebViewPrivate(HWebView* qq) : QObject(qq), q(qq), webView(0), delegate(0)
+    {}
     ~HWebViewPrivate() {}
 
+    void linkClicked(const QUrl& url) {
+        emit q->linkClicked(url);
+    }
 
 public:
     HWebView* q;
     WebView* webView;
+    HumbugWebDelegate* delegate;
 };
 
 // Override performKeyEquivalent to make shortcuts work
@@ -75,6 +85,22 @@ public:
 
 @end
 
+@implementation HumbugWebDelegate
+- (id)initWithPrivate:(HWebViewPrivate*)qq {
+    self = [super init];
+    q = qq;
+
+    return self;
+}
+
+- (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id < WebPolicyDecisionListener >)listener {
+    NSLog(@"Getting a decidePolicyForNewWindowAction! %@", [request URL]);
+    q->linkClicked(toQUrl([request URL]));
+
+    [listener ignore];
+}
+@end
+
 HWebView::HWebView(QWidget *parent)
     : QWidget(parent)
     , dptr(new HWebViewPrivate(this))
@@ -87,6 +113,9 @@ HWebView::HWebView(QWidget *parent)
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     dptr->webView = webView;
+
+    dptr->delegate = [[HumbugWebDelegate alloc] initWithPrivate:dptr];
+    [dptr->webView setPolicyDelegate:dptr->delegate];
 
     [webView release];
 
