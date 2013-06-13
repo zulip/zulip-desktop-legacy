@@ -53,17 +53,18 @@ static inline void setupLayout(void *cocoaView, QWidget *parent)
 }
 
 // Below code is copyright Humbug, Inc 2013
+static inline  NSString* fromQBA(const QByteArray& ba) {
+    const char* cData = ba.constData();
+    return [[NSString alloc] initWithUTF8String:cData];
+}
+
 static inline NSURL* fromQUrl(const QUrl& url) {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
     const QByteArray utf8 = url.toEncoded();
-    const char* cData = utf8.constData();
-
-    NSString* str = [[NSString alloc] initWithUTF8String:cData];
-    NSURL* nsU = [NSURL URLWithString:str];
+    NSURL* nsU = [NSURL URLWithString:fromQBA(utf8)];
 
     [nsU retain];
-    [str release];
 
     [pool drain];
     return nsU;

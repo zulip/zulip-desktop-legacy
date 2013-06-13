@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QClipboard>
+#include <QFile>
 
 #import "Foundation/NSAutoreleasePool.h"
 #import "Foundation/NSNotification.h"
@@ -97,6 +98,24 @@ HWebView::~HWebView()
 }
 
 void HWebView::load(const QUrl &url) {
+    if (url.scheme() == "qrc") {
+        // Can't load qrc directly in Cocoa, need to tell it the HTML
+        // QFile doesn't like the 'qrc` prefix.
+        QString qrc = url.toString();
+        qrc.replace("qrc:/", ":/");
+
+        QFile f(qrc);
+        if(!f.open(QIODevice::ReadOnly)) {
+            NSLog(@"Unable to open qrc for reading, aborting qrc load: %@", fromQString(f.errorString()));
+            return;
+        }
+
+        QByteArray data = f.readAll();
+        NSString* content = fromQBA(data);
+        [[dptr->webView mainFrame] loadHTMLString:content baseURL:[NSURL URLWithString:@"about:humbug"]];
+        return;
+    }
+
     NSURL* u = fromQUrl(url);
 
     [[dptr->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:u]];
