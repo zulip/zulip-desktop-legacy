@@ -15,13 +15,26 @@ set( humbug_HDRS
       HumbugWebBridge.h
       HumbugAboutDialog.h
       WheelFilter.h
-      HumbugWindow.h )
+      HumbugWindow.h
+      webview/HWebView.h )
 
 set( humbug_UIS
     HumbugWindow.ui
     HumbugAboutDialog.ui )
 
 set( humbug_RESOURCES resources.qrc )
+
+if (APPLE)
+    set(EXTRA_SRCS webview/HWebView_mac.mm)
+
+    set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
+                   /System/Library/Frameworks/WebKit.framework
+                   /System/Library/Frameworks/CoreGraphics.framework)
+
+    qt4_wrap_cpp(EXTRA_MOCS webview/HWebView.h)
+else()
+    set(EXTRA_SRCS webview/HWebView.cpp)
+endif()
 
 include_directories(
     .
@@ -33,7 +46,7 @@ include_directories(
 qt4_add_resources( humbug_RESOURCES_RCC ${humbug_RESOURCES})
 qt4_wrap_ui( humbug_UI_H ${humbug_UIS} )
 
-add_executable( humbug WIN32 MACOSX_BUNDLE ${humbug_SRCS} ${humbug_RESOURCES_RCC} ${humbug_UI_H} )
+add_executable( humbug WIN32 MACOSX_BUNDLE ${humbug_SRCS} ${EXTRA_SRCS} ${EXTRA_MOCS} ${humbug_RESOURCES_RCC} ${humbug_UI_H} )
 set_target_properties( humbug
     PROPERTIES
         AUTOMOC TRUE
@@ -43,6 +56,7 @@ set_target_properties( humbug
 target_link_libraries( humbug
     ${PHONON_LIBS}
     ${QT_LIBRARIES}
+    ${EXTRA_LIBS}
 )
 
 # Platform specifics

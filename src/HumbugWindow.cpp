@@ -30,30 +30,17 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     // Create the directory if it doesn't already exist
     data_dir.mkdir(data_dir.absolutePath());
 
-    CookieJar *m_cookies = new CookieJar(data_dir.absoluteFilePath("default.dat"));
-
-    m_ui->webView->page()->networkAccessManager()->setCookieJar(m_cookies);
     m_ui->webView->load(m_start);
 
     statusBar()->hide();
 
-#ifdef Q_OS_MAC
-    // Hack for OS X trackpad scrolling overwhelming QWebView
-    WheelFilter* filter = new WheelFilter(m_ui->webView, this);
-    m_ui->webView->installEventFilter(filter);
-#endif
-
     setupTray();
     setupSounds();
 
-    m_bridge = new HumbugWebBridge(this);
-    connect(m_ui->webView->page(), SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
-    connect(m_ui->webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));
-    connect(m_bridge, SIGNAL(notificationRequested(QString,QString)), this, SLOT(displayPopup(QString,QString)));
-    connect(m_bridge, SIGNAL(countUpdated(int,int)), this, SLOT(updateIcon(int,int)));
-    connect(m_bridge, SIGNAL(bellTriggered()), m_bellsound, SLOT(play()));
-
-    m_ui->webView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+    connect(m_ui->webView, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
+    connect(m_ui->webView, SIGNAL(notificationRequested(QString,QString)), this, SLOT(displayPopup(QString,QString)));
+    connect(m_ui->webView, SIGNAL(countUpdated(int,int)), this, SLOT(updateIcon(int,int)));
+    connect(m_ui->webView, SIGNAL(bellTriggered()), m_bellsound, SLOT(play()));
 
     readSettings();
 }
@@ -83,7 +70,6 @@ void HumbugWindow::setupSounds() {
     m_bellsound = new Phonon::MediaObject(this);
     Phonon::createPath(m_bellsound, new Phonon::AudioOutput(Phonon::MusicCategory, this));
     m_bellsound->setCurrentSource(Phonon::MediaSource(QString("/home/lfaraone/orgs/humbug/desktop/src/humbug.ogg")));
-
 }
 
 void HumbugWindow::closeEvent(QCloseEvent *ev) {
@@ -103,7 +89,7 @@ void HumbugWindow::setUrl(const QUrl &url)
 {
     m_start = url;
 
-    m_ui->webView->load(m_start);
+    m_ui->webView->load(url);
 }
 
 void HumbugWindow::showAbout()
@@ -131,21 +117,6 @@ void HumbugWindow::linkClicked(const QUrl& url)
         QDesktopServices::openUrl(url);
     }
     return;
-}
-
-void HumbugWindow::addJavaScriptObject()
-{
-    // Ref: http://www.developer.nokia.com/Community/Wiki/Exposing_QObjects_to_Qt_Webkit
-
-    // Don't expose the JS bridge outside our start domain
-    if (m_ui->webView->url().host() != m_start.host()) {
-        return;
-    }
-
-    m_ui->webView->page()
-    ->mainFrame()
-    ->addToJavaScriptWindowObject("bridge",
-                                  m_bridge);
 }
 
 void HumbugWindow::updateIcon(int current, int previous)

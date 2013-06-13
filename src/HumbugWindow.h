@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
-#include "HumbugWebBridge.h"
 #include "cookiejar.h"
 #include <phonon/MediaObject>
 
@@ -13,6 +12,7 @@ class HumbugWindow;
 }
 
 class QCloseEvent;
+class HumbugTrayIcon;
 
 class HumbugWindow : public QMainWindow
 {
@@ -29,7 +29,6 @@ public slots:
     void userQuit();
     void showAbout();
     void trayClicked();
-    void addJavaScriptObject();
     void linkClicked(const QUrl &url);
     void updateIcon(int current, int previous);
     void displayPopup(const QString& title, const QString& content);
@@ -41,7 +40,6 @@ private:
     void readSettings();
 
     Ui::HumbugWindow *m_ui;
-    HumbugWebBridge *m_bridge;
     HumbugTrayIcon *m_tray;
     QUrl m_start;
     Phonon::MediaObject *m_bellsound;

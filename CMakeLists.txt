@@ -17,13 +17,20 @@ add_definitions( "-DQT_STRICT_ITERATORS" )
 # make predefined install dirs available everywhere
 include( GNUInstallDirs )
 
+if (APPLE)
+    set(QT_USE_QTWEBKIT FALSE)
+    set(QT_COMPONENTS QtCore QtGui QtNetwork)
+else()
+    set(QT_USE_QTWEBKIT TRUE)
+    set(QT_COMPONENTS QtCore QtGui QtNetwork QtWebkit)
+endif()
+
 # Dependencies
-find_package( Qt4 COMPONENTS QtCore QtNetwork QtWebkit REQUIRED )
+find_package( Qt4 COMPONENTS ${QT_COMPONENTS} REQUIRED )
 find_package( Phonon 4.6.0 REQUIRED )
 
 # Configure Qt
 set( QT_USE_QTNETWORK TRUE )
-set( QT_USE_QTWEBKIT TRUE )
 include( ${QT_USE_FILE} )
 add_definitions( ${QT_DEFINITIONS} )
 
