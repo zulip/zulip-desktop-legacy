@@ -14,6 +14,7 @@ class HumbugWindow;
 
 class QCloseEvent;
 class HumbugTrayIcon;
+class HWebView;
 
 class HumbugWindow : public QMainWindow
 {
@@ -24,6 +25,7 @@ public:
     void setUrl(const QUrl &url);
     ~HumbugWindow();
 
+    HWebView* webView() const;
 public slots:
     void closeEvent(QCloseEvent *);
 

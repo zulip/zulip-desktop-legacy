@@ -53,6 +53,10 @@ HumbugWindow::~HumbugWindow()
     delete m_ui;
 }
 
+HWebView* HumbugWindow::webView() const {
+    return m_ui->webView;
+}
+
 void HumbugWindow::setupTray() {
     m_tray = new HumbugTrayIcon(this);
     m_tray->setIcon(QIcon(":/images/hat.svg"));

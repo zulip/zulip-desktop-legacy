@@ -24,15 +24,20 @@ set( humbug_UIS
 
 set( humbug_RESOURCES resources.qrc )
 
+
+qt4_wrap_cpp(EXTRA_MOCS HumbugApplication.h)
+
 if (APPLE)
-    set(EXTRA_SRCS webview/HWebView_mac.mm)
+    set(EXTRA_SRCS webview/HWebView_mac.mm HumbugApplication_mac.mm)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework
                    /System/Library/Frameworks/WebKit.framework
-                   /System/Library/Frameworks/CoreGraphics.framework)
+                   /System/Library/Frameworks/CoreGraphics.framework
+                   /System/Library/Frameworks/Carbon.framework)
 
-    qt4_wrap_cpp(EXTRA_MOCS webview/HWebView.h)
+    qt4_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h)
+    set(EXTRA_SRCS ${MAC_EXTRA_MOCS} ${EXTRA_SRCS})
 else()
     set(EXTRA_SRCS webview/HWebView.cpp)
 endif()
