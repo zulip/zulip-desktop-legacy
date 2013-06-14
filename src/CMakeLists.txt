@@ -60,6 +60,7 @@ target_link_libraries( humbug
     ${EXTRA_LIBS}
 )
 
+install(TARGETS humbug DESTINATION bin)
 # Platform specifics
 if (APPLE)
 # Enable sparkle when we have it
