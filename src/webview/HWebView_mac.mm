@@ -36,6 +36,8 @@
 + (BOOL)isKeyExcludedFromWebScript:(const char *)property;
 + (NSString *) webScriptNameForSelector:(SEL)sel;
 
+// WebUIDelegate for handling open file click
+- (void)webView:(WebView *)sender runOpenPanelForFileButtonWithResultListener:(id < WebOpenPanelResultListener >)resultListener;
 
 // Methods we're sharing with JavaScript
 - (void)updateCount:(int)newCount;
@@ -133,6 +135,22 @@ public:
     [listener ignore];
 }
 
+- (void)webView:(WebView *)sender runOpenPanelForFileButtonWithResultListener:(id < WebOpenPanelResultListener >)resultListener {
+    NSLog(@"Open File");
+
+    // Open a file dialog, and save the result
+    NSOpenPanel* fileDialog = [NSOpenPanel openPanel];
+    [fileDialog setCanChooseFiles:YES];
+    [fileDialog setCanChooseDirectories:NO];
+    if ([fileDialog runModal] == NSOKButton)
+    {
+        NSArray* URLs = [fileDialog URLs];
+        if ([URLs count] > 0) {
+            [resultListener chooseFilename:[[URLs objectAtIndex:0] relativePath]];
+        }
+    }
+}
+
 - (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
     NSLog(@"Setting up Cocoa<->WebScript bridge!");
     [windowObject setValue:self forKey:@"bridge"];
@@ -196,6 +214,7 @@ HWebView::HWebView(QWidget *parent)
     dptr->delegate = [[HumbugWebDelegate alloc] initWithPrivate:dptr];
     [dptr->webView setPolicyDelegate:dptr->delegate];
     [dptr->webView setFrameLoadDelegate:dptr->delegate];
+    [dptr->webView setUIDelegate:dptr->delegate];
 
     [webView release];
 
