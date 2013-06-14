@@ -59,6 +59,7 @@ void HumbugWindow::setupTray() {
 
     QMenu *menu = new QMenu(this);
     QAction *about_action = menu->addAction("About");
+    about_action->setMenuRole(QAction::AboutRole);
     connect(about_action, SIGNAL(triggered()), this, SLOT(showAbout()));
 
     QAction *exit_action = menu->addAction("Exit");
@@ -66,6 +67,11 @@ void HumbugWindow::setupTray() {
     connect(m_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayClicked()));
     m_tray->setContextMenu(menu);
     m_tray->show();
+
+#ifdef Q_OS_MAC
+    QMenu* about_menu = menuBar()->addMenu("Humbug");
+    about_menu->addAction(about_action);
+#endif
 }
 
 void HumbugWindow::setupSounds() {
