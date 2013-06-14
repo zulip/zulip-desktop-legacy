@@ -1,0 +1,14 @@
+Source: humbug-desktop
+Section: comm
+Priority: extra
+Maintainer: Humbug <support@humbughq.com>
+Build-Depends: debhelper (>= 8.0.0), cmake, libqt4-dev, libphonon-dev
+Standards-Version: 3.9.2
+Homepage: https://humbughq.com/apps
+
+Package: humbug-desktop
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Humbug desktop client
+ This package provides a thin wrapper around the Humbug web application,
+ providing native integrations with the desktop.
