@@ -36,7 +36,6 @@ VERSION=$1
     cd Humbug.app
 
     header "Renaming icon"
-    #mv Contents/Resources/humbugSources.icns Contents/Resources/Humbug.icns
     cp $ROOT/../admin/mac/qt.conf Contents/Resources/qt.conf
 
     #header "Copying Sparkle framework"

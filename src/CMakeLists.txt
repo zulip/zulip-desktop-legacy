@@ -79,4 +79,7 @@ if (APPLE)
           )
   FILE( WRITE ${CMAKE_BINARY_DIR}/Info.plist "${edited_plist}" )
 
+  FILE(COPY ${CMAKE_SOURCE_DIR}/src/images/Humbug.icns
+         DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
+
 endif (APPLE)
