@@ -157,11 +157,9 @@ public:
 }
 
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)selector {
-//    NSLog(@"%@ received %@ for '%@'", self, NSStringFromSelector(_cmd), NSStringFromSelector(selector));
     if (selector == @selector(updateCount:) ||
         selector == @selector(bell) ||
         selector == @selector(desktopNotification:withContent:)) {
-//        NSLog(@"Letting through...");
         return NO;
     }
     return YES;
@@ -173,7 +171,6 @@ public:
 }
 
 + (NSString *) webScriptNameForSelector:(SEL)sel {
-//    NSLog(@"%@ received %@ with sel='%@'", self, NSStringFromSelector(_cmd), NSStringFromSelector(sel));
     if (sel == @selector(updateCount:)) {
         return @"updateCount";
     } else if (sel == @selector(desktopNotification:withContent:)) {
@@ -184,17 +181,14 @@ public:
 
 - (void)updateCount:(int)newCount {
     q->updateCount(newCount);
-//    NSLog(@"JAVASCRIPT COUNT UPDATED, %d", newCount);
 }
 
 -(void)bell {
     q->bell();
-//    NSLog(@"Bell sounded!");
 }
 
 - (void)desktopNotification:(NSString*)title withContent:(NSString*)content {
     q->desktopNotification(toQString(title), toQString(content));
-//    NSLog(@"DESKTOP NOTIFICIATION! %@ %@", title, content);
 }
 @end
 
