@@ -28,6 +28,7 @@ if (APPLE)
     set(EXTRA_SRCS webview/HWebView_mac.mm)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
+                   /System/Library/Frameworks/AppKit.framework
                    /System/Library/Frameworks/WebKit.framework
                    /System/Library/Frameworks/CoreGraphics.framework)
 

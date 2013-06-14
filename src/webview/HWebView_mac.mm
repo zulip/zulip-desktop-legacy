@@ -10,6 +10,7 @@
 
 #import "Foundation/NSAutoreleasePool.h"
 #import "Foundation/NSNotification.h"
+#import "AppKit/NSApplication.h"
 #import "Foundation/Foundation.h"
 #import "WebKit/WebKit.h"
 #import "AppKit/NSSearchField.h"
@@ -54,6 +55,11 @@ public:
     }
 
     void updateCount(int newCount) {
+        if (newCount > 0)
+            [[NSApp dockTile] setBadgeLabel:[NSString stringWithFormat:@"%d", newCount]];
+        else
+            [[NSApp dockTile] setBadgeLabel:nil];
+
         emit q->updateCount(newCount);
     }
 
