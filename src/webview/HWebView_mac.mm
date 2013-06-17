@@ -201,6 +201,24 @@ HWebView::HWebView(QWidget *parent)
     HumbugWebView *webView = [[HumbugWebView alloc] init];
     setupLayout(webView, this);
 
+    WebPreferences *webPrefs = [webView preferences];
+
+    // Cache as much as we can
+    [webPrefs setCacheModel:WebCacheModelPrimaryWebBrowser];
+
+    [webPrefs setPlugInsEnabled:YES];
+    [webPrefs setUserStyleSheetEnabled:NO];
+
+    // Try to enable LocalStorage
+    if ([webPrefs respondsToSelector:@selector(_setLocalStorageDatabasePath:)])
+        [webPrefs _setLocalStorageDatabasePath:@"~/Library/Application Support/Humbug/Humbug Desktop/LocalStorage"];
+    if ([webPrefs respondsToSelector:@selector(setLocalStorageEnabled:)])
+        [webPrefs setLocalStorageEnabled:YES];
+    if ([webPrefs respondsToSelector:@selector(setDatabasesEnabled:)])
+        [webPrefs setDatabasesEnabled:YES];
+    [webView setPreferences:webPrefs];
+    [webPrefs release];
+
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     dptr->webView = webView;
