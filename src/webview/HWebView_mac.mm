@@ -20,6 +20,7 @@
 #define KEYCODE_X 7
 #define KEYCODE_C 8
 #define KEYCODE_V 9
+#define KEYCODE_Z 6
 
 @interface HumbugWebDelegate : NSObject
 {
@@ -93,7 +94,7 @@ public:
         if (keyCode == KEYCODE_A)
         {
             // NOTE selectAll is an undocumented API
-            // see ./Source/WebKit2/UIProcess/API/mac/WKView.mm:510 or thereabouts
+            // see ./Source/WebKit/mac/WebView/WebView.mm:339 or thereabouts
             if ([self respondsToSelector:@selector(selectAll:)])
                 [self selectAll:self];
 
@@ -114,10 +115,19 @@ public:
             [self cut:self];
             return YES;
         }
+        else if (keyCode == KEYCODE_Z)
+        {
+            if ([event modifierFlags] & NSShiftKeyMask)
+                [[self undoManager] redo];
+            else
+                [[self undoManager] undo];
+            return YES;
+        }
     }
 
     return NO;
 }
+
 @end
 
 @implementation HumbugWebDelegate
