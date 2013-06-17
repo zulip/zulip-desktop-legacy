@@ -26,7 +26,7 @@ set( humbug_RESOURCES resources.qrc )
 qt4_wrap_cpp(EXTRA_MOCS HumbugApplication.h)
 
 if (APPLE)
-    set(EXTRA_SRCS webview/HWebView_mac.mm HumbugApplication_mac.mm)
+    set(EXTRA_SRCS webview/HWebView_mac.mm mac/HumbugApplication_mac.mm mac/Setup.mm)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework
@@ -57,24 +57,35 @@ set_target_properties( humbug
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
 )
 
-target_link_libraries( humbug
-    ${PHONON_LIBS}
-    ${QT_LIBRARIES}
-    ${EXTRA_LIBS}
-)
-
 install(TARGETS humbug DESTINATION bin)
+
 # Platform specifics
 if (APPLE)
 # Enable sparkle when we have it
-#  option(ENABLE_SPARKLE "Sparkle updating" ON)
-#  find_library(SPARKLE Sparkle)
-#  if (ENABLE_SPARKLE AND SPARKLE)
-#    set(HAVE_SPARKLE ON)
-#    set( OS_SPECIFIC_LINK_LIBRARIES ${OS_SPECIFIC_LINK_LIBRARIES} ${SPARKLE} )
-#  endif(ENABLE_SPARKLE AND SPARKLE)
-#  FILE(COPY ${CMAKE_SOURCE_DIR}/admin/mac/sparkle_pub.pem
-#    DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
+  option(ENABLE_SPARKLE "Sparkle updating" ON)
+  find_library(SPARKLE Sparkle)
+  if (ENABLE_SPARKLE AND SPARKLE)
+    set(HAVE_SPARKLE ON)
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${SPARKLE})
+  endif(ENABLE_SPARKLE AND SPARKLE)
+  FILE(COPY ${CMAKE_SOURCE_DIR}/admin/mac/sparkle_pub.pem
+    DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
+
+  # Uses Darwin kernel version.
+  # 9.8.0  -> 10.5/Leopard
+  # 10.4.0 -> 10.6/Snow Leopard
+  # 11.x.x -> Lion
+  # 12.x.x -> Mountain Lion
+  string(REGEX MATCH "[0-9]+" DARWIN_VERSION ${CMAKE_HOST_SYSTEM_VERSION})
+  if (DARWIN_VERSION GREATER 11)
+    SET(MOUNTAIN_LION 1)
+  elseif (DARWIN_VERSION GREATER 10)
+    SET(LION 1)
+  elseif (DARWIN_VERSION GREATER 9)
+    SET(SNOW_LEOPARD 1)
+  elseif (DARWIN_VERSION GREATER 8)
+    SET(LEOPARD 1)
+  endif (DARWIN_VERSION GREATER 11)
 
   FILE(READ ${CMAKE_SOURCE_DIR}/admin/mac/Info.plist plist)
   STRING( REPLACE "HUMBUG_VERSION"
@@ -88,3 +99,13 @@ if (APPLE)
          DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
 
 endif (APPLE)
+
+target_link_libraries( humbug
+    ${PHONON_LIBS}
+    ${QT_LIBRARIES}
+    ${EXTRA_LIBS}
+)
+
+# Config.h file for cmake flags conversion into #-defines
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/Config.h)

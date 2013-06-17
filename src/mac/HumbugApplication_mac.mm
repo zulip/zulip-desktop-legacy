@@ -2,7 +2,8 @@
 
 #include "HumbugWindow.h"
 #include "webview/HWebView.h"
-#include "webview/Utils.h"
+#include "mac/Converters.h"
+#include "mac/Utils.h"
 
 #include <QDesktopWidget>
 

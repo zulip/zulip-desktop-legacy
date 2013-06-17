@@ -1,6 +1,7 @@
 #include "HWebView.h"
 
-#include "Utils.h"
+#include "mac/Converters.h"
+#include "mac/Utils.h"
 
 #include <QMacCocoaViewContainer>
 #include <QVBoxLayout>

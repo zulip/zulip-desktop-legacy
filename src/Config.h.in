@@ -1,0 +1,15 @@
+#ifndef CONFIG_H_IN
+#define CONFIG_H_IN
+
+#cmakedefine DEBUG_BUILD
+
+#define CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}"
+#define CMAKE_INSTALL_FULL_LIBEXECDIR "${CMAKE_INSTALL_FULL_LIBEXECDIR}"
+
+#cmakedefine MOUNTAIN_LION
+#cmakedefine LION
+#cmakedefine SNOW_LEOPARD
+#cmakedefine LEOPARD
+#cmakedefine HAVE_SPARKLE
+
+#endif

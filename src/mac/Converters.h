@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef CONVERTER_H
+#define CONVERTER_H
 
 #include <Foundation/NSString.h>
 #include <QString>
@@ -50,31 +50,6 @@ static inline void setupLayout(void *cocoaView, QWidget *parent)
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(new QMacCocoaViewContainer(cocoaView, parent));
-}
-
-// Below code is copyright Humbug, Inc 2013
-static inline  NSString* fromQBA(const QByteArray& ba) {
-    const char* cData = ba.constData();
-    return [[NSString alloc] initWithUTF8String:cData];
-}
-
-static inline NSURL* fromQUrl(const QUrl& url) {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-    const QByteArray utf8 = url.toEncoded();
-    NSURL* nsU = [NSURL URLWithString:fromQBA(utf8)];
-
-    [nsU retain];
-
-    [pool drain];
-    return nsU;
-}
-
-static inline QUrl toQUrl(NSURL* url) {
-    if (!url)
-        return QUrl();
-
-    return QUrl(toQString([url absoluteString]));
 }
 
 #endif
