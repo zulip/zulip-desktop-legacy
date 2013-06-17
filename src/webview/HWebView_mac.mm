@@ -91,33 +91,28 @@ public:
         const unsigned short keyCode = [event keyCode];
         if (keyCode == KEYCODE_A)
         {
-            // TODO
+            [self selectSentence:self];
             return YES;
         }
         else if (keyCode == KEYCODE_C)
         {
-            QClipboard* clipboard = QApplication::clipboard();
-            // TODO
+            [self copy:self];
             return YES;
         }
         else if (keyCode == KEYCODE_V)
         {
-            QClipboard* clipboard = QApplication::clipboard();
-            // Simulate a cmd-v
-            // TODO
+            [self paste:self];
             return YES;
         }
         else if (keyCode == KEYCODE_X)
         {
-            QClipboard* clipboard = QApplication::clipboard();
-            // TODO
+            [self cut:self];
             return YES;
         }
     }
 
     return NO;
 }
-
 @end
 
 @implementation HumbugWebDelegate
