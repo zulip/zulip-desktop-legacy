@@ -14,6 +14,7 @@
 #include <QWebSettings>
 #include <QNetworkAccessManager>
 #include <QDesktopServices>
+#include <QSignalMapper>
 #include <phonon/MediaObject>
 #include <phonon/MediaSource>
 #include <phonon/AudioOutput>
@@ -22,17 +23,14 @@
 HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::HumbugWindow),
+    m_domainMapper(new QSignalMapper(this)),
     m_unreadCount(0)
 {
     m_ui->setupUi(this);
 
-    m_start = QUrl("https://humbughq.com/");
-
     QDir data_dir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     // Create the directory if it doesn't already exist
     data_dir.mkdir(data_dir.absolutePath());
-
-    m_ui->webView->load(m_start);
 
     statusBar()->hide();
 
@@ -65,6 +63,31 @@ void HumbugWindow::setupTray() {
     QAction *about_action = menu->addAction("About");
     about_action->setMenuRole(QAction::AboutRole);
     connect(about_action, SIGNAL(triggered()), this, SLOT(showAbout()));
+
+    QMenu* domain_menu = new QMenu("Domain", menu);
+
+    QAction* prod = domain_menu->addAction("Production");
+    prod->setCheckable(true);
+    connect(prod, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
+    m_domains["prod"] = prod;
+
+    QAction* staging = domain_menu->addAction("Staging");
+    staging->setCheckable(true);
+    connect(staging, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
+    m_domains["staging"] = staging;
+
+    QAction* dev = domain_menu->addAction("Local");
+    dev->setCheckable(true);
+    connect(dev, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
+    m_domains["dev"] = dev;
+
+    m_domainMapper->setMapping(prod, "prod");
+    m_domainMapper->setMapping(staging, "staging");
+    m_domainMapper->setMapping(dev, "dev");
+
+    connect(m_domainMapper, SIGNAL(mapped(QString)), this, SLOT(domainSelected(QString)));
+
+    menu->addMenu(domain_menu);
 
     QAction *exit_action = menu->addAction("Exit");
     connect(exit_action, SIGNAL(triggered()), this, SLOT(userQuit()));
@@ -102,6 +125,20 @@ void HumbugWindow::readSettings() {
     QSettings settings;
     restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
     restoreState(settings.value("MainWindow/windowState").toByteArray());
+
+    QString domain = settings.value("Domain").toString();
+    QString site = domainToUrl(domain);
+    if (site.isEmpty()) {
+        domain = "prod";
+        site = "https://humbughq.com";
+    }
+
+    m_start = site;
+    m_ui->webView->load(m_start);
+
+    qDebug() << site << domain;
+    if (m_domains.contains(domain))
+        m_domains[domain]->setChecked(true);
 }
 
 void HumbugWindow::setUrl(const QUrl &url)
@@ -155,4 +192,32 @@ void HumbugWindow::countUpdated(int newCount)
 void HumbugWindow::displayPopup(const QString &title, const QString &content)
 {
     m_tray->showMessage(title, content);
+}
+
+void HumbugWindow::domainSelected(const QString &domain) {
+    QString site = domainToUrl(domain);
+    if (site.isEmpty())
+        return;
+
+    foreach (QAction *action, m_domains.values()) {
+        action->setChecked(false);
+    }
+    m_domains[domain]->setChecked(true);
+
+    QSettings s;
+    s.setValue("Domain", domain);
+    setUrl(site);
+}
+
+QString HumbugWindow::domainToUrl(const QString& domain) const {
+    if (domain == "prod") {
+        return "https://humbughq.com";
+    } else if (domain == "staging") {
+        return "https://staging.humbughq.com";
+    } else if (domain == "dev") {
+        return "http://localhost:9991";
+    } else {
+        qWarning() << "Selected invalid domain?" << domain;
+        return QString();
+    }
 }
