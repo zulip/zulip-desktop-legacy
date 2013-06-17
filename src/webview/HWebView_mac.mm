@@ -161,7 +161,6 @@ public:
 }
 
 - (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
-    NSLog(@"Setting up Cocoa<->WebScript bridge!");
     [windowObject setValue:self forKey:@"bridge"];
 }
 

@@ -138,7 +138,6 @@ void HumbugWindow::readSettings() {
     m_start = site;
     m_ui->webView->load(m_start);
 
-    qDebug() << site << domain;
     if (m_domains.contains(domain))
         m_domains[domain]->setChecked(true);
 }
