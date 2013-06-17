@@ -92,7 +92,11 @@ public:
         const unsigned short keyCode = [event keyCode];
         if (keyCode == KEYCODE_A)
         {
-            [self selectSentence:self];
+            // NOTE selectAll is an undocumented API
+            // see ./Source/WebKit2/UIProcess/API/mac/WKView.mm:510 or thereabouts
+            if ([self respondsToSelector:@selector(selectAll:)])
+                [self selectAll:self];
+
             return YES;
         }
         else if (keyCode == KEYCODE_C)
