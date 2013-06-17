@@ -124,7 +124,6 @@ public:
 }
 
 - (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id < WebPolicyDecisionListener >)listener {
-    NSLog(@"Getting a decidePolicyForNewWindowAction! %@", [request URL]);
     q->linkClicked(toQUrl([request URL]));
 
     [listener ignore];
