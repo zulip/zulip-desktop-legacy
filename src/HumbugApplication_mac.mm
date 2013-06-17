@@ -7,11 +7,6 @@
 
 #import "Foundation/Foundation.h"
 
-HumbugApplication::HumbugApplication(int &argc, char **argv) :
-    QApplication(argc, argv)
-{
-}
-
 static inline NSPoint flipPoint(const NSPoint& loc) {
     return NSMakePoint(loc.x, QApplication::desktop()->screenGeometry(0).height() - loc.y);
 }

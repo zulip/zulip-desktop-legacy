@@ -9,14 +9,12 @@ class HumbugApplication : public QApplication
 {
     Q_OBJECT
 public:
-    explicit HumbugApplication(int & argc, char ** argv);
+    explicit HumbugApplication(int & argc, char ** argv) : QApplication(argc, argv) {}
 
     void setMainWindow(HumbugWindow* mw) { m_mw = mw; }
 
 protected:
-#ifndef Q_OS_MAC
-    bool macEventFilter(EventHandlerCallRef, EventRef) { return false; }
-#else
+#ifdef Q_OS_MAC
     bool macEventFilter(EventHandlerCallRef, EventRef);
 #endif
 
