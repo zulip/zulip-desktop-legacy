@@ -3,6 +3,8 @@
 
 #include <QApplication>
 
+#define APP static_cast<HumbugApplication*>(qApp)
+
 class HumbugWindow;
 
 class HumbugApplication : public QApplication
@@ -12,6 +14,10 @@ public:
     explicit HumbugApplication(int & argc, char ** argv) : QApplication(argc, argv) {}
 
     void setMainWindow(HumbugWindow* mw) { m_mw = mw; }
+
+#ifdef Q_OS_MAC
+    void desktopNotification(const QString& title, const QString& msg);
+#endif
 
 protected:
 #ifdef Q_OS_MAC

@@ -1,4 +1,6 @@
 #include "HumbugWindow.h"
+
+#include "HumbugApplication.h"
 #include "HumbugAboutDialog.h"
 #include "WheelFilter.h"
 #include "ui_HumbugWindow.h"
@@ -192,6 +194,10 @@ void HumbugWindow::countUpdated(int newCount)
 void HumbugWindow::displayPopup(const QString &title, const QString &content)
 {
     m_tray->showMessage(title, content);
+
+#ifdef Q_OS_MAC
+    APP->desktopNotification(title, content);
+#endif
 }
 
 void HumbugWindow::domainSelected(const QString &domain) {
