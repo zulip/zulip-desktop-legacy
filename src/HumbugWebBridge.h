@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QWebView>
 #include <QVariant>
-#include "HumbugTrayIcon.h"
 
 class HumbugWebBridge : public QObject
 {

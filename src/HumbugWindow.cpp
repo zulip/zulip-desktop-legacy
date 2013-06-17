@@ -1,6 +1,5 @@
 #include "HumbugWindow.h"
 #include "HumbugAboutDialog.h"
-#include "HumbugTrayIcon.h"
 #include "WheelFilter.h"
 #include "ui_HumbugWindow.h"
 
@@ -14,6 +13,7 @@
 #include <QWebSettings>
 #include <QNetworkAccessManager>
 #include <QDesktopServices>
+#include <QSystemTrayIcon>
 #include <QSignalMapper>
 #include <phonon/MediaObject>
 #include <phonon/MediaSource>
@@ -56,7 +56,7 @@ HWebView* HumbugWindow::webView() const {
 }
 
 void HumbugWindow::setupTray() {
-    m_tray = new HumbugTrayIcon(this);
+    m_tray = new QSystemTrayIcon(this);
     m_tray->setIcon(QIcon(":/images/hat.svg"));
 
     QMenu *menu = new QMenu(this);

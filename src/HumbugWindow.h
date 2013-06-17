@@ -13,7 +13,7 @@ class HumbugWindow;
 }
 
 class QCloseEvent;
-class HumbugTrayIcon;
+class QSystemTrayIcon;
 class HWebView;
 class QSignalMapper;
 
@@ -47,7 +47,7 @@ private:
     QString domainToUrl(const QString& domain) const;
 
     Ui::HumbugWindow *m_ui;
-    HumbugTrayIcon *m_tray;
+    QSystemTrayIcon *m_tray;
     QSignalMapper *m_domainMapper;
     QHash<QString, QAction*> m_domains;
     QUrl m_start;
