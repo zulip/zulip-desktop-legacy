@@ -50,8 +50,8 @@ VERSION=$1
     $ROOT/../admin/mac/create-dmg.sh Humbug.app
     mv Humbug.dmg Humbug-$VERSION.dmg
 
-    #header "Creating signed Sparkle update"
-    #$ROOT/../admin/mac/sign_bundle.rb $VERSION ~/_sparkle_privkey.pem
+    header "Creating signed Sparkle update"
+    $ROOT/../admin/mac/sign_bundle.rb $VERSION ~/Documents/humbug/sparkle_privkey.pem
     mv Humbug.app humbug.app
 
     header "Done!"
