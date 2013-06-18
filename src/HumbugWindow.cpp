@@ -22,6 +22,10 @@
 #include <phonon/AudioOutput>
 #include <stdio.h>
 
+#ifdef Q_OS_MAC
+#include "mac/Setup.h"
+#endif
+
 HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::HumbugWindow),
@@ -100,6 +104,10 @@ void HumbugWindow::setupTray() {
 #ifdef Q_OS_MAC
     QMenu* about_menu = menuBar()->addMenu("Humbug");
     about_menu->addAction(about_action);
+
+    QAction* checkForUpdates = about_menu->addAction("Check for Updates...");
+    checkForUpdates->setMenuRole(QAction::ApplicationSpecificRole);
+    connect(checkForUpdates, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
 #endif
 }
 
@@ -212,6 +220,12 @@ void HumbugWindow::domainSelected(const QString &domain) {
     QSettings s;
     s.setValue("Domain", domain);
     setUrl(site);
+}
+
+void HumbugWindow::checkForUpdates() {
+#ifdef Q_OS_MAC
+    checkForSparkleUpdate();
+#endif
 }
 
 QString HumbugWindow::domainToUrl(const QString& domain) const {

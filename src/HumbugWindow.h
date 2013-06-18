@@ -37,7 +37,10 @@ public slots:
     void linkClicked(const QUrl &url);
     void countUpdated(int newCount);
     void displayPopup(const QString& title, const QString& content);
+
+private slots:
     void domainSelected(const QString& domain);
+    void checkForUpdates();
 
 private:
     void setupTray();

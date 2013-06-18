@@ -7,4 +7,6 @@
 
 void macMain();
 
+void checkForSparkleUpdate();
+
 #endif
