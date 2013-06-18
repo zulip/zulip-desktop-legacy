@@ -19,10 +19,10 @@ include( GNUInstallDirs )
 
 if (APPLE)
     set(QT_USE_QTWEBKIT FALSE)
-    set(QT_COMPONENTS QtCore QtGui QtNetwork)
+    set(QT_COMPONENTS QtCore QtGui QtNetwork QtSvg)
 else()
     set(QT_USE_QTWEBKIT TRUE)
-    set(QT_COMPONENTS QtCore QtGui QtNetwork QtWebkit)
+    set(QT_COMPONENTS QtCore QtGui QtNetwork QtSvg QtWebkit)
 endif()
 
 # Dependencies

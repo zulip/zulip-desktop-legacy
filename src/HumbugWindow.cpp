@@ -2,6 +2,7 @@
 
 #include "HumbugApplication.h"
 #include "HumbugAboutDialog.h"
+#include "IconRenderer.h"
 #include "ui_HumbugWindow.h"
 
 #include <iostream>
@@ -28,6 +29,7 @@
 HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::HumbugWindow),
+    m_renderer(new IconRenderer(":images/hat.svg", this)),
     m_domainMapper(new QSignalMapper(this)),
     m_unreadCount(0)
 {
@@ -62,7 +64,7 @@ HWebView* HumbugWindow::webView() const {
 
 void HumbugWindow::setupTray() {
     m_tray = new QSystemTrayIcon(this);
-    m_tray->setIcon(QIcon(":/images/hat.svg"));
+    m_tray->setIcon(m_renderer->icon());
 
     QMenu *menu = new QMenu(this);
     QAction *about_action = menu->addAction("About");
@@ -188,13 +190,9 @@ void HumbugWindow::countUpdated(int newCount)
     m_unreadCount = newCount;
     if (newCount == old) {
         return;
-    } else if (newCount <= 0) {
-        m_tray->setIcon(QIcon(":/images/hat.svg"));
-    } else if (newCount >= 99) {
-        m_tray->setIcon(QIcon(":/images/favicon/favicon-infinite.png"));
-    } else {
-        m_tray->setIcon(QIcon(QString(":/images/favicon/favicon-%1.png").arg(newCount)));
     }
+
+    m_tray->setIcon(m_renderer->icon(newCount));
 }
 
 void HumbugWindow::displayPopup(const QString &title, const QString &content)

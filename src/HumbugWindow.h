@@ -16,6 +16,7 @@ class QCloseEvent;
 class QSystemTrayIcon;
 class HWebView;
 class QSignalMapper;
+class IconRenderer;
 
 class HumbugWindow : public QMainWindow
 {
@@ -50,12 +51,20 @@ private:
     QString domainToUrl(const QString& domain) const;
 
     Ui::HumbugWindow *m_ui;
+
+    // Tray icon
+    IconRenderer *m_renderer;
     QSystemTrayIcon *m_tray;
+
+    // Menu
     QSignalMapper *m_domainMapper;
     QHash<QString, QAction*> m_domains;
-    QUrl m_start;
-    Phonon::MediaObject *m_bellsound;
+
     CookieJar *m_cookies;
+    QUrl m_start;
+
+    // Audio
+    Phonon::MediaObject *m_bellsound;
     QTemporaryFile m_sound_temp;
 
     int m_unreadCount;
