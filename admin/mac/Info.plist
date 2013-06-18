@@ -29,10 +29,12 @@
 	<key>NSHighResolutionCapable</key>
 	<true />
 	<key>SUFeedURL</key>
-        <string>http://humbughq.com/dist/desktop/sparkle.xml</string>
+        <string>https://humbughq.com/dist/apps/mac/sparkle.xml</string>
 	<key>SUPublicDSAKeyFile</key>
 	<string>sparkle_pub.pem</string>
 	<key>SUEnableSystemProfiling</key>
 	<true/>
+        <key>SUEnableAutomaticChecks</key>
+        <true />
 </dict>
 </plist>
