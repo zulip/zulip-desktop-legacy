@@ -8,14 +8,6 @@ set( humbug_SRCS
       WheelFilter.cpp
       main.cpp )
 
-set( humbug_HDRS
-      cookiejar.h
-      HumbugWebBridge.h
-      HumbugAboutDialog.h
-      WheelFilter.h
-      HumbugWindow.h
-      webview/HWebView.h )
-
 set( humbug_UIS
     HumbugWindow.ui
     HumbugAboutDialog.ui )
