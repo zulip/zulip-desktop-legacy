@@ -5,7 +5,6 @@ set( humbug_SRCS
       HumbugWebBridge.cpp
       HumbugWindow.cpp
       HumbugAboutDialog.cpp
-      WheelFilter.cpp
       main.cpp )
 
 set( humbug_UIS

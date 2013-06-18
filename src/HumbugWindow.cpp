@@ -2,7 +2,6 @@
 
 #include "HumbugApplication.h"
 #include "HumbugAboutDialog.h"
-#include "WheelFilter.h"
 #include "ui_HumbugWindow.h"
 
 #include <iostream>
