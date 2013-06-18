@@ -39,13 +39,13 @@ VERSION=$1
     cp $ROOT/../admin/mac/qt.conf Contents/Resources/qt.conf
 
     #header "Copying Sparkle framework"
-    #cp -R /Library/Frameworks/Sparkle.framework Contents/Frameworks
+    cp -R /Library/Frameworks/Sparkle.framework Contents/Frameworks
 
     header "Creating DMG"
     cd ..
 
     header "Signing bundle"
-    codesign -s "Developer ID Application: Leonardo Franchi" -f -v ./Tomahawk.app
+    codesign -s "Developer ID Application: Leonardo Franchi" -f -v ./Humbug.app
 
     $ROOT/../admin/mac/create-dmg.sh Humbug.app
     mv Humbug.dmg Humbug-$VERSION.dmg
