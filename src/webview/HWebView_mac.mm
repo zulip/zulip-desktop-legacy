@@ -43,6 +43,7 @@
 
 // Methods we're sharing with JavaScript
 - (void)updateCount:(int)newCount;
+- (void)updatePMCount:(int)newCount;
 - (void)bell;
 - (void)desktopNotification:(NSString*)title withContent:(NSString*)content;
 @end
@@ -65,6 +66,10 @@ public:
             [[NSApp dockTile] setBadgeLabel:nil];
 
         emit q->updateCount(newCount);
+    }
+
+    void updatePMCount(int newCount) {
+        emit q->updatePMCount(newCount);
     }
 
     void bell() {
@@ -167,6 +172,7 @@ public:
 
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)selector {
     if (selector == @selector(updateCount:) ||
+        selector == @selector(updatePMCount:) ||
         selector == @selector(bell) ||
         selector == @selector(desktopNotification:withContent:)) {
         return NO;
@@ -182,6 +188,8 @@ public:
 + (NSString *) webScriptNameForSelector:(SEL)sel {
     if (sel == @selector(updateCount:)) {
         return @"updateCount";
+    } else if (sel == @selector(updatePMCount:)) {
+        return @"updatePMCount";
     } else if (sel == @selector(desktopNotification:withContent:)) {
         return @"desktopNotification";
     }
@@ -190,6 +198,10 @@ public:
 
 - (void)updateCount:(int)newCount {
     q->updateCount(newCount);
+}
+
+- (void)updatePMCount:(int)newCount {
+    q->updatePMCount(newCount);
 }
 
 -(void)bell {

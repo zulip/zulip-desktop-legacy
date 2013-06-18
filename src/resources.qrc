@@ -3,5 +3,6 @@
         <file>images/hat.svg</file>
         <file>humbug.ogg</file>
         <file>about.html</file>
+        <file>images/usericon.svg</file>
     </qresource>
 </RCC>

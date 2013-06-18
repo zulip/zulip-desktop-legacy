@@ -5,7 +5,6 @@
 #include "IconRenderer.h"
 #include "ui_HumbugWindow.h"
 
-#include <iostream>
 #include <QDir>
 #include <QMenuBar>
 #include <QSystemTrayIcon>
@@ -17,10 +16,11 @@
 #include <QDesktopServices>
 #include <QSystemTrayIcon>
 #include <QSignalMapper>
+#include <QTimer>
+
 #include <phonon/MediaObject>
 #include <phonon/MediaSource>
 #include <phonon/AudioOutput>
-#include <stdio.h>
 
 #ifdef Q_OS_MAC
 #include "mac/Setup.h"
@@ -30,6 +30,8 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::HumbugWindow),
     m_renderer(new IconRenderer(":images/hat.svg", this)),
+    m_trayTimer(new QTimer(this)),
+    m_animationStep(0),
     m_domainMapper(new QSignalMapper(this)),
     m_unreadCount(0)
 {
@@ -47,6 +49,7 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     connect(m_ui->webView, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
     connect(m_ui->webView, SIGNAL(desktopNotification(QString,QString)), this, SLOT(displayPopup(QString,QString)));
     connect(m_ui->webView, SIGNAL(updateCount(int)), this, SLOT(countUpdated(int)));
+    connect(m_ui->webView, SIGNAL(updatePMCount(int)), this, SLOT(pmCountUpdated(int)));
     connect(m_ui->webView, SIGNAL(bell()), m_bellsound, SLOT(play()));
 
     readSettings();
@@ -65,6 +68,11 @@ HWebView* HumbugWindow::webView() const {
 void HumbugWindow::setupTray() {
     m_tray = new QSystemTrayIcon(this);
     m_tray->setIcon(m_renderer->icon());
+
+    // Animation for tray icon is 2seconds per image
+    m_trayTimer->setInterval(2000);
+    m_trayTimer->setSingleShot(false);
+    connect(m_trayTimer, SIGNAL(timeout()), this, SLOT(animateTray()));
 
     QMenu *menu = new QMenu(this);
     QAction *about_action = menu->addAction("About");
@@ -110,6 +118,29 @@ void HumbugWindow::setupTray() {
     checkForUpdates->setMenuRole(QAction::ApplicationSpecificRole);
     connect(checkForUpdates, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
 #endif
+}
+
+void HumbugWindow::startTrayAnimation(const QList<QIcon> &stages) {
+    m_animationStages = stages;
+    m_animationStep = 0;
+
+    m_tray->setIcon(m_animationStages[m_animationStep]);
+
+    m_trayTimer->start();
+}
+
+void HumbugWindow::stopTrayAnimation() {
+    m_animationStages.clear();
+    m_animationStep = 0;
+
+    m_trayTimer->stop();
+
+    m_tray->setIcon(m_renderer->icon(m_unreadCount));
+}
+
+void HumbugWindow::animateTray() {
+    m_animationStep = (m_animationStep + 1) % m_animationStages.size();
+    m_tray->setIcon(m_animationStages[m_animationStep]);
 }
 
 void HumbugWindow::setupSounds() {
@@ -193,6 +224,18 @@ void HumbugWindow::countUpdated(int newCount)
     }
 
     m_tray->setIcon(m_renderer->icon(newCount));
+}
+
+void HumbugWindow::pmCountUpdated(int newCount)
+{
+    if (newCount == 0) {
+        stopTrayAnimation();
+    } else {
+        const QIcon first = m_renderer->icon(m_unreadCount);
+        const QIcon second = m_renderer->personIcon();
+
+        startTrayAnimation(QList<QIcon>() << first << second);
+    }
 }
 
 void HumbugWindow::displayPopup(const QString &title, const QString &content)

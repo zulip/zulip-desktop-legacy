@@ -28,3 +28,8 @@ void HumbugWebBridge::updateCount(int count)
 {
     emit doUpdateCount(count);
 }
+
+void HumbugWebBridge::updatePMCount(int count)
+{
+    emit doUpdatePMCount(count);
+}

@@ -37,15 +37,21 @@ public slots:
     void trayClicked();
     void linkClicked(const QUrl &url);
     void countUpdated(int newCount);
+    void pmCountUpdated(int newCount);
     void displayPopup(const QString& title, const QString& content);
 
 private slots:
     void domainSelected(const QString& domain);
     void checkForUpdates();
 
+    void animateTray();
+
 private:
     void setupTray();
     void setupSounds();
+
+    void startTrayAnimation(const QList<QIcon>& stages);
+    void stopTrayAnimation();
 
     void readSettings();
     QString domainToUrl(const QString& domain) const;
@@ -55,6 +61,9 @@ private:
     // Tray icon
     IconRenderer *m_renderer;
     QSystemTrayIcon *m_tray;
+    QTimer *m_trayTimer;
+    int m_animationStep;
+    QList<QIcon> m_animationStages;
 
     // Menu
     QSignalMapper *m_domainMapper;

@@ -27,6 +27,7 @@ public:
         connect(webView, SIGNAL(linkClicked(QUrl)), q, SIGNAL(linkClicked(QUrl)));
         connect(bridge, SIGNAL(doDesktopNotification(QString,QString)), q, SIGNAL(desktopNotification(QString,QString)));
         connect(bridge, SIGNAL(doUpdateCount(int)), q, SIGNAL(updateCount(int)));
+        connect(bridge, SIGNAL(doUpdatePMCount(int)), q, SIGNAL(updatePMCount(int)));
         connect(bridge, SIGNAL(doBell()), q, SIGNAL(bell()));
 
         connect(webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));

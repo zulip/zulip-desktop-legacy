@@ -22,6 +22,17 @@ IconRenderer::IconRenderer(const QString &svgPath, QObject *parent) :
 
     m_defaultSizes << 16 << 18 << 22 << 36;
     QPixmapCache::setCacheLimit(1000);
+
+    QSvgRenderer r(QLatin1String(":images/usericon.svg"));
+    foreach(int size, m_defaultSizes) {
+        QImage image(QSize(size, size), QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        QPainter p(&image);
+        p.setRenderHint(QPainter::Antialiasing);
+
+        r.render(&p);
+        m_personIcon.addPixmap(QPixmap::fromImage(image));
+    }
 }
 
 QIcon IconRenderer::icon(int unreadNormal, int unreadPMs) {
@@ -51,6 +62,10 @@ QPixmap IconRenderer::pixmap(const QSize &size, int unreadNormal, int unreadPMs)
     }
 
     return pm;
+}
+
+QIcon IconRenderer::personIcon() {
+    return m_personIcon;
 }
 
 QString IconRenderer::cacheKey(const QSize &size, int unreadNormal, int unreadPMs) const {

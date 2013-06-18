@@ -31,6 +31,7 @@ signals:
     // Humbug notifications
     void desktopNotification(const QString& ,const QString&);
     void updateCount(int);
+    void updatePMCount(int);
     void bell();
 
 private:

@@ -17,9 +17,11 @@ public slots:
     void desktopNotification(const QString &title, const QString &content);
     void bell();
     void updateCount(int count);
+    void updatePMCount(int count);
 
 signals:
     void doUpdateCount(int newCount);
+    void doUpdatePMCount(int newCount);
     void doDesktopNotification(const QString& title, const QString& content);
     void doBell();
 
