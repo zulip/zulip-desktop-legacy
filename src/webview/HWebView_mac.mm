@@ -64,8 +64,6 @@ public:
         else
             [[NSApp dockTile] setBadgeLabel:nil];
 
-        [NSApp requestUserAttention:NSCriticalRequest];
-
         emit q->updateCount(newCount);
     }
 
