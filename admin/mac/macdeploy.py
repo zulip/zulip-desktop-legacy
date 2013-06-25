@@ -202,7 +202,7 @@ HUMBUG_PLUGINS = [
 ]
 
 QT_PLUGINS_SEARCH_PATH=[
-    '/usr/local/Cellar/qt/HEAD/plugins',
+    '/usr/local/Cellar/qt/4.8.4/plugins',
 ]
 
 
