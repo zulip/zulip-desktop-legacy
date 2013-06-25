@@ -4,6 +4,7 @@
 #include "webview/HWebView.h"
 #include "mac/Converters.h"
 #include "mac/Utils.h"
+#include "Config.h"
 
 #include <QDesktopWidget>
 
@@ -14,12 +15,13 @@ static inline NSPoint flipPoint(const NSPoint& loc) {
 }
 
 void HumbugApplication::desktopNotification(const QString &title, const QString &msg) {
+#ifdef MOUNTAIN_LION
     NSUserNotification *userNotification = [[NSUserNotification alloc] init];
     userNotification.title = fromQString(title);
     userNotification.informativeText = fromQString(msg);
 
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:userNotification];
-
+#endif
 }
 
 // WebKit doesn't seem to be getting the mouseMove events properly when embedded in our app
