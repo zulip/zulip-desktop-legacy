@@ -89,7 +89,16 @@ public:
 
 // Override performKeyEquivalent to make shortcuts work
 @interface HumbugWebView : WebView
+{
+    QWidget *qwidget;
+}
+-(void)setMyWidget:(QWidget *)widget;
 -(BOOL)performKeyEquivalent:(NSEvent*)event;
+
+// For some reason on OS X 10.7 (it seems), Qt's mouse handler (qt_mac_handleTabletEvent in src/gui/kernel/qt_cocoa_helpers_mac.mm) has a pointer to this HumbugWebView and calls qt_qwidget on it. It expects the associated QWidget to be returned.
+// I don't know why this HumbugWebView is there instead of the parent QCocoaView, but we work around it like this. Additionally, qt_clearQWidget is called if HumbugWebView responds to qt_qwidget, so we implement it to avoid a crash on exit.
+-(QWidget *) qt_qwidget;
+-(void)qt_clearQWidget;
 @end
 
 @implementation HumbugWebView
@@ -132,6 +141,18 @@ public:
     }
 
     return NO;
+}
+
+-(QWidget *) qt_qwidget {
+    return qwidget;
+}
+
+-(void)setQWidget:(QWidget *)widget {
+    qwidget = widget;
+}
+
+-(void)qt_clearQWidget {
+    // This is called
 }
 
 @end
@@ -220,6 +241,7 @@ HWebView::HWebView(QWidget *parent)
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
     HumbugWebView *webView = [[HumbugWebView alloc] init];
+    [webView setQWidget:this];
     setupLayout(webView, this);
 
     WebPreferences *webPrefs = [webView preferences];
