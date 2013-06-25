@@ -23,7 +23,7 @@ if (APPLE)
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework
                    /System/Library/Frameworks/WebKit.framework
-                   /System/Library/Frameworks/CoreGraphics.framework
+                   /System/Library/Frameworks/ApplicationServices.framework
                    /System/Library/Frameworks/Carbon.framework)
 
     qt4_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h)
