@@ -84,7 +84,6 @@ QPixmap IconRenderer::render(const QSize &size, int unreadNormal, int unreadPMs)
     QPen textPen(Qt::black, 1, Qt::SolidLine);
     p.setPen(textPen);
     QFont f = APP->font();
-    f.setStyleStrategy(QFont::NoAntialias);
 
     m_renderer->render(&p);
 
@@ -92,12 +91,12 @@ QPixmap IconRenderer::render(const QSize &size, int unreadNormal, int unreadPMs)
         // Unicode ∞ if greater than 99 unread msgs
         const QString disp = unreadNormal > 99 ? QChar(0x221e) : QString::number(unreadNormal);
         const int padding = 1;
-        const QRect bottomHalf(padding, size.height() / 2, size.width() - 2*padding, size.height() / 2 - 2*padding);
+        const QRect bottomHalf(padding + size.width() / 4, size.height() / 2, size.width() - 2*padding, size.height() / 2 - 2*padding);
 
         f.setPixelSize(bottomHalf.height() + 2);
         p.setFont(f);
 
-        qDebug() << "Drawing in" << bottomHalf << "from" << QRect(QPoint(0, 0), size);
+//        qDebug() << "Drawing in" << bottomHalf << "from" << QRect(QPoint(0, 0), size);
         p.drawText(bottomHalf, Qt::AlignCenter, disp);
     }
 
