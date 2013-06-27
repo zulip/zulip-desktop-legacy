@@ -32,6 +32,36 @@ else()
     set(EXTRA_SRCS webview/HWebView.cpp)
 endif()
 
+if (WIN32)
+  SET( CMAKE_BUILD_TYPE "Release" )
+
+  ADD_DEFINITIONS( /DNOMINMAX )
+  ADD_DEFINITIONS( /DWIN32_LEAN_AND_MEAN )
+  ADD_DEFINITIONS( -static-libgcc )
+  ADD_DEFINITIONS( -DUNICODE )
+
+  check_cxx_source_compiles( "
+      #include <shobjidl.h>
+      int main() {
+	  THUMBBUTTON foo;
+	  return 0;
+      }
+      "
+      HAVE_THUMBBUTTON )
+
+  SET( EXTRA_LIBS
+      ${EXTRA_LIBS}
+      "secur32.dll"
+      "crypt32.dll"
+      "iphlpapi.a"
+      "ws2_32.dll"
+      "dnsapi.dll"
+      "dsound.dll"
+      "winmm.dll"
+      "advapi32.dll"
+  )
+endif()
+
 include_directories(
     .
     ${QT_INCLUDES}

@@ -50,8 +50,11 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     connect(m_ui->webView, SIGNAL(desktopNotification(QString,QString)), this, SLOT(displayPopup(QString,QString)));
     connect(m_ui->webView, SIGNAL(updateCount(int)), this, SLOT(countUpdated(int)));
     connect(m_ui->webView, SIGNAL(updatePMCount(int)), this, SLOT(pmCountUpdated(int)));
+    
+#ifndef Q_OS_WIN
     connect(m_ui->webView, SIGNAL(bell()), m_bellsound, SLOT(play()));
-
+#endif
+    
     readSettings();
 }
 

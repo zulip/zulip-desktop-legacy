@@ -9,6 +9,8 @@ set( HUMBUG_VERSION_PATCH 2 )
 set( HUMBUG_VERSION ${HUMBUG_VERSION_MAJOR}.${HUMBUG_VERSION_MINOR}.${HUMBUG_VERSION_PATCH} )
 set( HUMBUG_VERSION_SHORT "${HUMBUG_VERSION}" )
 
+set( HUMBUG_APPLICATION_NAME "Humbug")
+
 # enforce proper symbol exporting on all platforms
 add_definitions( "-fvisibility=hidden" )
 # enforce using constBegin, constEnd for const-iterators
@@ -24,6 +26,9 @@ else()
     set(QT_USE_QTWEBKIT TRUE)
     set(QT_COMPONENTS QtCore QtGui QtNetwork QtSvg QtWebkit)
 endif()
+
+# Generates windows installer with NSIS
+INCLUDE( HumbugCPack.cmake )
 
 # Dependencies
 find_package( Qt4 COMPONENTS ${QT_COMPONENTS} REQUIRED )
