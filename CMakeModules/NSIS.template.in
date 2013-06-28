@@ -292,6 +292,7 @@ Section "Humbug" SEC_HUMBUGs_PLAYER
    File "${QT_DLL_PATH}\QtNetwork4.dll"
    File "${QT_DLL_PATH}\QtWebKit4.dll"
    File "${QT_DLL_PATH}\QtSvg4.dll"
+   File "${QT_DLL_PATH}\QtXml4.dll"
 
    ;SQLite driver
    ;SetOutPath "$INSTDIR\sqldrivers"

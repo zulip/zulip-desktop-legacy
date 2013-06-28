@@ -1,5 +1,6 @@
 #include "HumbugWindow.h"
 #include "HumbugApplication.h"
+#include "Config.h"
 
 #ifdef Q_OS_MAC
 #include "mac/Setup.h"
@@ -8,12 +9,12 @@
 int main(int argc, char *argv[])
 {
     HumbugApplication a(argc, argv);
-    a.setApplicationName("Humbug Desktop");
-    a.setApplicationVersion("0.1");
+    a.setApplicationName("Humbug");
+    a.setApplicationVersion(HUMBUG_VERSION_STRING);
 
     QCoreApplication::setOrganizationName("Humbug");
     QCoreApplication::setOrganizationDomain("humbug.com");
-    QCoreApplication::setApplicationName("Humbug Desktop");
+    QCoreApplication::setApplicationName("Humbug");
 
     HumbugWindow w;
     if (argc == 3 && QString(argv[1]) == QString("--site")) {
