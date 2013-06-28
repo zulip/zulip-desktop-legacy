@@ -60,6 +60,7 @@ if (WIN32)
 
   SET( EXTRA_LIBS
       ${EXTRA_LIBS}
+      qtsparkle
       "secur32.dll"
       "crypt32.dll"
       "iphlpapi.a"
@@ -76,6 +77,7 @@ endif()
 
 include_directories(
     .
+    ${CMAKE_SOURCE_DIR}/thirdparty/qtsparkle/src
     ${QT_INCLUDES}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PHONON_INCLUDES}

@@ -10,10 +10,14 @@
 
 #include <phonon/MediaObject>
 
+// QtSparkle
+#include <updater.h>
+
 #ifdef Q_OS_WIN
 #include <shobjidl.h>
 #endif
 
+class QAction;
 namespace Ui
 {
 class HumbugWindow;
@@ -80,6 +84,7 @@ private:
     // Menu
     QSignalMapper *m_domainMapper;
     QHash<QString, QAction*> m_domains;
+    QAction *m_checkForUpdates;
 
     CookieJar *m_cookies;
     QUrl m_start;
@@ -91,9 +96,13 @@ private:
     int m_unreadCount, m_unreadPMCount;
 
     // Platform Specific
-#if defined(Q_OS_WIN) && defined(HAVE_THUMBBUTTON)
+#ifdef Q_OS_WIN
+    qtsparkle::Updater *m_updater;
+    
+#ifdef HAVE_THUMBBUTTON
     unsigned int m_IDTaskbarButtonCreated;
     ITaskbarList3* m_taskbarInterface;
+#endif
 #endif
 };
 

@@ -36,6 +36,9 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     m_domainMapper(new QSignalMapper(this)),
     m_unreadCount(0),
     m_unreadPMCount(0)
+#ifdef Q_OS_WIN
+    , m_updater(0)
+#endif
 {
     m_ui->setupUi(this);
 
@@ -57,8 +60,11 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     connect(m_ui->webView, SIGNAL(bell()), m_bellsound, SLOT(play()));
 #endif
     
-#if defined(Q_OS_WIN) && defined(HAVE_THUMBBUTTON)
+#ifdef Q_OS_WIN
+    m_updater = new qtsparkle::Updater(QUrl("https://humbughq.com/dist/apps/win/sparkle.xml"), this);
+#ifdef HAVE_THUMBBUTTON
     setupTaskbarIcon();
+#endif
 #endif
 
     readSettings();
@@ -115,6 +121,11 @@ void HumbugWindow::setupTray() {
     menu->addMenu(domain_menu);
 #endif
 
+#ifdef Q_OS_WIN
+    QAction* checkForUpdates = menu->addAction("Check for Updates...");
+    connect(checkForUpdates, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
+#endif
+    
     QAction *exit_action = menu->addAction("Exit");
     connect(exit_action, SIGNAL(triggered()), this, SLOT(userQuit()));
     connect(m_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayClicked()));
@@ -122,6 +133,7 @@ void HumbugWindow::setupTray() {
     m_tray->show();
 
 #ifdef Q_OS_MAC
+    // Similar "check for updates" action, but in a different menu
     QMenu* about_menu = menuBar()->addMenu("Humbug");
     about_menu->addAction(about_action);
 
@@ -326,6 +338,9 @@ void HumbugWindow::domainSelected(const QString &domain) {
 void HumbugWindow::checkForUpdates() {
 #ifdef Q_OS_MAC
     checkForSparkleUpdate();
+#endif
+#ifdef Q_OS_WIN
+    m_updater->CheckNow();
 #endif
 }
 
