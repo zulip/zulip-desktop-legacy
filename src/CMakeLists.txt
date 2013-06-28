@@ -62,6 +62,9 @@ if (WIN32)
       "winmm.dll"
       "advapi32.dll"
   )
+
+  kde4_add_app_icon( humbug_SRCS "${CMAKE_SOURCE_DIR}/admin/icon/humbug-icon-*.png" )
+
 endif()
 
 include_directories(
@@ -73,8 +76,6 @@ include_directories(
 
 qt4_add_resources( humbug_RESOURCES_RCC ${humbug_RESOURCES})
 qt4_wrap_ui( humbug_UI_H ${humbug_UIS} )
-
-kde4_add_app_icon( humbug_SRCS "${CMAKE_SOURCE_DIR}/admin/icon/humbug-icon-*.png" )
 
 add_executable( humbug WIN32 MACOSX_BUNDLE ${humbug_SRCS} ${EXTRA_SRCS} ${EXTRA_MOCS} ${humbug_RESOURCES_RCC} ${humbug_UI_H} )
 set_target_properties( humbug
