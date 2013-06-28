@@ -23,6 +23,8 @@ public:
     void load(const QUrl& url);
     void setUrl(const QUrl& url);
 
+    void loadHTML(const QString& html);
+
     QUrl url() const;
 
 signals:

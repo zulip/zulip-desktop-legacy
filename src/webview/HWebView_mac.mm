@@ -312,5 +312,10 @@ QUrl HWebView::url() const {
     return QUrl();
 }
 
+void HWebView::loadHTML(const QString &html) {
+    NSString* content = fromQString(html);
+    [[dptr->webView mainFrame] loadHTMLString:content baseURL:[NSURL URLWithString:@"about:humbug"]];
+}
+
 
 #include "HWebView_mac.moc"

@@ -82,4 +82,8 @@ QUrl HWebView::url() const {
     return dptr->webView->url();
 }
 
+void HWebView::loadHTML(const QString &html) {
+    dptr->webView->setHtml(html);
+}
+
 #include "HWebView.moc"
