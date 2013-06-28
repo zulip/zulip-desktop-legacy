@@ -76,7 +76,7 @@ private:
     Phonon::MediaObject *m_bellsound;
     QTemporaryFile m_sound_temp;
 
-    int m_unreadCount;
+    int m_unreadCount, m_unreadPMCount;
 };
 
 #endif // HUMBUGWINDOW_H

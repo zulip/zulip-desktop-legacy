@@ -33,7 +33,8 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     m_trayTimer(new QTimer(this)),
     m_animationStep(0),
     m_domainMapper(new QSignalMapper(this)),
-    m_unreadCount(0)
+    m_unreadCount(0),
+    m_unreadPMCount(0)
 {
     m_ui->setupUi(this);
 
@@ -231,6 +232,12 @@ void HumbugWindow::countUpdated(int newCount)
 
 void HumbugWindow::pmCountUpdated(int newCount)
 {
+    const int old = m_unreadPMCount;
+    m_unreadPMCount = newCount;
+    if (newCount == old) {
+        return;
+    }
+
     if (newCount == 0) {
         stopTrayAnimation();
     } else {
