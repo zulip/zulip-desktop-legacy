@@ -92,7 +92,7 @@ public:
 {
     QWidget *qwidget;
 }
--(void)setMyWidget:(QWidget *)widget;
+-(void)setQWidget:(QWidget *)widget;
 -(BOOL)performKeyEquivalent:(NSEvent*)event;
 
 // For some reason on OS X 10.7 (it seems), Qt's mouse handler (qt_mac_handleTabletEvent in src/gui/kernel/qt_cocoa_helpers_mac.mm) has a pointer to this HumbugWebView and calls qt_qwidget on it. It expects the associated QWidget to be returned.
