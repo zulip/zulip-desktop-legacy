@@ -88,6 +88,7 @@ void HumbugWindow::setupTray() {
     about_action->setMenuRole(QAction::AboutRole);
     connect(about_action, SIGNAL(triggered()), this, SLOT(showAbout()));
 
+#ifdef DEBUG_BUILD
     QMenu* domain_menu = new QMenu("Domain", menu);
 
     QAction* prod = domain_menu->addAction("Production");
@@ -112,6 +113,7 @@ void HumbugWindow::setupTray() {
     connect(m_domainMapper, SIGNAL(mapped(QString)), this, SLOT(domainSelected(QString)));
 
     menu->addMenu(domain_menu);
+#endif
 
     QAction *exit_action = menu->addAction("Exit");
     connect(exit_action, SIGNAL(triggered()), this, SLOT(userQuit()));

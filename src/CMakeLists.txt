@@ -2,6 +2,12 @@ project( humbug )
 
 include (AddAppIconMacro)
 
+# Build type
+IF( NOT CMAKE_BUILD_TYPE STREQUAL "Release" )
+    MESSAGE( "Building in debug mode, enabling domain selector" )
+    SET( DEBUG_BUILD ON )
+ENDIF()
+
 set( humbug_SRCS
       cookiejar.cpp
       HumbugWebBridge.cpp
@@ -15,7 +21,6 @@ set( humbug_UIS
     HumbugAboutDialog.ui )
 
 set( humbug_RESOURCES resources.qrc )
-
 
 qt4_wrap_cpp(EXTRA_MOCS HumbugApplication.h)
 
