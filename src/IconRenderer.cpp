@@ -53,6 +53,49 @@ QIcon IconRenderer::icon(int unreadNormal, int unreadPMs) {
     return icn;
 }
 
+QIcon IconRenderer::winBadgeIcon(int unreadCount) {
+    const QString cKey = QString("win_unread_%1").arg(unreadCount);
+
+    QIcon icn = m_iconCache.value(cKey, QIcon());
+    if (!icn.isNull()) {
+        return icn;
+    }
+
+    QImage image(QSize(48, 48), QImage::Format_ARGB32_Premultiplied);
+
+    image.fill(Qt::transparent);
+    QPainter p(&image);
+    p.setRenderHint(QPainter::Antialiasing);
+
+    // Draw a red background circle
+    QGradient grad = QLinearGradient(24, 0, 24, 48);
+    QColor color;
+    color.setNamedColor("#EF6F6C");
+    grad.setColorAt(0, color);
+    color.setNamedColor("#AD0700");
+    grad.setColorAt(1, color);
+    p.save();
+    p.setBrush(grad);
+    p.drawRoundedRect(image.rect(), 40, 40);
+    p.restore();
+
+    // Draw the foreground number
+    QPen textPen(Qt::black, 1, Qt::SolidLine);
+    p.setPen(textPen);
+    QFont f = APP->font();
+    f.setPixelSize(40);
+    p.setFont(f);
+
+    p.drawText(image.rect(), Qt::AlignCenter, QString::number(unreadCount));
+
+    p.end();
+
+    icn.addPixmap(QPixmap::fromImage(image));
+    m_iconCache[cKey] = icn;
+    return icn;
+}
+
+
 QPixmap IconRenderer::pixmap(const QSize &size, int unreadNormal, int unreadPMs) {
     const QString cKey = cacheKey(size, unreadNormal, unreadPMs);
     QPixmap pm;

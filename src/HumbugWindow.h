@@ -1,11 +1,18 @@
 #ifndef HUMBUGWINDOW_H
 #define HUMBUGWINDOW_H
 
+#include "cookiejar.h"
+#include "Config.h"
+
 #include <QMainWindow>
 #include <QTemporaryFile>
 #include <QSystemTrayIcon>
-#include "cookiejar.h"
+
 #include <phonon/MediaObject>
+
+#ifdef Q_OS_WIN
+#include <shobjidl.h>
+#endif
 
 namespace Ui
 {
@@ -56,6 +63,11 @@ private:
     void readSettings();
     QString domainToUrl(const QString& domain) const;
 
+#ifdef Q_OS_WIN
+    void setupTaskbarIcon();
+    void setOverlayIcon(const QIcon& icon, const QString& desc);
+#endif
+
     Ui::HumbugWindow *m_ui;
 
     // Tray icon
@@ -77,6 +89,12 @@ private:
     QTemporaryFile m_sound_temp;
 
     int m_unreadCount, m_unreadPMCount;
+
+    // Platform Specific
+#if defined(Q_OS_WIN) && defined(HAVE_THUMBBUTTON)
+    unsigned int m_IDTaskbarButtonCreated;
+    ITaskbarList3* m_taskbarInterface;
+#endif
 };
 
 #endif // HUMBUGWINDOW_H

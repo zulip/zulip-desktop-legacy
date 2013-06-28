@@ -22,6 +22,9 @@ public:
     // Get an icon for the desired unread count
     QIcon icon(int unreadNormal = -1, int unreadPMs = -1);
 
+    // Get just the number rendered as a badge, for WIndows
+    QIcon winBadgeIcon(int unreadCount);
+
     // Get the person icon
     QIcon personIcon();
 

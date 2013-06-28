@@ -4,6 +4,7 @@
 #include "HumbugAboutDialog.h"
 #include "IconRenderer.h"
 #include "ui_HumbugWindow.h"
+#include "Config.h"
 
 #include <QDir>
 #include <QMenuBar>
@@ -56,6 +57,10 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     connect(m_ui->webView, SIGNAL(bell()), m_bellsound, SLOT(play()));
 #endif
     
+#if defined(Q_OS_WIN) && defined(HAVE_THUMBBUTTON)
+    setupTaskbarIcon();
+#endif
+
     readSettings();
 }
 
@@ -123,6 +128,43 @@ void HumbugWindow::setupTray() {
     connect(checkForUpdates, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
 #endif
 }
+
+#if defined(Q_OS_WIN) && defined(HAVE_THUMBBUTTON)
+void HumbugWindow::setupTaskbarIcon() {
+    m_taskbarInterface = NULL;
+
+    // Compute the value for the TaskbarButtonCreated message
+    m_IDTaskbarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
+
+    HRESULT hr = CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, reinterpret_cast<void**> (&(m_taskbarInterface)));
+
+    if (SUCCEEDED(hr)) {
+        hr = m_taskbarInterface->HrInit();
+
+        if (FAILED(hr)) {
+            m_taskbarInterface->Release();
+            m_taskbarInterface = NULL;
+        }
+    }
+}
+
+void HumbugWindow::setOverlayIcon(const QIcon& icon, const QString& description) {
+    qDebug() << "Setting windows overlay icon!";
+    if (m_taskbarInterface) {
+        qDebug() << "Doing it now!";
+        HICON overlay_icon = icon.isNull() ? NULL : icon.pixmap(48).toWinHICON();
+        m_taskbarInterface->SetOverlayIcon(winId(), overlay_icon, description.toStdWString().c_str());
+
+        if (overlay_icon) {
+            DestroyIcon(overlay_icon);
+            return;
+        }
+    }
+
+    return;
+
+}
+#endif
 
 void HumbugWindow::startTrayAnimation(const QList<QIcon> &stages) {
     m_animationStages = stages;
@@ -228,6 +270,13 @@ void HumbugWindow::countUpdated(int newCount)
     }
 
     m_tray->setIcon(m_renderer->icon(newCount));
+
+#if defined(Q_OS_WIN) && defined(HAVE_THUMBBUTTON)
+    if (newCount == 0)
+        setOverlayIcon(QIcon(), "");
+    else
+        setOverlayIcon(m_renderer->winBadgeIcon(newCount), tr("%1 unread messages").arg(newCount));
+#endif
 }
 
 void HumbugWindow::pmCountUpdated(int newCount)

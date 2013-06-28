@@ -42,6 +42,8 @@ if (WIN32)
   ADD_DEFINITIONS( -static-libgcc )
   ADD_DEFINITIONS( -DUNICODE )
 
+  include (CheckCXXSourceCompiles)
+
   check_cxx_source_compiles( "
       #include <shobjidl.h>
       int main() {
