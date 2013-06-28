@@ -29,7 +29,7 @@ SET( CPACK_SOURCE_PACKAGE_FILE_NAME humbug-${HUMBUG_VERSION} ) # Name of the sou
 
 # Advanced settings
 # CPACK_CMAKE_GENERATOR   What CMake generator should be used if the project is CMake project. Defaults to the value of CMAKE_GENERATOR.  Unix Makefiles
-SET( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt" ) # License file for the project, used by the STGZ, NSIS, and PackageMaker generators.  /home/andy/vtk/CMake/Copyright.txt
+# SET( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt" ) # License file for the project, used by the STGZ, NSIS, and PackageMaker generators.  /home/andy/vtk/CMake/Copyright.txt
 # CPACK_RESOURCE_FILE_README  ReadMe file for the project, used by PackageMaker generator.    /home/andy/vtk/CMake/Templates/CPack.GenericDescription.txt
 # CPACK_RESOURCE_FILE_WELCOME     Welcome file for the project, used by PackageMaker generator.   /home/andy/vtk/CMake/Templates/CPack.GenericWelcome.txt
 SET( CPACK_PACKAGE_VERSION  ${HUMBUG_VERSION} )

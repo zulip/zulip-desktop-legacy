@@ -10,7 +10,7 @@
 !define OPTION_SECTION_SC_QUICK_LAUNCH
 !define OPTION_FINISHPAGE
 !define OPTION_FINISHPAGE_LAUNCHER
-!define OPTION_FINISHPAGE_RELEASE_NOTES
+; !define OPTION_FINISHPAGE_RELEASE_NOTES
 
 ;-----------------------------------------------------------------------------
 ; Some paths.
@@ -283,10 +283,10 @@ Section "Humbug" SEC_HUMBUGs_PLAYER
    !endif
 
    ;License & release notes.
-   File "@CPACK_RESOURCE_FILE_LICENSE@"
-   File /oname=NOTES.txt ${NSI_PATH}\RELEASE_NOTES.txt
+   ; File "@CPACK_RESOURCE_FILE_LICENSE@"
+   ; File /oname=NOTES.txt ${NSI_PATH}\RELEASE_NOTES.txt
 
-   ;QT stuff:
+   ;Qt stuff:
    File "${QT_DLL_PATH}\QtCore4.dll"
    File "${QT_DLL_PATH}\QtGui4.dll"
    File "${QT_DLL_PATH}\QtNetwork4.dll"
@@ -351,9 +351,9 @@ SectionGroup "Shortcuts"
       SetShellVarContext all
       RMDir /r "$SMPROGRAMS\Humbug"
       CreateDirectory "$SMPROGRAMS\Humbug"
-      CreateShortCut "$SMPROGRAMS\Humbug\LICENSE.lnk" "$INSTDIR\LICENSE.txt"
+      ; CreateShortCut "$SMPROGRAMS\Humbug\LICENSE.lnk" "$INSTDIR\LICENSE.txt"
       CreateShortCut "$SMPROGRAMS\Humbug\Humbug.lnk" "$INSTDIR\humbug.exe"
-      CreateShortCut "$SMPROGRAMS\Humbug\Release notes.lnk" "$INSTDIR\NOTES.txt"
+      ; CreateShortCut "$SMPROGRAMS\Humbug\Release notes.lnk" "$INSTDIR\NOTES.txt"
       CreateShortCut "$SMPROGRAMS\Humbug\Uninstall.lnk" "$INSTDIR\uninstall.exe"
       SetShellVarContext current
    ${MementoSectionEnd}
