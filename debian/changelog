@@ -1,5 +1,5 @@
-humbug-desktop (0.1) UNRELEASED; urgency=low
+humbug-desktop (0.3.0) wheezy; urgency=low
 
   * Initial Release.
 
- -- Luke Faraone <lfaraone@humbughq.com>  Thu, 13 Jun 2013 17:22:16 -0400
+ -- Luke Faraone <lfaraone@humbughq.com>  Mon, 01 Jul 2013 17:27:50 -0400
