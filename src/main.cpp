@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setOrganizationName("Humbug");
     QCoreApplication::setOrganizationDomain("humbug.com");
-    QCoreApplication::setApplicationName("Humbug");
+    QCoreApplication::setApplicationName("Humbug Desktop");
 
     HumbugWindow w;
     if (argc == 3 && QString(argv[1]) == QString("--site")) {
