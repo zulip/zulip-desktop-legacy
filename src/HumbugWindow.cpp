@@ -18,6 +18,7 @@
 #include <QSystemTrayIcon>
 #include <QSignalMapper>
 #include <QTimer>
+#include <QFontDatabase>
 
 #include <phonon/MediaObject>
 #include <phonon/MediaSource>
@@ -45,6 +46,8 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     QDir data_dir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     // Create the directory if it doesn't already exist
     data_dir.mkdir(data_dir.absolutePath());
+
+    QFontDatabase::addApplicationFont(":/humbug.ttc");
 
     statusBar()->hide();
 

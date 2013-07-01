@@ -4,5 +4,6 @@
         <file>humbug.ogg</file>
         <file>about.html</file>
         <file>images/usericon.svg</file>
+        <file>humbug.ttc</file>
     </qresource>
 </RCC>
