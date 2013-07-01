@@ -2,6 +2,7 @@
 
 #include "mac/Converters.h"
 #include "mac/Utils.h"
+#include "Config.h"
 
 #include <QMacCocoaViewContainer>
 #include <QVBoxLayout>
@@ -243,6 +244,8 @@ HWebView::HWebView(QWidget *parent)
     HumbugWebView *webView = [[HumbugWebView alloc] init];
     [webView setQWidget:this];
     setupLayout(webView, this);
+
+    [webView setApplicationNameForUserAgent:[NSString stringWithFormat:@"Humbug Desktop/%@", fromQString(HUMBUG_VERSION_STRING)]];
 
     WebPreferences *webPrefs = [webView preferences];
 
