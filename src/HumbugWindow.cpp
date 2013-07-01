@@ -316,7 +316,7 @@ void HumbugWindow::displayPopup(const QString &title, const QString &content)
     m_tray->showMessage(title, content);
 
 #ifdef Q_OS_MAC
-    APP->desktopNotification(title, content);
+    macNotify(title, content);
 #endif
 }
 

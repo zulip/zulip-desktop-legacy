@@ -1,7 +1,12 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "Converters.h"
+
 #include <Foundation/NSString.h>
+#include <Foundation/NSAutoreleasePool.h>
+
+#include <QUrl>
 
 // This file can only be #include-d from .mm files
 

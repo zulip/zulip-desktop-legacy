@@ -14,10 +14,7 @@ public:
     explicit HumbugApplication(int & argc, char ** argv) : QApplication(argc, argv) {}
 
     void setMainWindow(HumbugWindow* mw) { m_mw = mw; }
-
-#ifdef Q_OS_MAC
-    void desktopNotification(const QString& title, const QString& msg);
-#endif
+    HumbugWindow* mainWindow() const { return m_mw; }
 
 protected:
 #ifdef Q_OS_MAC

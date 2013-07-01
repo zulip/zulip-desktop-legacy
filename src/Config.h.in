@@ -13,6 +13,7 @@
 #cmakedefine SNOW_LEOPARD
 #cmakedefine LEOPARD
 #cmakedefine HAVE_SPARKLE
+#cmakedefine HAVE_GROWL
 
 #cmakedefine HAVE_THUMBBUTTON
 

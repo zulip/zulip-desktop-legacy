@@ -39,8 +39,8 @@ public:
     ~HumbugWindow();
 
     HWebView* webView() const;
-public slots:
 
+public slots:
     void closeEvent(QCloseEvent *);
 
     void userQuit();

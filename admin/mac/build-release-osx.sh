@@ -40,6 +40,7 @@ VERSION=$1
 
     #header "Copying Sparkle framework"
     cp -R /Library/Frameworks/Sparkle.framework Contents/Frameworks
+    cp -R /Library/Frameworks/Growl.framework Contents/Frameworks
 
     header "Creating DMG"
     cd ..

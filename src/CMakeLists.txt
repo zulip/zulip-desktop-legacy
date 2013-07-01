@@ -97,7 +97,7 @@ install(TARGETS humbug DESTINATION bin)
 
 # Platform specifics
 if (APPLE)
-# Enable sparkle when we have it
+  # Enable sparkle when we have it
   option(ENABLE_SPARKLE "Sparkle updating" ON)
   find_library(SPARKLE Sparkle)
   if (ENABLE_SPARKLE AND SPARKLE)
@@ -106,6 +106,14 @@ if (APPLE)
   endif(ENABLE_SPARKLE AND SPARKLE)
   FILE(COPY ${CMAKE_SOURCE_DIR}/admin/mac/sparkle_pub.pem
     DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
+
+  option(ENABLE_GROWL "Growl Notifications" ON)
+  find_library(GROWL Growl)
+  if (ENABLE_GROWL AND GROWL)
+    set(HAVE_GROWL ON)
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${GROWL})
+    message("Found Growl.framework, enabling notifications")
+  endif()
 
   # Uses Darwin kernel version.
   # 9.8.0  -> 10.5/Leopard
@@ -132,6 +140,8 @@ if (APPLE)
   FILE( WRITE ${CMAKE_BINARY_DIR}/Info.plist "${edited_plist}" )
 
   FILE(COPY ${CMAKE_SOURCE_DIR}/src/images/Humbug.icns
+         DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
+  FILE(COPY "${CMAKE_SOURCE_DIR}/admin/mac/Growl Registration Ticket.growlRegDict"
          DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
 
 endif (APPLE)
