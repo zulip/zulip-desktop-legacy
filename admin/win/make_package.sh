@@ -10,7 +10,7 @@ fi
 
 cd /tmp
 rm -rf humbug-desktop
-git clone humbug@git.humbughq.com:/srv/git/humbug-desktop.git
+git clone git@git.humbughq.com:humbug-desktop.git
 pushd humbug-desktop
 pushd admin/win
 sh update-vlc.sh
