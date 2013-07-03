@@ -12,6 +12,7 @@ cd /tmp
 rm -rf humbug-desktop
 git clone git@git.humbughq.com:humbug-desktop.git
 pushd humbug-desktop
+git checkout leo-wip
 pushd admin/win
 sh update-vlc.sh
 popd

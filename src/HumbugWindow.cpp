@@ -5,6 +5,7 @@
 #include "IconRenderer.h"
 #include "ui_HumbugWindow.h"
 #include "Config.h"
+#include "PlatformInterface.h"
 
 #include <QDir>
 #include <QMenuBar>
@@ -24,13 +25,6 @@
 #include <phonon/MediaSource>
 #include <phonon/AudioOutput>
 
-#ifdef Q_OS_MAC
-#include "mac/Setup.h"
-#endif
-
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
 
 HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -40,10 +34,8 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     m_animationStep(0),
     m_domainMapper(new QSignalMapper(this)),
     m_unreadCount(0),
-    m_unreadPMCount(0)
-#ifdef Q_OS_WIN
-    , m_updater(0)
-#endif
+    m_unreadPMCount(0),
+    m_platform(new PlatformInterface(this))
 {
     m_ui->setupUi(this);
 
@@ -66,13 +58,6 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
 #ifndef Q_OS_WIN
     connect(m_ui->webView, SIGNAL(bell()), m_bellsound, SLOT(play()));
 #endif
-    
-#ifdef Q_OS_WIN
-    m_updater = new qtsparkle::Updater(QUrl("https://humbughq.com/dist/apps/win/sparkle.xml"), this);
-#ifdef HAVE_THUMBBUTTON
-    setupTaskbarIcon();
-#endif
-#endif
 
     readSettings();
 }
@@ -85,6 +70,10 @@ HumbugWindow::~HumbugWindow()
 
 HWebView* HumbugWindow::webView() const {
     return m_ui->webView;
+}
+
+IconRenderer* HumbugWindow::iconRenderer() const {
+    return m_renderer;
 }
 
 void HumbugWindow::setupTray() {
@@ -130,7 +119,7 @@ void HumbugWindow::setupTray() {
 
 #ifdef Q_OS_WIN
     QAction* checkForUpdates = menu->addAction("Check for Updates...");
-    connect(checkForUpdates, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
+    connect(checkForUpdates, SIGNAL(triggered()), m_platform, SLOT(checkForUpdates()));
 #endif
     
     QAction *exit_action = menu->addAction("Exit");
@@ -146,46 +135,9 @@ void HumbugWindow::setupTray() {
 
     QAction* checkForUpdates = about_menu->addAction("Check for Updates...");
     checkForUpdates->setMenuRole(QAction::ApplicationSpecificRole);
-    connect(checkForUpdates, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
+    connect(checkForUpdates, SIGNAL(triggered()), m_platform, SLOT(checkForUpdates()));
 #endif
 }
-
-#if defined(Q_OS_WIN) && defined(HAVE_THUMBBUTTON)
-void HumbugWindow::setupTaskbarIcon() {
-    m_taskbarInterface = NULL;
-
-    // Compute the value for the TaskbarButtonCreated message
-    m_IDTaskbarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
-
-    HRESULT hr = CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, reinterpret_cast<void**> (&(m_taskbarInterface)));
-
-    if (SUCCEEDED(hr)) {
-        hr = m_taskbarInterface->HrInit();
-
-        if (FAILED(hr)) {
-            m_taskbarInterface->Release();
-            m_taskbarInterface = NULL;
-        }
-    }
-}
-
-void HumbugWindow::setOverlayIcon(const QIcon& icon, const QString& description) {
-    qDebug() << "Setting windows overlay icon!";
-    if (m_taskbarInterface) {
-        qDebug() << "Doing it now!";
-        HICON overlay_icon = icon.isNull() ? NULL : icon.pixmap(48).toWinHICON();
-        m_taskbarInterface->SetOverlayIcon(winId(), overlay_icon, description.toStdWString().c_str());
-
-        if (overlay_icon) {
-            DestroyIcon(overlay_icon);
-            return;
-        }
-    }
-
-    return;
-
-}
-#endif
 
 void HumbugWindow::startTrayAnimation(const QList<QIcon> &stages) {
     m_animationStages = stages;
@@ -292,12 +244,7 @@ void HumbugWindow::countUpdated(int newCount)
 
     m_tray->setIcon(m_renderer->icon(newCount));
 
-#if defined(Q_OS_WIN) && defined(HAVE_THUMBBUTTON)
-    if (newCount == 0)
-        setOverlayIcon(QIcon(), "");
-    else
-        setOverlayIcon(m_renderer->winBadgeIcon(newCount), tr("%1 unread messages").arg(newCount));
-#endif
+    m_platform->unreadCountUpdated(old, newCount);
 }
 
 void HumbugWindow::pmCountUpdated(int newCount)
@@ -322,19 +269,7 @@ void HumbugWindow::displayPopup(const QString &title, const QString &content)
 {
     m_tray->showMessage(title, content);
 
-#ifdef Q_OS_MAC
-    macNotify(title, content);
-#endif
-
-#ifdef Q_OS_WIN
-   FLASHWINFO finfo;
-   finfo.cbSize = sizeof( FLASHWINFO );
-   finfo.hwnd = this->winId();
-   finfo.uCount = 1;         // Flash 40 times
-   finfo.dwTimeout = 400; // Duration in milliseconds between flashes
-   finfo.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG; //Flash all, until window comes to the foreground
-   ::FlashWindowEx( &finfo );
-#endif
+    m_platform->desktopNotification(title, content);
 }
 
 void HumbugWindow::domainSelected(const QString &domain) {
@@ -352,14 +287,6 @@ void HumbugWindow::domainSelected(const QString &domain) {
     setUrl(site);
 }
 
-void HumbugWindow::checkForUpdates() {
-#ifdef Q_OS_MAC
-    checkForSparkleUpdate();
-#endif
-#ifdef Q_OS_WIN
-    m_updater->CheckNow();
-#endif
-}
 
 QString HumbugWindow::domainToUrl(const QString& domain) const {
     if (domain == "prod") {

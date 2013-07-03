@@ -25,7 +25,7 @@ set( humbug_RESOURCES resources.qrc )
 qt4_wrap_cpp(EXTRA_MOCS HumbugApplication.h)
 
 if (APPLE)
-    set(EXTRA_SRCS webview/HWebView_mac.mm mac/HumbugApplication_mac.mm mac/Setup.mm)
+    set(EXTRA_SRCS webview/HWebView_mac.mm mac/HumbugApplication_mac.mm mac/PlatformInterface.mm)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework
@@ -33,19 +33,19 @@ if (APPLE)
                    /System/Library/Frameworks/ApplicationServices.framework
                    /System/Library/Frameworks/Carbon.framework)
 
-    qt4_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h)
+    qt4_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h PlatformInterface.h)
     set(EXTRA_SRCS ${MAC_EXTRA_MOCS} ${EXTRA_SRCS})
 else()
     set(EXTRA_SRCS webview/HWebView.cpp)
 endif()
 
 if (WIN32)
-  SET( CMAKE_BUILD_TYPE "Release" )
+  set( CMAKE_BUILD_TYPE "Release" )
 
-  ADD_DEFINITIONS( /DNOMINMAX )
-  ADD_DEFINITIONS( /DWIN32_LEAN_AND_MEAN )
-  ADD_DEFINITIONS( -static-libgcc )
-  ADD_DEFINITIONS( -DUNICODE )
+  add_definitions( /DNOMINMAX )
+  add_definitions( /DWIN32_LEAN_AND_MEAN )
+  add_definitions( -static-libgcc )
+  add_definitions( -DUNICODE )
 
   include (CheckCXXSourceCompiles)
 
@@ -58,7 +58,9 @@ if (WIN32)
       "
       HAVE_THUMBBUTTON )
 
-  SET( EXTRA_LIBS
+  set(EXTRA_SRCS ${EXTRA_SRCS} win/PlatformInterface_win.cpp)
+
+  set( EXTRA_LIBS
       ${EXTRA_LIBS}
       qtsparkle
       "secur32.dll"
@@ -73,6 +75,12 @@ if (WIN32)
 
   kde4_add_app_icon( humbug_SRCS "${CMAKE_SOURCE_DIR}/admin/icon/humbug-icon-*.png" )
 
+  qt4_wrap_cpp(WIN_EXTRA_MOCS PlatformInterface.h)
+  set(EXTRA_SRCS ${WIN_EXTRA_MOCS} ${EXTRA_SRCS})
+endif()
+
+if (NOT WIN32 AND NOT APPLE)
+    set(EXTRA_SRCS ${EXTRA_SRCS} PlatformInterface.cpp)
 endif()
 
 include_directories(

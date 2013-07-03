@@ -1,17 +1,12 @@
-#include "Setup.h"
+#include "PlatformInterface.h"
 
-#include "Config.h"
 #include "Utils.h"
 #include "HumbugApplication.h"
 #include "HumbugWindow.h"
 
-#ifdef HAVE_SPARKLE
-    #import <Sparkle/SUUpdater.h>
-#endif
-
-#ifdef HAVE_GROWL
-    #import <Growl/GrowlApplicationBridge.h>
-#endif
+#import <Foundation/Foundation.h>
+#import <Sparkle/SUUpdater.h>
+#import <Growl/GrowlApplicationBridge.h>
 
 @interface ZGrowlDelegate : NSObject <GrowlApplicationBridgeDelegate>
 - (void) growlNotificationWasClicked:(id)clickContext;
@@ -23,19 +18,23 @@
 }
 @end
 
-void macMain() {
-#ifdef HAVE_SPARKLE
+PlatformInterface::PlatformInterface(QObject *parent)
+    : QObject(parent)
+    , m_d(0)
+{
     // Initialize Sparkle
     [[SUUpdater sharedUpdater] setDelegate: NSApp];
-#endif
 
-#ifdef HAVE_GROWL
     [GrowlApplicationBridge setGrowlDelegate:[[ZGrowlDelegate alloc] init]];
-
-#endif
 }
 
-void macNotify(const QString &titleQ, const QString &contentQ) {
+PlatformInterface::~PlatformInterface() {}
+
+void PlatformInterface::checkForUpdates() {
+    [[SUUpdater sharedUpdater] checkForUpdates: NSApp];
+}
+
+void PlatformInterface::desktopNotification(const QString &titleQ, const QString &contentQ) {
     // Bounce dock icon
     [NSApp requestUserAttention:NSCriticalRequest];
 
@@ -51,8 +50,6 @@ void macNotify(const QString &titleQ, const QString &contentQ) {
                                clickContext:nil];
 }
 
-void checkForSparkleUpdate() {
-#ifdef HAVE_SPARKLE
-  [[SUUpdater sharedUpdater] checkForUpdates: NSApp];
-#endif
+void PlatformInterface::unreadCountUpdated(int, int) {
+
 }

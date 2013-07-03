@@ -10,13 +10,6 @@
 
 #include <phonon/MediaObject>
 
-// QtSparkle
-#include <updater.h>
-
-#ifdef Q_OS_WIN
-#include <shobjidl.h>
-#endif
-
 class QAction;
 namespace Ui
 {
@@ -28,6 +21,7 @@ class QSystemTrayIcon;
 class HWebView;
 class QSignalMapper;
 class IconRenderer;
+class PlatformInterface;
 
 class HumbugWindow : public QMainWindow
 {
@@ -39,6 +33,7 @@ public:
     ~HumbugWindow();
 
     HWebView* webView() const;
+    IconRenderer *iconRenderer() const;
 
 public slots:
     void closeEvent(QCloseEvent *);
@@ -53,7 +48,6 @@ public slots:
 
 private slots:
     void domainSelected(const QString& domain);
-    void checkForUpdates();
 
     void animateTray();
 
@@ -66,11 +60,6 @@ private:
 
     void readSettings();
     QString domainToUrl(const QString& domain) const;
-
-#ifdef Q_OS_WIN
-    void setupTaskbarIcon();
-    void setOverlayIcon(const QIcon& icon, const QString& desc);
-#endif
 
     Ui::HumbugWindow *m_ui;
 
@@ -95,15 +84,7 @@ private:
 
     int m_unreadCount, m_unreadPMCount;
 
-    // Platform Specific
-#ifdef Q_OS_WIN
-    qtsparkle::Updater *m_updater;
-    
-#ifdef HAVE_THUMBBUTTON
-    unsigned int m_IDTaskbarButtonCreated;
-    ITaskbarList3* m_taskbarInterface;
-#endif
-#endif
+    PlatformInterface *m_platform;
 };
 
 #endif // HUMBUGWINDOW_H
