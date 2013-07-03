@@ -28,6 +28,10 @@
 #include "mac/Setup.h"
 #endif
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::HumbugWindow),
@@ -320,6 +324,16 @@ void HumbugWindow::displayPopup(const QString &title, const QString &content)
 
 #ifdef Q_OS_MAC
     macNotify(title, content);
+#endif
+
+#ifdef Q_OS_WIN
+   FLASHWINFO finfo;
+   finfo.cbSize = sizeof( FLASHWINFO );
+   finfo.hwnd = this->winId();
+   finfo.uCount = 1;         // Flash 40 times
+   finfo.dwTimeout = 400; // Duration in milliseconds between flashes
+   finfo.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG; //Flash all, until window comes to the foreground
+   ::FlashWindowEx( &finfo );
 #endif
 }
 
