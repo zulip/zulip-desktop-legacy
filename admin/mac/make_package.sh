@@ -19,6 +19,7 @@ make -j3
 ../admin/mac/build-release-osx.sh "$@"
 
 mv Humbug-$1.dmg ~/packages/
+mv Humbug-$1.tar.bz2 ~/packages/sparkle
 
 popd
 rm -rf humbug-desktop/
