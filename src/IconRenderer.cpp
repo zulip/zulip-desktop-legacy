@@ -70,9 +70,9 @@ QIcon IconRenderer::winBadgeIcon(int unreadCount) {
     // Draw a red background circle
     QGradient grad = QLinearGradient(24, 0, 24, 48);
     QColor color;
-    color.setNamedColor("#EF6F6C");
+    color.setNamedColor("#F9A0A0");
     grad.setColorAt(0, color);
-    color.setNamedColor("#AD0700");
+    color.setNamedColor("#F09A9A");
     grad.setColorAt(1, color);
     p.save();
     p.setBrush(grad);
