@@ -26,12 +26,6 @@
 !define SQLITE_DLL_PATH "${MING_LIB}/qt4/plugins/sqldrivers"
 !define IMAGEFORMATS_DLL_PATH "${MING_LIB}/qt4/plugins/imageformats"
 
-; We use official release plugins
-; mingw32-vlc from obs misses a lot and has even broken ones probably
-!define VLC_PATH "${SOURCE_PATH}\admin\win\vlc\" ; SIC! ^
-!define VLC_BIN "${VLC_PATH}"
-!define VLC_PLUGIN_PATH "${VLC_BIN}\plugins"
-
 !define NSI_PATH "${SOURCE_PATH}/admin/win/nsi"
 
 ;-----------------------------------------------------------------------------
@@ -312,19 +306,6 @@ Section "Humbug" SEC_HUMBUGs_PLAYER
    ;File "${MING_BIN}\mingwm10.dll"
    File "${MING_BIN}\libgcc_s_sjlj-1.dll"
    File "${MING_BIN}\libstdc++-6.dll"
-
-   ;Phonon stuff
-   File "${MING_BIN}\libphonon.dll"
-   SetOutPath "$INSTDIR\phonon_backend"
-   File "${VLC_BIN}\phonon_backend\phonon_vlc.dll"
-   SetOutPath "$INSTDIR"
-
-   ;VLC
-   File "${VLC_BIN}\libvlc.dll"
-   File "${VLC_BIN}\libvlccore.dll"
-   SetOutPath "$INSTDIR\plugins"
-   File /r "${VLC_PLUGIN_PATH}\*.dll"
-   SetOutPath "$INSTDIR"
 
    ; Other
    File "${MING_BIN}\libpng15-15.dll"
