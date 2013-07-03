@@ -7,6 +7,7 @@
 
 #include <shobjidl.h>
 #include <windows.h>
+#include <mmsystem.h>
 
 // QtSparkle
 #include <updater.h>
@@ -15,6 +16,8 @@
 #include <QUrl>
 #include <QDebug>
 #include <QTimer>
+#include <QTemporaryFile>
+#include <QResource>
 
 class PlatformInterfacePrivate : public QObject {
     Q_OBJECT
@@ -22,6 +25,12 @@ public:
     PlatformInterfacePrivate(PlatformInterface *qq) : QObject(qq), q(qq){
         setupTaskbarIcon();
         
+        sound_temp.open();
+        QResource memory_soundfile(":/audio/humbug.wav");
+        sound_temp.write((char*) memory_soundfile.data(), memory_soundfile.size());
+        sound_temp.flush();
+        sound_temp.close();
+
         QTimer::singleShot(0, this, SLOT(setupQtSparkle()));
     }
     
@@ -68,6 +77,7 @@ public:
 
     PlatformInterface *q;
     qtsparkle::Updater *updater;
+    QTemporaryFile sound_temp;
 
     unsigned int m_IDTaskbarButtonCreated;
     ITaskbarList3* m_taskbarInterface;
@@ -107,7 +117,8 @@ void PlatformInterface::unreadCountUpdated(int oldCount, int newCount) {
 }
 
 void PlatformInterface::playSound() {
-
+    LPCTSTR filename = reinterpret_cast<const wchar_t *>(m_d->sound_temp.fileName().utf16());
+    PlaySound(filename, NULL, SND_ASYNC | SND_FILENAME | SND_NODEFAULT);
 }
 
 #include "PlatformInterface_win.moc"
