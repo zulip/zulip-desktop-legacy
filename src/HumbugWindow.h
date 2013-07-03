@@ -5,10 +5,7 @@
 #include "Config.h"
 
 #include <QMainWindow>
-#include <QTemporaryFile>
 #include <QSystemTrayIcon>
-
-#include <phonon/MediaObject>
 
 class QAction;
 namespace Ui
@@ -53,7 +50,6 @@ private slots:
 
 private:
     void setupTray();
-    void setupSounds();
 
     void startTrayAnimation(const QList<QIcon>& stages);
     void stopTrayAnimation();
@@ -77,10 +73,6 @@ private:
 
     CookieJar *m_cookies;
     QUrl m_start;
-
-    // Audio
-    Phonon::MediaObject *m_bellsound;
-    QTemporaryFile m_sound_temp;
 
     int m_unreadCount, m_unreadPMCount;
 

@@ -17,11 +17,12 @@ public:
     virtual ~PlatformInterface();
 
     void desktopNotification(const QString& title, const QString& content);
-
     void unreadCountUpdated(int oldCount, int newCount);
+
 public slots:
     // Noop on linux
     void checkForUpdates();
+    void playSound();
 
 private:
     PlatformInterfacePrivate *m_d;

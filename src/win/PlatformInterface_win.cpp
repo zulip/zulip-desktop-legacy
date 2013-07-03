@@ -106,4 +106,8 @@ void PlatformInterface::unreadCountUpdated(int oldCount, int newCount) {
         m_d->setOverlayIcon(APP->mainWindow()->iconRenderer()->winBadgeIcon(newCount), tr("%1 unread messages").arg(newCount));
 }
 
+void PlatformInterface::playSound() {
+
+}
+
 #include "PlatformInterface_win.moc"

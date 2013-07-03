@@ -12,7 +12,6 @@
 #include <QSystemTrayIcon>
 #include <QWebFrame>
 #include <QCloseEvent>
-#include <QResource>
 #include <QWebSettings>
 #include <QNetworkAccessManager>
 #include <QDesktopServices>
@@ -20,11 +19,7 @@
 #include <QSignalMapper>
 #include <QTimer>
 #include <QFontDatabase>
-
-#include <phonon/MediaObject>
-#include <phonon/MediaSource>
-#include <phonon/AudioOutput>
-
+#include <QDebug>
 
 HumbugWindow::HumbugWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -48,16 +43,12 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     statusBar()->hide();
 
     setupTray();
-    setupSounds();
 
     connect(m_ui->webView, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
     connect(m_ui->webView, SIGNAL(desktopNotification(QString,QString)), this, SLOT(displayPopup(QString,QString)));
     connect(m_ui->webView, SIGNAL(updateCount(int)), this, SLOT(countUpdated(int)));
-    connect(m_ui->webView, SIGNAL(updatePMCount(int)), this, SLOT(pmCountUpdated(int)));
-    
-#ifndef Q_OS_WIN
-    connect(m_ui->webView, SIGNAL(bell()), m_bellsound, SLOT(play()));
-#endif
+    connect(m_ui->webView, SIGNAL(updatePMCount(int)), this, SLOT(pmCountUpdated(int)));    
+    connect(m_ui->webView, SIGNAL(bell()), m_platform, SLOT(playSound()));
 
     readSettings();
 }
@@ -160,19 +151,6 @@ void HumbugWindow::stopTrayAnimation() {
 void HumbugWindow::animateTray() {
     m_animationStep = (m_animationStep + 1) % m_animationStages.size();
     m_tray->setIcon(m_animationStages[m_animationStep]);
-}
-
-void HumbugWindow::setupSounds() {
-    m_bellsound = new Phonon::MediaObject(this);
-    Phonon::createPath(m_bellsound, new Phonon::AudioOutput(Phonon::MusicCategory, this));
-
-    m_sound_temp.open();
-    QResource memory_soundfile(":/humbug.ogg");
-    m_sound_temp.write((char*) memory_soundfile.data(), memory_soundfile.size());
-    m_sound_temp.flush();
-    m_sound_temp.close();
-
-    m_bellsound->setCurrentSource(Phonon::MediaSource(m_sound_temp.fileName()));
 }
 
 void HumbugWindow::closeEvent(QCloseEvent *ev) {

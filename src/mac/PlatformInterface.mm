@@ -53,3 +53,7 @@ void PlatformInterface::desktopNotification(const QString &titleQ, const QString
 void PlatformInterface::unreadCountUpdated(int, int) {
 
 }
+
+void PlatformInterface::playSound() {
+
+}
