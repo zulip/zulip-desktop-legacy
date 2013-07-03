@@ -32,7 +32,10 @@ INCLUDE( HumbugCPack.cmake )
 
 # Dependencies
 find_package( Qt4 COMPONENTS ${QT_COMPONENTS} REQUIRED )
-find_package( Phonon 4.6.0 REQUIRED )
+
+if(NOT APPLE AND NOT WIN32)
+    find_package( Phonon 4.6.0 REQUIRED )
+endif()
 
 # Configure Qt
 set( QT_USE_QTNETWORK TRUE )

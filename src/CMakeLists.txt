@@ -81,6 +81,9 @@ endif()
 
 if (NOT WIN32 AND NOT APPLE)
     set(EXTRA_SRCS ${EXTRA_SRCS} PlatformInterface.cpp)
+
+    include_directories(${PHONON_INCLUDES})
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${PHONON_LIBS})
 endif()
 
 include_directories(
@@ -88,7 +91,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/thirdparty/qtsparkle/src
     ${QT_INCLUDES}
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${PHONON_INCLUDES}
 )
 
 qt4_add_resources( humbug_RESOURCES_RCC ${humbug_RESOURCES})
@@ -157,7 +159,6 @@ if (APPLE)
 endif (APPLE)
 
 target_link_libraries( humbug
-    ${PHONON_LIBS}
     ${QT_LIBRARIES}
     ${EXTRA_LIBS}
 )
