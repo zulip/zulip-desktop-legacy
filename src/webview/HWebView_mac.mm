@@ -78,7 +78,6 @@ public:
     }
 
     void desktopNotification(const QString& title, const QString& content) {
-        [NSApp requestUserAttention:NSCriticalRequest];
         emit q->desktopNotification(title, content);
     }
 

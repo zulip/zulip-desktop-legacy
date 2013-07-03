@@ -36,6 +36,10 @@ void macMain() {
 }
 
 void macNotify(const QString &titleQ, const QString &contentQ) {
+    // Bounce dock icon
+    [NSApp requestUserAttention:NSCriticalRequest];
+
+    // Show desktop notification
     NSString *title = fromQString(titleQ);
     NSString *content = fromQString(contentQ);
 
