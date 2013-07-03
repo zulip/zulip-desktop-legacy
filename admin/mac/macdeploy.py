@@ -27,169 +27,8 @@ FRAMEWORK_SEARCH_PATH=[
 
 LIBRARY_SEARCH_PATH=['/usr/local/lib', '/usr/local/Cellar/gettext/0.18.1.1/lib', '.']
 
-VLC_PLUGINS=[
-  'libaccess_attachment_plugin.dylib',
-  #'libaccess_avio_plugin.dylib',
-  #'libaccess_fake_plugin.dylib',
-  'libaccess_ftp_plugin.dylib',
-  'libaccess_http_plugin.dylib',
-  'libaccess_imem_plugin.dylib',
-  #'libaccess_mmap_plugin.dylib',
-  'libaccess_mms_plugin.dylib',
-  'libaccess_realrtsp_plugin.dylib',
-  'libaccess_tcp_plugin.dylib',
-  'libaccess_udp_plugin.dylib',
-  'libcdda_plugin.dylib',
-  'libfilesystem_plugin.dylib',
-  'libqtcapture_plugin.dylib',
-  'librtp_plugin.dylib',
-  'libzip_plugin.dylib',
-  'libaccess_output_dummy_plugin.dylib',
-  'libaccess_output_file_plugin.dylib',
-  'libaccess_output_http_plugin.dylib',
-  'libaccess_output_shout_plugin.dylib',
-  'libaccess_output_udp_plugin.dylib',
-  'liba52tofloat32_plugin.dylib',
-  'liba52tospdif_plugin.dylib',
-  'libaudio_format_plugin.dylib',
-  'libaudiobargraph_a_plugin.dylib',
-  'libchorus_flanger_plugin.dylib',
-  'libconverter_fixed_plugin.dylib',
-  'libdolby_surround_decoder_plugin.dylib',
-  'libdtstofloat32_plugin.dylib',
-  'libdtstospdif_plugin.dylib',
-  'libequalizer_plugin.dylib',
-  'libheadphone_channel_mixer_plugin.dylib',
-  'libmono_plugin.dylib',
-  'libmpgatofixed32_plugin.dylib',
-  'libnormvol_plugin.dylib',
-  'libparam_eq_plugin.dylib',
-  'libscaletempo_plugin.dylib',
-  'libsimple_channel_mixer_plugin.dylib',
-  'libspatializer_plugin.dylib',
-  'libtrivial_channel_mixer_plugin.dylib',
-  'libugly_resampler_plugin.dylib',
-  'libfloat32_mixer_plugin.dylib',
-  #'libspdif_mixer_plugin.dylib',
-  #'libtrivial_mixer_plugin.dylib',
-  'libaout_file_plugin.dylib',
-  'libauhal_plugin.dylib',
-  'liba52_plugin.dylib',
-  'libadpcm_plugin.dylib',
-  'libaes3_plugin.dylib',
-  'libaraw_plugin.dylib',
-  'libavcodec_plugin.dylib',
-  'libcc_plugin.dylib',
-  'libcdg_plugin.dylib',
-  'libdts_plugin.dylib',
-  'libfaad_plugin.dylib',
-  #'libfake_plugin.dylib',
-  'libflac_plugin.dylib',
-  'libfluidsynth_plugin.dylib',
-  #'libinvmem_plugin.dylib',
-  'liblpcm_plugin.dylib',
-  'libmpeg_audio_plugin.dylib',
-  'libpng_plugin.dylib',
-  'librawvideo_plugin.dylib',
-  'libspeex_plugin.dylib',
-  'libspudec_plugin.dylib',
-  'libtheora_plugin.dylib',
-  'libtwolame_plugin.dylib',
-  'libvorbis_plugin.dylib',
-  'libgestures_plugin.dylib',
-  'libhotkeys_plugin.dylib',
-  'libmotion_plugin.dylib',
-  'libnetsync_plugin.dylib',
-  #'libsignals_plugin.dylib',
-  'libaiff_plugin.dylib',
-  'libasf_plugin.dylib',
-  'libau_plugin.dylib',
-  #'libavformat_plugin.dylib',
-  'libavi_plugin.dylib',
-  'libdemux_cdg_plugin.dylib',
-  'libdemuxdump_plugin.dylib',
-  'libdirac_plugin.dylib',
-  'libes_plugin.dylib',
-  'libflacsys_plugin.dylib',
-  'liblive555_plugin.dylib',
-  'libmkv_plugin.dylib',
-  'libmod_plugin.dylib',
-  'libmp4_plugin.dylib',
-  'libmpc_plugin.dylib',
-  'libmpgv_plugin.dylib',
-  'libnsc_plugin.dylib',
-  'libnsv_plugin.dylib',
-  'libnuv_plugin.dylib',
-  'libogg_plugin.dylib',
-  'libplaylist_plugin.dylib',
-  'libps_plugin.dylib',
-  'libpva_plugin.dylib',
-  'librawaud_plugin.dylib',
-  'librawdv_plugin.dylib',
-  'librawvid_plugin.dylib',
-  'libreal_plugin.dylib',
-  'libsmf_plugin.dylib',
-  'libts_plugin.dylib',
-  'libtta_plugin.dylib',
-  'libty_plugin.dylib',
-  'libvc1_plugin.dylib',
-  'libvoc_plugin.dylib',
-  'libwav_plugin.dylib',
-  'libxa_plugin.dylib',
-  'libfolder_plugin.dylib',
-  'libtaglib_plugin.dylib',
-  'libaudioscrobbler_plugin.dylib',
-  'libdummy_plugin.dylib',
-  'libexport_plugin.dylib',
-  'libfreetype_plugin.dylib',
-  'libgnutls_plugin.dylib',
-  'liblogger_plugin.dylib',
-  'liblua_plugin.dylib',
-  'libosd_parser_plugin.dylib',
-  'libquartztext_plugin.dylib',
-  'libstats_plugin.dylib',
-  'libvod_rtsp_plugin.dylib',
-  'libxml_plugin.dylib',
-  #'libxtag_plugin.dylib',
-  'libi420_rgb_mmx_plugin.dylib',
-  'libi420_yuy2_mmx_plugin.dylib',
-  'libi422_yuy2_mmx_plugin.dylib',
-  'libmemcpymmx_plugin.dylib',
-  'libmemcpymmxext_plugin.dylib',
-  'libmux_asf_plugin.dylib',
-  'libmux_avi_plugin.dylib',
-  'libmux_dummy_plugin.dylib',
-  'libmux_mp4_plugin.dylib',
-  'libmux_mpjpeg_plugin.dylib',
-  'libmux_ogg_plugin.dylib',
-  'libmux_ps_plugin.dylib',
-  'libmux_ts_plugin.dylib',
-  'libmux_wav_plugin.dylib',
-  'libpacketizer_copy_plugin.dylib',
-  'libpacketizer_dirac_plugin.dylib',
-  'libpacketizer_flac_plugin.dylib',
-  'libpacketizer_h264_plugin.dylib',
-  'libpacketizer_mlp_plugin.dylib',
-  'libpacketizer_mpeg4audio_plugin.dylib',
-  'libpacketizer_mpeg4video_plugin.dylib',
-  'libpacketizer_mpegvideo_plugin.dylib',
-  'libpacketizer_vc1_plugin.dylib',
-  'libi420_rgb_sse2_plugin.dylib',
-  'libi420_yuy2_sse2_plugin.dylib',
-  'libi422_yuy2_sse2_plugin.dylib',
-  'libdecomp_plugin.dylib',
-  'libstream_filter_rar_plugin.dylib',
-  'libstream_filter_record_plugin.dylib',
-  'libvisual_plugin.dylib',
-]
-
-VLC_SEARCH_PATH=[
-    '/usr/local/lib/vlc/plugins/',
-]
-
 QT_PLUGINS = [
     'crypto/libqca-ossl.dylib',
-    'phonon_backend/phonon_vlc.so',
   #  'sqldrivers/libqsqlite.dylib',
     'imageformats/libqgif.dylib',
     'imageformats/libqico.dylib',
@@ -220,11 +59,6 @@ class InstallNameToolError(Error):
 
 class CouldNotFindQtPluginError(Error):
   pass
-
-
-class CouldNotFindVLCPluginError(Error):
-  pass
-
 
 class CouldNotFindScriptPluginError(Error):
   pass
@@ -354,23 +188,6 @@ def FixLibrary(path):
   for library in broken_libs['libs']:
     FixLibraryInstallPath(library, new_path)
 
-def FixVLCPlugin(abs_path, subdir):
-  broken_libs = GetBrokenLibraries(abs_path)
-  FixAllLibraries(broken_libs)
-
-  #print "Copying plugin....%s %s %s" % (plugins_dir, subdir, os.path.join(abs_path.split('/')[-2:]))
-  new_path = os.path.join(plugins_dir, subdir, os.path.basename(abs_path))
-  args = ['mkdir', '-p', os.path.dirname(new_path)]
-  commands.append(args)
-  args = ['ditto', '--arch=i386', '--arch=x86_64', abs_path, new_path]
-  commands.append(args)
-  args = ['chmod', 'u+w', new_path]
-  commands.append(args)
-  for framework in broken_libs['frameworks']:
-    FixFrameworkInstallPath(framework, new_path)
-  for library in broken_libs['libs']:
-    FixLibraryInstallPath(library, new_path)
-
 def FixPlugin(abs_path, subdir):
   broken_libs = GetBrokenLibraries(abs_path)
   FixAllLibraries(broken_libs)
@@ -474,18 +291,7 @@ def FindQtPlugin(name):
         return os.path.join(path, name)
   raise CouldNotFindQtPluginError(name)
 
-
-def FindVLCPlugin(name):
-  for path in VLC_SEARCH_PATH:
-    if os.path.exists(path):
-      if os.path.exists(os.path.join(path, name)):
-        return os.path.join(path, name)
-  raise CouldNotFindVLCPluginError(name)
-
 FixBinary(binary)
-
-for plugin in VLC_PLUGINS:
-  FixVLCPlugin(FindVLCPlugin(plugin), '../plugins')
 
 for plugin in HUMBUG_PLUGINS:
   FixPlugin(plugin, '../MacOS')
