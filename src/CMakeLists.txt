@@ -149,6 +149,8 @@ if (APPLE)
 
   FILE(COPY ${CMAKE_SOURCE_DIR}/src/images/Humbug.icns
          DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
+  FILE(COPY ${CMAKE_SOURCE_DIR}/src/audio/humbug.wav
+         DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
   FILE(COPY "${CMAKE_SOURCE_DIR}/admin/mac/Growl Registration Ticket.growlRegDict"
          DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
 

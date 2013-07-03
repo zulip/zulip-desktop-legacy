@@ -1,9 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>images/hat.svg</file>
-        <file>humbug.ogg</file>
         <file>about.html</file>
         <file>images/usericon.svg</file>
         <file>humbug.ttc</file>
+        <file>audio/humbug.ogg</file>
     </qresource>
 </RCC>

@@ -23,8 +23,8 @@ public slots:
     // Noop on linux
     void checkForUpdates();
     void playSound();
-
 private:
+
     PlatformInterfacePrivate *m_d;
 };
 

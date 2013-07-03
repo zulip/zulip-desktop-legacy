@@ -4,6 +4,8 @@
 #include "HumbugApplication.h"
 #include "HumbugWindow.h"
 
+#include <QDir>
+
 #import <Foundation/Foundation.h>
 #import <Sparkle/SUUpdater.h>
 #import <Growl/GrowlApplicationBridge.h>
@@ -18,9 +20,30 @@
 }
 @end
 
+class PlatformInterfacePrivate {
+public:
+    PlatformInterfacePrivate(PlatformInterface *qq) : q(qq) {
+        QDir binDir(QApplication::applicationDirPath());
+        binDir.cdUp();
+        binDir.cd("Resources");
+
+        const QString file = binDir.absoluteFilePath("humbug.wav");
+        sound = [[NSSound alloc] initWithContentsOfFile:fromQString(file)
+                                            byReference:NO];
+
+    }
+
+    ~PlatformInterfacePrivate() {
+        [sound release];
+    }
+
+    NSSound *sound;
+    PlatformInterface *q;
+};
+
 PlatformInterface::PlatformInterface(QObject *parent)
     : QObject(parent)
-    , m_d(0)
+    , m_d(new PlatformInterfacePrivate(this))
 {
     // Initialize Sparkle
     [[SUUpdater sharedUpdater] setDelegate: NSApp];
@@ -28,7 +51,9 @@ PlatformInterface::PlatformInterface(QObject *parent)
     [GrowlApplicationBridge setGrowlDelegate:[[ZGrowlDelegate alloc] init]];
 }
 
-PlatformInterface::~PlatformInterface() {}
+PlatformInterface::~PlatformInterface() {
+    delete m_d;
+}
 
 void PlatformInterface::checkForUpdates() {
     [[SUUpdater sharedUpdater] checkForUpdates: NSApp];
@@ -55,5 +80,5 @@ void PlatformInterface::unreadCountUpdated(int, int) {
 }
 
 void PlatformInterface::playSound() {
-
+    [m_d->sound play];
 }

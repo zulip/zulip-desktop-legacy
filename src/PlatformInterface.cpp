@@ -15,13 +15,12 @@ public:
         Phonon::createPath(bellsound, new Phonon::AudioOutput(Phonon::MusicCategory, q));
 
         sound_temp.open();
-        QResource memory_soundfile(":/humbug.ogg");
+        QResource memory_soundfile(":/audio/humbug.ogg");
         sound_temp.write((char*) memory_soundfile.data(), memory_soundfile.size());
         sound_temp.flush();
         sound_temp.close();
 
         bellsound->setCurrentSource(Phonon::MediaSource(sound_temp.fileName()));
-
     }
 
     Phonon::MediaObject *bellsound;
@@ -36,7 +35,9 @@ PlatformInterface::PlatformInterface(QObject *parent)
 {
 }
 
-PlatformInterface::~PlatformInterface() {}
+PlatformInterface::~PlatformInterface() {
+    delete m_d;
+}
 
 void PlatformInterface::checkForUpdates() {
     // Noop
