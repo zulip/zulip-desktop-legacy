@@ -31,6 +31,11 @@ public:
         sound = [[NSSound alloc] initWithContentsOfFile:fromQString(file)
                                             byReference:NO];
 
+#ifdef DEBUG
+        [[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
+                                                                                            forKey:@"WebKitDeveloperExtras"]];
+#endif
+
     }
 
     ~PlatformInterfacePrivate() {
