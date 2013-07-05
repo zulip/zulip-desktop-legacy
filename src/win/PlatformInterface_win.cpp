@@ -22,7 +22,7 @@
 class PlatformInterfacePrivate : public QObject {
     Q_OBJECT
 public:
-    PlatformInterfacePrivate(PlatformInterface *qq) : QObject(qq), q(qq){
+    PlatformInterfacePrivate(PlatformInterface *qq) : QObject(qq), q(qq), updater(0) {
         setupTaskbarIcon();
         
         sound_temp.open();
@@ -96,7 +96,8 @@ PlatformInterface::~PlatformInterface() {
 }
 
 void PlatformInterface::checkForUpdates() {
-    m_d->updater->CheckNow();
+    if (m_d->updater)
+        m_d->updater->CheckNow();
 }
 
 void PlatformInterface::desktopNotification(const QString &title, const QString &content) {
