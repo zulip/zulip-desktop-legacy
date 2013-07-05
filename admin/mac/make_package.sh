@@ -14,7 +14,7 @@ git clone git@git.humbughq.com:humbug-desktop.git
 pushd humbug-desktop
 mkdir build
 cd build
-cmake -DPHONON_INCLUDE_DIR=/usr/local/Cellar/kde-phonon/4.6.0/include/ -DPHONON_LIBRARY=/usr/local/Cellar/kde-phonon/4.6.0/lib/libphonon.4.6.0.dylib  -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j3
 ../admin/mac/build-release-osx.sh "$@"
 
