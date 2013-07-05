@@ -36,10 +36,6 @@ public:
     
     virtual ~PlatformInterfacePrivate() {
     }
-    
-    void setupQtSparkle() {   
-        updater = new qtsparkle::Updater(QUrl("https://humbughq.com/dist/apps/win/sparkle.xml"), APP->mainWindow());
-    }
 
     void setupTaskbarIcon() {
         m_taskbarInterface = NULL;
@@ -75,6 +71,12 @@ public:
         return;
     }
 
+private slots:
+    void setupQtSparkle() {
+        updater = new qtsparkle::Updater(QUrl("https://humbughq.com/dist/apps/win/sparkle.xml"), APP->mainWindow());
+    }
+
+public:
     PlatformInterface *q;
     qtsparkle::Updater *updater;
     QTemporaryFile sound_temp;
