@@ -65,6 +65,9 @@ public slots:
         {
             HumbugWindow *w = APP->mainWindow();
 
+            if (!w)
+                return;
+
             NSView *nsview = (NSView *)w->winId();
             NSWindow *nswindow = [nsview window];
             [nswindow setCollectionBehavior:SET_LION_FULLSCREEN];
