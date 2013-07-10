@@ -1,3 +1,9 @@
+humbug-desktop (0.3.3) wheezy; urgency=low
+
+  * debian/rules tweaks.
+
+ -- Luke Faraone <lfaraone@humbughq.com>  Wed, 10 Jul 2013 13:52:09 -0400
+
 humbug-desktop (0.3.0) wheezy; urgency=low
 
   * Initial Release.
