@@ -30,7 +30,7 @@ public:
 signals:
     void linkClicked(const QUrl& url);
 
-    // Humbug notifications
+    // Zulip notifications
     void desktopNotification(const QString& ,const QString&);
     void updateCount(int);
     void updatePMCount(int);

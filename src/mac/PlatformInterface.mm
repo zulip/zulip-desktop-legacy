@@ -1,8 +1,8 @@
 #include "PlatformInterface.h"
 
 #include "Utils.h"
-#include "HumbugApplication.h"
-#include "HumbugWindow.h"
+#include "ZulipApplication.h"
+#include "ZulipWindow.h"
 
 #include <QDir>
 #include <QTimer>
@@ -39,7 +39,7 @@ public:
         binDir.cdUp();
         binDir.cd("Resources");
 
-        const QString file = binDir.absoluteFilePath("humbug.wav");
+        const QString file = binDir.absoluteFilePath("zulip.wav");
         sound = [[NSSound alloc] initWithContentsOfFile:fromQString(file)
                                             byReference:NO];
 
@@ -63,7 +63,7 @@ public slots:
         if ( QSysInfo::MacintoshVersion != QSysInfo::MV_SNOWLEOPARD &&
              QSysInfo::MacintoshVersion != QSysInfo::MV_LEOPARD   )
         {
-            HumbugWindow *w = APP->mainWindow();
+            ZulipWindow *w = APP->mainWindow();
 
             if (!w)
                 return;

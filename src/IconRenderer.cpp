@@ -1,6 +1,6 @@
 #include "IconRenderer.h"
 
-#include "HumbugApplication.h"
+#include "ZulipApplication.h"
 
 #include <QPixmapCache>
 #include <QPainter>
@@ -112,7 +112,7 @@ QIcon IconRenderer::personIcon() {
 }
 
 QString IconRenderer::cacheKey(const QSize &size, int unreadNormal, int unreadPMs) const {
-    return QString("hat_%1x%2_%3_%4").arg(size.width())
+    return QString("zulip_%1x%2_%3_%4").arg(size.width())
                                      .arg(size.height())
                                      .arg(unreadNormal)
                                      .arg(unreadPMs);

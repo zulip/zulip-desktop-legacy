@@ -5,9 +5,9 @@ if ARGV.length < 2
   exit
 end
 
-tarball = "humbug-#{ARGV[0]}.tar.bz2"
+tarball = "zulip-#{ARGV[0]}.tar.bz2"
 puts "Zipping: #{tarball}..."
-`tar jcvf "#{tarball}" Humbug.app`
+`tar jcvf "#{tarball}" Zulip.app`
 
 puts "Signing..."
 puts `openssl dgst -sha1 -binary < "#{tarball}" | openssl dgst -dss1 -sign "#{ARGV[1]}" | openssl enc -base64`

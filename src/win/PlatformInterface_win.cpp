@@ -1,8 +1,8 @@
 #include "PlatformInterface.h"
 
 #include "Config.h"
-#include "HumbugApplication.h"
-#include "HumbugWindow.h"
+#include "ZulipApplication.h"
+#include "ZulipWindow.h"
 #include "IconRenderer.h"
 
 #include <shobjidl.h>
@@ -26,7 +26,7 @@ public:
         setupTaskbarIcon();
         
         sound_temp.open();
-        QResource memory_soundfile(":/audio/humbug.wav");
+        QResource memory_soundfile(":/audio/zulip.wav");
         sound_temp.write((char*) memory_soundfile.data(), memory_soundfile.size());
         sound_temp.flush();
         sound_temp.close();
@@ -73,7 +73,7 @@ public:
 
 private slots:
     void setupQtSparkle() {
-        updater = new qtsparkle::Updater(QUrl("https://humbughq.com/dist/apps/win/sparkle.xml"), APP->mainWindow());
+        updater = new qtsparkle::Updater(QUrl("https://zulip.com/dist/apps/win/sparkle.xml"), APP->mainWindow());
     }
 
 public:

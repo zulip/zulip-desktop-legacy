@@ -37,7 +37,7 @@ QT_PLUGINS = [
     'imageformats/libqmng.dylib',
 ]
 
-HUMBUG_PLUGINS = [
+ZULIP_PLUGINS = [
 ]
 
 QT_PLUGINS_SEARCH_PATH=[
@@ -293,7 +293,7 @@ def FindQtPlugin(name):
 
 FixBinary(binary)
 
-for plugin in HUMBUG_PLUGINS:
+for plugin in ZULIP_PLUGINS:
   FixPlugin(plugin, '../MacOS')
 
 for plugin in QT_PLUGINS:

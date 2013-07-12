@@ -5,7 +5,7 @@
 #include <QString>
 
 /**
-  Generic interface to platform-specific bits of the Humbug app
+  Generic interface to platform-specific bits of the Zulip app
   */
 
 class PlatformInterfacePrivate;

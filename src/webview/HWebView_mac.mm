@@ -23,7 +23,7 @@
 #define KEYCODE_V 9
 #define KEYCODE_Z 6
 
-@interface HumbugWebDelegate : NSObject
+@interface ZulipWebDelegate : NSObject
 {
     HWebViewPrivate* q;
 }
@@ -84,24 +84,24 @@ public:
 public:
     HWebView* q;
     WebView* webView;
-    HumbugWebDelegate* delegate;
+    ZulipWebDelegate* delegate;
 };
 
 // Override performKeyEquivalent to make shortcuts work
-@interface HumbugWebView : WebView
+@interface ZulipWebView : WebView
 {
     QWidget *qwidget;
 }
 -(void)setQWidget:(QWidget *)widget;
 -(BOOL)performKeyEquivalent:(NSEvent*)event;
 
-// For some reason on OS X 10.7 (it seems), Qt's mouse handler (qt_mac_handleTabletEvent in src/gui/kernel/qt_cocoa_helpers_mac.mm) has a pointer to this HumbugWebView and calls qt_qwidget on it. It expects the associated QWidget to be returned.
-// I don't know why this HumbugWebView is there instead of the parent QCocoaView, but we work around it like this. Additionally, qt_clearQWidget is called if HumbugWebView responds to qt_qwidget, so we implement it to avoid a crash on exit.
+// For some reason on OS X 10.7 (it seems), Qt's mouse handler (qt_mac_handleTabletEvent in src/gui/kernel/qt_cocoa_helpers_mac.mm) has a pointer to this ZulipWebView and calls qt_qwidget on it. It expects the associated QWidget to be returned.
+// I don't know why this ZulipWebView is there instead of the parent QCocoaView, but we work around it like this. Additionally, qt_clearQWidget is called if ZulipWebView responds to qt_qwidget, so we implement it to avoid a crash on exit.
 -(QWidget *) qt_qwidget;
 -(void)qt_clearQWidget;
 @end
 
-@implementation HumbugWebView
+@implementation ZulipWebView
 -(BOOL)performKeyEquivalent:(NSEvent*)event {
     if ([event type] == NSKeyDown && [event modifierFlags] & NSCommandKeyMask)
     {
@@ -157,7 +157,7 @@ public:
 
 @end
 
-@implementation HumbugWebDelegate
+@implementation ZulipWebDelegate
 - (id)initWithPrivate:(HWebViewPrivate*)qq {
     self = [super init];
     q = qq;
@@ -240,11 +240,11 @@ HWebView::HWebView(QWidget *parent)
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-    HumbugWebView *webView = [[HumbugWebView alloc] init];
+    ZulipWebView *webView = [[ZulipWebView alloc] init];
     [webView setQWidget:this];
     setupLayout(webView, this);
 
-    [webView setApplicationNameForUserAgent:[NSString stringWithFormat:@"Humbug Desktop/%@", fromQString(HUMBUG_VERSION_STRING)]];
+    [webView setApplicationNameForUserAgent:[NSString stringWithFormat:@"Zulip Desktop/%@", fromQString(ZULIP_VERSION_STRING)]];
 
     WebPreferences *webPrefs = [webView preferences];
 
@@ -256,7 +256,7 @@ HWebView::HWebView(QWidget *parent)
 
     // Try to enable LocalStorage
     if ([webPrefs respondsToSelector:@selector(_setLocalStorageDatabasePath:)])
-        [webPrefs _setLocalStorageDatabasePath:@"~/Library/Application Support/Humbug/Humbug Desktop/LocalStorage"];
+        [webPrefs _setLocalStorageDatabasePath:@"~/Library/Application Support/Zulip/Zulip Desktop/LocalStorage"];
     if ([webPrefs respondsToSelector:@selector(setLocalStorageEnabled:)])
         [webPrefs setLocalStorageEnabled:YES];
     if ([webPrefs respondsToSelector:@selector(setDatabasesEnabled:)])
@@ -268,7 +268,7 @@ HWebView::HWebView(QWidget *parent)
 
     dptr->webView = webView;
 
-    dptr->delegate = [[HumbugWebDelegate alloc] initWithPrivate:dptr];
+    dptr->delegate = [[ZulipWebDelegate alloc] initWithPrivate:dptr];
     [dptr->webView setPolicyDelegate:dptr->delegate];
     [dptr->webView setFrameLoadDelegate:dptr->delegate];
     [dptr->webView setUIDelegate:dptr->delegate];
@@ -297,7 +297,7 @@ void HWebView::load(const QUrl &url) {
 
         QByteArray data = f.readAll();
         NSString* content = fromQBA(data);
-        [[dptr->webView mainFrame] loadHTMLString:content baseURL:[NSURL URLWithString:@"about:humbug"]];
+        [[dptr->webView mainFrame] loadHTMLString:content baseURL:[NSURL URLWithString:@"about:zulip"]];
         return;
     }
 
@@ -316,7 +316,7 @@ QUrl HWebView::url() const {
 
 void HWebView::loadHTML(const QString &html) {
     NSString* content = fromQString(html);
-    [[dptr->webView mainFrame] loadHTMLString:content baseURL:[NSURL URLWithString:@"about:humbug"]];
+    [[dptr->webView mainFrame] loadHTMLString:content baseURL:[NSURL URLWithString:@"about:zulip"]];
 }
 
 

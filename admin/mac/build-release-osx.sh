@@ -27,13 +27,13 @@ VERSION=$1
 
 ################################################################################
 
-    mv humbug.app Humbug.app
-    mv Humbug.app/Contents/MacOS/humbug Humbug.app/Contents/MacOS/Humbug
+    mv zulip.app Zulip.app
+    mv Zulip.app/Contents/MacOS/zulip Zulip.app/Contents/MacOS/Zulip
 
     header "Fixing and copying libraries"
-    $ROOT/../admin/mac/macdeploy.py Humbug.app quiet
+    $ROOT/../admin/mac/macdeploy.py Zulip.app quiet
 
-    cd Humbug.app
+    cd Zulip.app
 
     header "Renaming icon"
     cp $ROOT/../admin/mac/qt.conf Contents/Resources/qt.conf
@@ -46,13 +46,13 @@ VERSION=$1
     cd ..
 
     header "Signing bundle"
-    codesign -s "Developer ID Application: Leonardo Franchi" -f -v ./Humbug.app
+    codesign -s "Developer ID Application: Leonardo Franchi" -f -v ./Zulip.app
 
-    $ROOT/../admin/mac/create-dmg.sh Humbug.app
-    mv Humbug.dmg Humbug-$VERSION.dmg
+    $ROOT/../admin/mac/create-dmg.sh Zulip.app
+    mv Zulip.dmg Zulip-$VERSION.dmg
 
     header "Creating signed Sparkle update"
     $ROOT/../admin/mac/sign_bundle.rb $VERSION ~/Documents/humbug/sparkle_privkey.pem
-    mv Humbug.app humbug.app
+    mv Zulip.app zulip.app
 
     header "Done!"

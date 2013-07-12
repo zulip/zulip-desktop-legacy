@@ -1,28 +1,28 @@
 INCLUDE( InstallRequiredSystemLibraries )
 
-SET( CPACK_PACKAGE_CONTACT  "Leo Franchi <leo@humbughq.com>:" )
+SET( CPACK_PACKAGE_CONTACT  "Leo Franchi <leo@zulip.com>:" )
 
-SET( CPACK_PACKAGE_FILE_NAME  humbug-${HUMBUG_VERSION} )    # Package file name without extension. Also a directory of installer  cmake-2.5.0-Linux-i686
+SET( CPACK_PACKAGE_FILE_NAME  zulip-${ZULIP_VERSION} )    # Package file name without extension. Also a directory of installer  cmake-2.5.0-Linux-i686
 
 # CPACK_GENERATOR   CPack generator to be used  STGZ;TGZ;TZ
 # CPACK_INCLUDE_TOPLEVEL_DIRECTORY    Controls whether CPack adds a top-level directory, usually of the form ProjectName-Version-OS, to the top of package tree.  0 to disable, 1 to enable
 # CPACK_INSTALL_CMAKE_PROJECTS    List of four values: Build directory, Project Name, Project Component, Directory in the package     /home/andy/vtk/CMake-bin;CMake;ALL;/
 SET( CPACK_PACKAGE_DESCRIPTION_FILE  "${CMAKE_SOURCE_DIR}/README.md" ) # File used as a description of a project     /path/to/project/ReadMe.txt
-SET( CPACK_PACKAGE_DESCRIPTION_SUMMARY  ${HUMBUG_DESCRIPTION_SUMMARY} ) #  Description summary of a project
+SET( CPACK_PACKAGE_DESCRIPTION_SUMMARY  ${ZULIP_DESCRIPTION_SUMMARY} ) #  Description summary of a project
 # CPACK_PACKAGE_EXECUTABLES   List of pairs of executables and labels. Used by the NSIS generator to create Start Menu shortcuts.     ccmake;CMake
-SET( CPACK_PACKAGE_INSTALL_DIRECTORY  ${HUMBUG_APPLICATION_NAME} )     # Installation directory on the target system -> C:\Program Files\Humbug
-SET( CPACK_PACKAGE_INSTALL_REGISTRY_KEY ${HUMBUG_APPLICATION_NAME} )  # Registry key used when installing this project  CMake 2.5.0
-SET( CPACK_PACKAGE_NAME  ${HUMBUG_APPLICATION_NAME} ) # Package name, defaults to the project name
-SET( CPACK_PACKAGE_VENDOR  ${HUMBUG_ORGANIZATION_NAME} )   # Package vendor name
-SET( CPACK_PACKAGE_VERSION_MAJOR  ${HUMBUG_VERSION_MAJOR} )
-SET( CPACK_PACKAGE_VERSION_MINOR  ${HUMBUGK_VERSION_MINOR} )
-SET( CPACK_PACKAGE_VERSION_PATCH  ${HUMBUG_VERSION_PATCH} )
+SET( CPACK_PACKAGE_INSTALL_DIRECTORY  ${ZULIP_APPLICATION_NAME} )     # Installation directory on the target system -> C:\Program Files\Zulip
+SET( CPACK_PACKAGE_INSTALL_REGISTRY_KEY ${ZULIP_APPLICATION_NAME} )  # Registry key used when installing this project  CMake 2.5.0
+SET( CPACK_PACKAGE_NAME  ${ZULIP_APPLICATION_NAME} ) # Package name, defaults to the project name
+SET( CPACK_PACKAGE_VENDOR  ${ZULIP_ORGANIZATION_NAME} )   # Package vendor name
+SET( CPACK_PACKAGE_VERSION_MAJOR  ${ZULIP_VERSION_MAJOR} )
+SET( CPACK_PACKAGE_VERSION_MINOR  ${ZULIP_VERSION_MINOR} )
+SET( CPACK_PACKAGE_VERSION_PATCH  ${ZULIP_VERSION_PATCH} )
 
 # CPACK_SOURCE_GENERATOR  List of generators used for the source package  TGZ;TZ
 
 SET( CPACK_SOURCE_GENERATOR TGZ )
 SET( CPACK_SOURCE_IGNORE_FILES "/\\\\.git/" ".*~$" ".kate-swp$" "/build_dir/" "/clang/" "/gcc/" "/build/" "/win/" ) # Pattern of files in the source tree that won't be packaged
-SET( CPACK_SOURCE_PACKAGE_FILE_NAME humbug-${HUMBUG_VERSION} ) # Name of the source package
+SET( CPACK_SOURCE_PACKAGE_FILE_NAME zulip-${ZULIP_VERSION} ) # Name of the source package
 # CPACK_SOURCE_STRIP_FILES    List of files in the source tree that will be stripped. Starting with CMake 2.6.0 CPACK_SOURCE_STRIP_FILES will be a boolean variable which enables stripping of all files (a list of files evaluates to TRUE in CMake, so this change is compatible).
 # CPACK_STRIP_FILES   List of files to be stripped. Starting with CMake 2.6.0 CPACK_STRIP_FILES will be a boolean variable which enables stripping of all files (a list of files evaluates to TRUE in CMake, so this change is compatible).   bin/ccmake;bin/cmake;bin/cpack;bin/ctest
 # CPACK_SYSTEM_NAME   System name, defaults to the value of ${CMAKE_SYSTEM_NAME}.     Linux-i686
@@ -32,7 +32,7 @@ SET( CPACK_SOURCE_PACKAGE_FILE_NAME humbug-${HUMBUG_VERSION} ) # Name of the sou
 # SET( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt" ) # License file for the project, used by the STGZ, NSIS, and PackageMaker generators.  /home/andy/vtk/CMake/Copyright.txt
 # CPACK_RESOURCE_FILE_README  ReadMe file for the project, used by PackageMaker generator.    /home/andy/vtk/CMake/Templates/CPack.GenericDescription.txt
 # CPACK_RESOURCE_FILE_WELCOME     Welcome file for the project, used by PackageMaker generator.   /home/andy/vtk/CMake/Templates/CPack.GenericWelcome.txt
-SET( CPACK_PACKAGE_VERSION  ${HUMBUG_VERSION} )
+SET( CPACK_PACKAGE_VERSION  ${ZULIP_VERSION} )
 
 SET( CPACK_TOPLEVEL_TAG "narf" ) # Directory for the installed files.  - needed to provide anything to avoid an error# CPACK_INSTALL_COMMANDS  Extra commands to install components.
 # CPACK_INSTALL_DIRECTORIES   Extra directories to install.

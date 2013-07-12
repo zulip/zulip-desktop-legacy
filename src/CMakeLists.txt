@@ -1,4 +1,4 @@
-project( humbug )
+project( zulip )
 
 include (AddAppIconMacro)
 
@@ -8,24 +8,24 @@ IF( NOT CMAKE_BUILD_TYPE STREQUAL "Release" )
     SET( DEBUG_BUILD ON )
 ENDIF()
 
-set( humbug_SRCS
+set( zulip_SRCS
       cookiejar.cpp
-      HumbugWebBridge.cpp
-      HumbugWindow.cpp
-      HumbugAboutDialog.cpp
+      ZulipWebBridge.cpp
+      ZulipWindow.cpp
+      ZulipAboutDialog.cpp
       IconRenderer.cpp
       main.cpp )
 
-set( humbug_UIS
-    HumbugWindow.ui
-    HumbugAboutDialog.ui )
+set( zulip_UIS
+    ZulipWindow.ui
+    ZulipAboutDialog.ui )
 
-set( humbug_RESOURCES resources.qrc )
+set( zulip_RESOURCES resources.qrc )
 
-qt4_wrap_cpp(EXTRA_MOCS HumbugApplication.h)
+qt4_wrap_cpp(EXTRA_MOCS ZulipApplication.h)
 
 if (APPLE)
-    set(EXTRA_SRCS webview/HWebView_mac.mm mac/HumbugApplication_mac.mm mac/PlatformInterface.mm)
+    set(EXTRA_SRCS webview/HWebView_mac.mm mac/ZulipApplication_mac.mm mac/PlatformInterface.mm)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework
@@ -73,7 +73,7 @@ if (WIN32)
       "advapi32.dll"
   )
 
-  kde4_add_app_icon( humbug_SRCS "${CMAKE_SOURCE_DIR}/admin/icon/humbug-icon-*.png" )
+  kde4_add_app_icon( zulip_SRCS "${CMAKE_SOURCE_DIR}/admin/icon/zulip-icon-*.png" )
 
   qt4_wrap_cpp(WIN_EXTRA_MOCS PlatformInterface.h)
   set(EXTRA_SRCS ${WIN_EXTRA_MOCS} ${EXTRA_SRCS})
@@ -93,17 +93,17 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-qt4_add_resources( humbug_RESOURCES_RCC ${humbug_RESOURCES})
-qt4_wrap_ui( humbug_UI_H ${humbug_UIS} )
+qt4_add_resources( zulip_RESOURCES_RCC ${zulip_RESOURCES})
+qt4_wrap_ui( zulip_UI_H ${zulip_UIS} )
 
-add_executable( humbug WIN32 MACOSX_BUNDLE ${humbug_SRCS} ${EXTRA_SRCS} ${EXTRA_MOCS} ${humbug_RESOURCES_RCC} ${humbug_UI_H} )
-set_target_properties( humbug
+add_executable( zulip WIN32 MACOSX_BUNDLE ${zulip_SRCS} ${EXTRA_SRCS} ${EXTRA_MOCS} ${zulip_RESOURCES_RCC} ${zulip_UI_H} )
+set_target_properties( zulip
     PROPERTIES
         AUTOMOC TRUE
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
 )
 
-install(TARGETS humbug DESTINATION bin)
+install(TARGETS zulip DESTINATION bin)
 
 # Platform specifics
 if (APPLE)
@@ -115,7 +115,7 @@ if (APPLE)
     set(EXTRA_LIBS ${EXTRA_LIBS} ${SPARKLE})
   endif(ENABLE_SPARKLE AND SPARKLE)
   FILE(COPY ${CMAKE_SOURCE_DIR}/admin/mac/sparkle_pub.pem
-    DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
+    DESTINATION "${CMAKE_BINARY_DIR}/zulip.app/Contents/Resources")
 
   option(ENABLE_GROWL "Growl Notifications" ON)
   find_library(GROWL Growl)
@@ -142,23 +142,23 @@ if (APPLE)
   endif (DARWIN_VERSION GREATER 11)
 
   FILE(READ ${CMAKE_SOURCE_DIR}/admin/mac/Info.plist plist)
-  STRING( REPLACE "HUMBUG_VERSION"
-              ${HUMBUG_VERSION}
+  STRING( REPLACE "ZULIP_VERSION"
+              ${ZULIP_VERSION}
               edited_plist # save in this variable
               "${plist}" # from the contents of this var
           )
   FILE( WRITE ${CMAKE_BINARY_DIR}/Info.plist "${edited_plist}" )
 
-  FILE(COPY ${CMAKE_SOURCE_DIR}/src/images/Humbug.icns
-         DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
-  FILE(COPY ${CMAKE_SOURCE_DIR}/src/audio/humbug.wav
-         DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
+  FILE(COPY ${CMAKE_SOURCE_DIR}/src/images/Zulip.icns
+         DESTINATION "${CMAKE_BINARY_DIR}/zulip.app/Contents/Resources")
+  FILE(COPY ${CMAKE_SOURCE_DIR}/src/audio/zulip.wav
+         DESTINATION "${CMAKE_BINARY_DIR}/zulip.app/Contents/Resources")
   FILE(COPY "${CMAKE_SOURCE_DIR}/admin/mac/Growl Registration Ticket.growlRegDict"
-         DESTINATION "${CMAKE_BINARY_DIR}/humbug.app/Contents/Resources")
+         DESTINATION "${CMAKE_BINARY_DIR}/zulip.app/Contents/Resources")
 
 endif (APPLE)
 
-target_link_libraries( humbug
+target_link_libraries( zulip
     ${QT_LIBRARIES}
     ${EXTRA_LIBS}
 )

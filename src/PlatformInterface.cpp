@@ -15,7 +15,7 @@ public:
         Phonon::createPath(bellsound, new Phonon::AudioOutput(Phonon::MusicCategory, q));
 
         sound_temp.open();
-        QResource memory_soundfile(":/audio/humbug.ogg");
+        QResource memory_soundfile(":/audio/zulip.ogg");
         sound_temp.write((char*) memory_soundfile.data(), memory_soundfile.size());
         sound_temp.flush();
         sound_temp.close();

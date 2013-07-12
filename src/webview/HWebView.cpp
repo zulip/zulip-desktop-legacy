@@ -1,7 +1,7 @@
 #include "HWebView.h"
 
 #include "cookiejar.h"
-#include "HumbugWebBridge.h"
+#include "ZulipWebBridge.h"
 
 #include <QDir>
 #include <QDesktopServices>
@@ -16,7 +16,7 @@ public:
         : QObject(qq),
           q(qq),
           webView(new QWebView(qq)),
-          bridge(new HumbugWebBridge(qq))
+          bridge(new ZulipWebBridge(qq))
     {
         webView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 
@@ -49,7 +49,7 @@ private slots:
 public:
     QWebView* webView;
     HWebView* q;
-    HumbugWebBridge* bridge;
+    ZulipWebBridge* bridge;
     QUrl startUrl;
 };
 

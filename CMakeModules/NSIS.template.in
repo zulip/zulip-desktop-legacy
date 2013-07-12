@@ -1,4 +1,4 @@
-;Humbug installer script.
+;Zulip installer script.
 
 ;-----------------------------------------------------------------------------
 ; Some installer script options (comment-out options not required)
@@ -46,11 +46,11 @@
 ; Initial installer setup and definitions.
 ;-----------------------------------------------------------------------------
 Name "@CPACK_NSIS_PACKAGE_NAME@"
-Caption "Humbug Installer"
-BrandingText "Humbug ${VERSION}  -- ${BUILD_TIME}"
+Caption "Zulip Installer"
+BrandingText "Zulip ${VERSION}  -- ${BUILD_TIME}"
 OutFile "@CPACK_TOPLEVEL_DIRECTORY@/@CPACK_OUTPUT_FILE_NAME@"
 InstallDir "$PROGRAMFILES\@CPACK_PACKAGE_INSTALL_DIRECTORY@"
-InstallDirRegKey HKCU "Software\Humbug" ""
+InstallDirRegKey HKCU "Software\Zulip" ""
 InstType Standard
 InstType Full
 InstType Minimal
@@ -82,7 +82,7 @@ ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
 ; Memento selections stored in registry.
 ;-----------------------------------------------------------------------------
 !define MEMENTO_REGISTRY_ROOT HKLM
-!define MEMENTO_REGISTRY_KEY Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug
+!define MEMENTO_REGISTRY_KEY Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip
 
 ;-----------------------------------------------------------------------------
 ; Modern User Interface (MUI) definitions and setup.
@@ -98,7 +98,7 @@ ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_TITLE "@CPACK_PACKAGE_NAME@ Install Completed"
 !define MUI_FINISHPAGE_LINK "Click here to visit the @CPACK_PACKAGE_NAME@ website."
-!define MUI_FINISHPAGE_LINK_LOCATION "http://@HUMBUG_ORGANIZATION_DOMAIN@"
+!define MUI_FINISHPAGE_LINK_LOCATION "http://@ZULIP_ORGANIZATION_DOMAIN@"
 !define MUI_FINISHPAGE_NOREBOOTSUPPORT
 !ifdef OPTION_FINISHPAGE_RELEASE_NOTES
    !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
@@ -108,7 +108,7 @@ ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
 !ifdef OPTION_FINISHPAGE_LAUNCHER
    !define MUI_FINISHPAGE_NOAUTOCLOSE
    !define MUI_FINISHPAGE_RUN
-   !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchHumbug"
+   !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchZulip"
 !endif
 
 ;-----------------------------------------------------------------------------
@@ -140,12 +140,12 @@ UninstPage custom un.UnPageUserAppData un.UnPageUserAppDataLeave
 #                                                                            #
 ##############################################################################
 
-Function LaunchHumbug
-   ${UAC.CallFunctionAsUser} LaunchHumbugAsUser
+Function LaunchZulip
+   ${UAC.CallFunctionAsUser} LaunchZulipAsUser
 FunctionEnd
 
-Function LaunchHumbugAsUser
-   Exec "$INSTDIR\humbug.exe"
+Function LaunchZulipAsUser
+   Exec "$INSTDIR\zulip.exe"
 FunctionEnd
 
 ##############################################################################
@@ -178,8 +178,8 @@ FunctionEnd
    no_process_${processName}_to_end:
 !macroend
 
-Function EnsureHumbugShutdown
-   !insertmacro CheckAndConfirmEndProcess "humbug.exe"
+Function EnsureZulipShutdown
+   !insertmacro CheckAndConfirmEndProcess "zulip.exe"
 FunctionEnd
 
 ##############################################################################
@@ -189,40 +189,40 @@ FunctionEnd
 ##############################################################################
 
 Function PageReinstall
-   ReadRegStr $R0 HKLM "Software\Humbug" ""
+   ReadRegStr $R0 HKLM "Software\Zulip" ""
    StrCmp $R0 "" 0 +2
    Abort
 
    ;Detect version
-   ReadRegDWORD $R0 HKLM "Software\Humbug" "VersionMajor"
+   ReadRegDWORD $R0 HKLM "Software\Zulip" "VersionMajor"
    IntCmp $R0 ${VER_MAJOR} minor_check new_version older_version
    minor_check:
-      ReadRegDWORD $R0 HKLM "Software\Humbug" "VersionMinor"
+      ReadRegDWORD $R0 HKLM "Software\Zulip" "VersionMinor"
       IntCmp $R0 ${VER_MINOR} build_check new_version older_version
    build_check:
-      ReadRegDWORD $R0 HKLM "Software\Humbug" "VersionBuild"
+      ReadRegDWORD $R0 HKLM "Software\Zulip" "VersionBuild"
       IntCmp $R0 ${VER_BUILD} same_version new_version older_version
 
    new_version:
-      !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 1" "Text" "An older version of Humbug is installed on your system. It is recommended that you uninstall the current version before installing. Select the operation you want to perform and click Next to continue."
+      !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 1" "Text" "An older version of Zulip is installed on your system. It is recommended that you uninstall the current version before installing. Select the operation you want to perform and click Next to continue."
       !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 2" "Text" "Uninstall before installing"
       !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 3" "Text" "Do not uninstall"
-      !insertmacro MUI_HEADER_TEXT "Already Installed" "Choose how you want to install Humbug."
+      !insertmacro MUI_HEADER_TEXT "Already Installed" "Choose how you want to install Zulip."
       StrCpy $R0 "1"
       Goto reinst_start
 
    older_version:
-      !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 1" "Text" "A newer version of Humbug is already installed! It is not recommended that you install an older version. If you really want to install this older version, it is better to uninstall the current version first. Select the operation you want to perform and click Next to continue."
+      !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 1" "Text" "A newer version of Zulip is already installed! It is not recommended that you install an older version. If you really want to install this older version, it is better to uninstall the current version first. Select the operation you want to perform and click Next to continue."
       !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 2" "Text" "Uninstall before installing"
       !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 3" "Text" "Do not uninstall"
-      !insertmacro MUI_HEADER_TEXT "Already Installed" "Choose how you want to install Humbug."
+      !insertmacro MUI_HEADER_TEXT "Already Installed" "Choose how you want to install Zulip."
       StrCpy $R0 "1"
       Goto reinst_start
 
    same_version:
-      !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 1" "Text" "Humbug ${VERSION} is already installed.\r\nSelect the operation you want to perform and click Next to continue."
+      !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 1" "Text" "Zulip ${VERSION} is already installed.\r\nSelect the operation you want to perform and click Next to continue."
       !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 2" "Text" "Add/Reinstall components"
-      !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 3" "Text" "Uninstall Humbug"
+      !insertmacro INSTALLOPTIONS_WRITE "NSIS.InstallOptions.ini" "Field 3" "Text" "Uninstall Zulip"
       !insertmacro MUI_HEADER_TEXT "Already Installed" "Choose the maintenance option to perform."
       StrCpy $R0 "2"
 
@@ -237,12 +237,12 @@ Function PageLeaveReinstall
    StrCmp $R0 "2" 0 +3
    StrCmp $R1 "1" reinst_done reinst_uninstall
    reinst_uninstall:
-      ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "UninstallString"
+      ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "UninstallString"
       HideWindow
       ClearErrors
       ExecWait '$R1 _?=$INSTDIR'
       IfErrors no_remove_uninstaller
-      IfFileExists "$INSTDIR\humbug.exe" no_remove_uninstaller
+      IfFileExists "$INSTDIR\zulip.exe" no_remove_uninstaller
       Delete $R1
       RMDir $INSTDIR
    no_remove_uninstaller:
@@ -258,22 +258,22 @@ FunctionEnd
 #   INSTALLER SECTIONS                                                       #
 #                                                                            #
 ##############################################################################
-Section "Humbug" SEC_HUMBUGs_PLAYER
+Section "Zulip" SEC_ZULIP
    SectionIn 1 2 3 RO
    SetDetailsPrint listonly
 
    SetDetailsPrint textonly
-   DetailPrint "Installing Humbug essentials."
+   DetailPrint "Installing Zulip essentials."
    SetDetailsPrint listonly
    SetOutPath "$INSTDIR"
 
    !ifdef INSTALL_PATH
         ;Main executable.
-        File "${INSTALL_PATH}\bin\humbug.exe"
+        File "${INSTALL_PATH}\bin\zulip.exe"
    !endif
    !ifndef INSTALL_PATH
         ;Main executable.
-        File "${BUILD_PATH}\humbug.exe"
+        File "${BUILD_PATH}\zulip.exe"
    !endif
 
    ;License & release notes.
@@ -327,15 +327,15 @@ SectionGroup "Shortcuts"
    ${MementoSection} "Start Menu Program Group" SEC_START_MENU
       SectionIn 1 2
       SetDetailsPrint textonly
-      DetailPrint "Adding shortcuts for the Humbug program group to the Start Menu."
+      DetailPrint "Adding shortcuts for the Zulip program group to the Start Menu."
       SetDetailsPrint listonly
       SetShellVarContext all
-      RMDir /r "$SMPROGRAMS\Humbug"
-      CreateDirectory "$SMPROGRAMS\Humbug"
-      ; CreateShortCut "$SMPROGRAMS\Humbug\LICENSE.lnk" "$INSTDIR\LICENSE.txt"
-      CreateShortCut "$SMPROGRAMS\Humbug\Humbug.lnk" "$INSTDIR\humbug.exe"
-      ; CreateShortCut "$SMPROGRAMS\Humbug\Release notes.lnk" "$INSTDIR\NOTES.txt"
-      CreateShortCut "$SMPROGRAMS\Humbug\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+      RMDir /r "$SMPROGRAMS\Zulip"
+      CreateDirectory "$SMPROGRAMS\Zulip"
+      ; CreateShortCut "$SMPROGRAMS\Zulip\LICENSE.lnk" "$INSTDIR\LICENSE.txt"
+      CreateShortCut "$SMPROGRAMS\Zulip\Zulip.lnk" "$INSTDIR\zulip.exe"
+      ; CreateShortCut "$SMPROGRAMS\Zulip\Release notes.lnk" "$INSTDIR\NOTES.txt"
+      CreateShortCut "$SMPROGRAMS\Zulip\Uninstall.lnk" "$INSTDIR\uninstall.exe"
       SetShellVarContext current
    ${MementoSectionEnd}
 !endif
@@ -346,7 +346,7 @@ SectionGroup "Shortcuts"
       SetDetailsPrint textonly
       DetailPrint "Creating Desktop Shortcuts"
       SetDetailsPrint listonly
-      CreateShortCut "$DESKTOP\Humbug.lnk" "$INSTDIR\humbug.exe"
+      CreateShortCut "$DESKTOP\Zulip.lnk" "$INSTDIR\zulip.exe"
    ${MementoSectionEnd}
 !endif
 
@@ -356,7 +356,7 @@ SectionGroup "Shortcuts"
       SetDetailsPrint textonly
       DetailPrint "Creating Quick Launch Shortcut"
       SetDetailsPrint listonly
-      CreateShortCut "$QUICKLAUNCH\Humbug.lnk" "$INSTDIR\humbug.exe"
+      CreateShortCut "$QUICKLAUNCH\Zulip.lnk" "$INSTDIR\zulip.exe"
    ${MementoSectionEnd}
 !endif
 
@@ -367,10 +367,10 @@ ${MementoSectionDone}
 ; Installer section descriptions
 ;--------------------------------
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-!insertmacro MUI_DESCRIPTION_TEXT ${SEC_HUMBUG_PLAYER} "Humbug player essentials."
-!insertmacro MUI_DESCRIPTION_TEXT ${SEC_START_MENU} "Humbug program group."
-!insertmacro MUI_DESCRIPTION_TEXT ${SEC_DESKTOP} "Desktop shortcut for Humbug."
-!insertmacro MUI_DESCRIPTION_TEXT ${SEC_QUICK_LAUNCH} "Quick Launch shortcut for Humbug."
+!insertmacro MUI_DESCRIPTION_TEXT ${SEC_ZULIP} "Zulip player essentials."
+!insertmacro MUI_DESCRIPTION_TEXT ${SEC_START_MENU} "Zulip program group."
+!insertmacro MUI_DESCRIPTION_TEXT ${SEC_DESKTOP} "Desktop shortcut for Zulip."
+!insertmacro MUI_DESCRIPTION_TEXT ${SEC_QUICK_LAUNCH} "Quick Launch shortcut for Zulip."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section -post
@@ -387,25 +387,25 @@ Section -post
    SetDetailsPrint listonly
 
    ;Version numbers used to detect existing installation version for comparisson.
-   WriteRegStr HKLM "Software\Humbug" "" $INSTDIR
-   WriteRegDWORD HKLM "Software\Humbug" "VersionMajor" "${VER_MAJOR}"
-   WriteRegDWORD HKLM "Software\Humbug" "VersionMinor" "${VER_MINOR}"
-   WriteRegDWORD HKLM "Software\Humbug" "VersionRevision" "${REVISION}"
-   WriteRegDWORD HKLM "Software\Humbug" "VersionBuild" "${VER_BUILD}"
+   WriteRegStr HKLM "Software\Zulip" "" $INSTDIR
+   WriteRegDWORD HKLM "Software\Zulip" "VersionMajor" "${VER_MAJOR}"
+   WriteRegDWORD HKLM "Software\Zulip" "VersionMinor" "${VER_MINOR}"
+   WriteRegDWORD HKLM "Software\Zulip" "VersionRevision" "${REVISION}"
+   WriteRegDWORD HKLM "Software\Zulip" "VersionBuild" "${VER_BUILD}"
 
    ;Add or Remove Programs entry.
-   WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "UninstallString" '"$INSTDIR\Uninstall.exe"'
-   WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "InstallLocation" "$INSTDIR"
-   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "DisplayName" "Humbug"
-   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "Publisher" "humbughq.com"
-   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "DisplayIcon" "$INSTDIR\Uninstall.exe,0"
-   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "DisplayVersion" "${VERSION}"
-   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "VersionMajor" "${VER_MAJOR}"
-   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "VersionMinor" "${VER_MINOR}.${REVISION}"
-   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "URLInfoAbout" "http://humbughq.com/"
-   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "HelpLink" "http://humbughq.com/"
-   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "NoModify" "1"
-   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "NoRepair" "1"
+   WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "UninstallString" '"$INSTDIR\Uninstall.exe"'
+   WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "InstallLocation" "$INSTDIR"
+   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "DisplayName" "Zulip"
+   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "Publisher" "zulip.com"
+   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "DisplayIcon" "$INSTDIR\Uninstall.exe,0"
+   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "DisplayVersion" "${VERSION}"
+   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "VersionMajor" "${VER_MAJOR}"
+   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "VersionMinor" "${VER_MINOR}.${REVISION}"
+   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "URLInfoAbout" "http://zulip.com/"
+   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "HelpLink" "http://zulip.com/"
+   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "NoModify" "1"
+   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "NoRepair" "1"
 
    SetDetailsPrint textonly
    DetailPrint "Finsihed."
@@ -423,7 +423,7 @@ Var UnPageUserAppDataCheckbox_State
 Var UnPageUserAppDataEditBox
 
 Function un.UnPageUserAppData
-   !insertmacro MUI_HEADER_TEXT "Uninstall Humbug" "Remove Humbug's data folder from your computer."
+   !insertmacro MUI_HEADER_TEXT "Uninstall Zulip" "Remove Zulip's data folder from your computer."
    nsDialogs::Create /NOUNLOAD 1018
    Pop $UnPageUserAppDataDialog
 
@@ -431,10 +431,10 @@ Function un.UnPageUserAppData
       Abort
    ${EndIf}
 
-   ${NSD_CreateLabel} 0 0 100% 12u "Do you want to delete Humbug's data folder?"
+   ${NSD_CreateLabel} 0 0 100% 12u "Do you want to delete Zulip's data folder?"
    Pop $0
 
-   ${NSD_CreateText} 0 13u 100% 12u "$LOCALAPPDATA\Humbug"
+   ${NSD_CreateText} 0 13u 100% 12u "$LOCALAPPDATA\Zulip"
    Pop $UnPageUserAppDataEditBox
    SendMessage $UnPageUserAppDataEditBox ${EM_SETREADONLY} 1 0
 
@@ -452,39 +452,39 @@ Function un.UnPageUserAppDataLeave
 FunctionEnd
 
 Section Uninstall
-   IfFileExists "$INSTDIR\humbug.exe" humbug_installed
-      MessageBox MB_YESNO "It does not appear that Humbug is installed in the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES humbug_installed
+   IfFileExists "$INSTDIR\zulip.exe" zulip_installed
+      MessageBox MB_YESNO "It does not appear that Zulip is installed in the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES zulip_installed
       Abort "Uninstall aborted by user"
-   humbug_installed:
+   zulip_installed:
 
    ;Delete registry keys.
-   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug"
-   DeleteRegValue HKLM "Software\Humbug" "VersionBuild"
-   DeleteRegValue HKLM "Software\Humbug" "VersionMajor"
-   DeleteRegValue HKLM "Software\Humbug" "VersionMinor"
-   DeleteRegValue HKLM "Software\Humbug" "VersionRevision"
-   DeleteRegValue HKLM "Software\Humbug" ""
-   DeleteRegKey HKLM "Software\Humbug"
+   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip"
+   DeleteRegValue HKLM "Software\Zulip" "VersionBuild"
+   DeleteRegValue HKLM "Software\Zulip" "VersionMajor"
+   DeleteRegValue HKLM "Software\Zulip" "VersionMinor"
+   DeleteRegValue HKLM "Software\Zulip" "VersionRevision"
+   DeleteRegValue HKLM "Software\Zulip" ""
+   DeleteRegKey HKLM "Software\Zulip"
 
-   DeleteRegKey HKCR "humbug"
+   DeleteRegKey HKCR "zulip"
 
    ;Start menu shortcuts.
    !ifdef OPTION_SECTION_SC_START_MENU
       SetShellVarContext all
-      RMDir /r "$SMPROGRAMS\Humbug"
+      RMDir /r "$SMPROGRAMS\Zulip"
       SetShellVarContext current
    !endif
 
    ;Desktop shortcut.
    !ifdef OPTION_SECTION_SC_DESKTOP
-      IfFileExists "$DESKTOP\Humbug.lnk" 0 +2
-         Delete "$DESKTOP\Humbug.lnk"
+      IfFileExists "$DESKTOP\Zulip.lnk" 0 +2
+         Delete "$DESKTOP\Zulip.lnk"
    !endif
 
    ;Quick Launch shortcut.
    !ifdef OPTION_SECTION_SC_QUICK_LAUNCH
-      IfFileExists "$QUICKLAUNCH\Humbug.lnk" 0 +2
-         Delete "$QUICKLAUNCH\Humbug.lnk"
+      IfFileExists "$QUICKLAUNCH\Zulip.lnk" 0 +2
+         Delete "$QUICKLAUNCH\Zulip.lnk"
    !endif
 
    ;Remove all the Program Files.
@@ -492,7 +492,7 @@ Section Uninstall
 
    ;Uninstall User Data if option is checked, otherwise skip.
    ${If} $UnPageUserAppDataCheckbox_State == ${BST_CHECKED}
-      RMDir /r "$LOCALAPPDATA\Humbug"
+      RMDir /r "$LOCALAPPDATA\Zulip"
    ${EndIf}
 
    SetDetailsPrint textonly
@@ -538,7 +538,7 @@ Function .onInit
       goto UAC_Elevate
 
    ;Prevent multiple instances.
-   System::Call 'kernel32::CreateMutexA(i 0, i 0, t "humbugInstaller") i .r1 ?e'
+   System::Call 'kernel32::CreateMutexA(i 0, i 0, t "zulipInstaller") i .r1 ?e'
    Pop $R0
    StrCmp $R0 0 +3
       MessageBox MB_OK|MB_ICONEXCLAMATION "The installer is already running."
@@ -546,13 +546,13 @@ Function .onInit
 
    ;Use available InstallLocation when possible. This is useful in the uninstaller
    ;via re-install, which would otherwise use a default location - a bug.
-   ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Humbug" "InstallLocation"
+   ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Zulip" "InstallLocation"
    StrCmp $R0 "" SkipSetInstDir
    StrCpy $INSTDIR $R0
    SkipSetInstDir:
 
-   ;Shutdown Humbug in case Add/Remove re-installer option used.
-   Call EnsureHumbugShutdown
+   ;Shutdown Zulip in case Add/Remove re-installer option used.
+   Call EnsureZulipShutdown
 FunctionEnd
 
 Function .onInstSuccess
@@ -592,7 +592,7 @@ Function un.onInit
       goto UAC_Elevate
 
    ;Prevent multiple instances.
-   System::Call 'kernel32::CreateMutexA(i 0, i 0, t "humbugUninstaller") i .r1 ?e'
+   System::Call 'kernel32::CreateMutexA(i 0, i 0, t "zulipUninstaller") i .r1 ?e'
    Pop $R0
    StrCmp $R0 0 +3
       MessageBox MB_OK|MB_ICONEXCLAMATION "This uninstaller is already running."

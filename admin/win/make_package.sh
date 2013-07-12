@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 #
-# Builds a humbug desktop app package for win32
+# Builds a zulip desktop app package for win32
 
 if [ -z $1 ]
 then
@@ -9,9 +9,9 @@ then
 fi
 
 cd /tmp
-rm -rf humbug-desktop
-git clone git@git.humbughq.com:humbug-desktop.git
-pushd humbug-desktop
+rm -rf zulip-desktop
+git clone git@git.humbughq.com:zulip-desktop.git
+pushd zulip-desktop
 pushd admin/win
 popd
 mkdir build
@@ -20,9 +20,9 @@ cmake -DCMAKE_TOOLCHAIN_FILE=../admin/win/Toolchain-mingw32-openSUSE.cmake -DCMA
 make -j3
 make package
 
-mv humbug-$1.exe ~/packages/
+mv zulip-$1.exe ~/packages/
 
 popd
-rm -rf humbug-desktop/
+rm -rf zulip-desktop/
 
-echo "Generated Humbug-$1.exe installer in ~/packages!"
+echo "Generated zulip-$1.exe installer in ~/packages!"

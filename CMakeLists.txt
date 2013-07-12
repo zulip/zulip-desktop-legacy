@@ -1,15 +1,15 @@
-project( humbug )
+project( zulip )
 cmake_minimum_required( VERSION 2.8.6 )
 set( CMAKE_MODULE_PATH  "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules" )
 
-set( HUMBUG_VERSION_MAJOR 0 )
-set( HUMBUG_VERSION_MINOR 3 )
-set( HUMBUG_VERSION_PATCH 3 )
+set( ZULIP_VERSION_MAJOR 0 )
+set( ZULIP_VERSION_MINOR 3 )
+set( ZULIP_VERSION_PATCH 3 )
 
-set( HUMBUG_VERSION ${HUMBUG_VERSION_MAJOR}.${HUMBUG_VERSION_MINOR}.${HUMBUG_VERSION_PATCH} )
-set( HUMBUG_VERSION_SHORT "${HUMBUG_VERSION}" )
+set( ZULIP_VERSION ${ZULIP_VERSION_MAJOR}.${ZULIP_VERSION_MINOR}.${ZULIP_VERSION_PATCH} )
+set( ZULIP_VERSION_SHORT "${ZULIP_VERSION}" )
 
-set( HUMBUG_APPLICATION_NAME "Humbug")
+set( ZULIP_APPLICATION_NAME "Zulip")
 
 # enforce proper symbol exporting on all platforms
 add_definitions( "-fvisibility=hidden" )
@@ -28,7 +28,7 @@ else()
 endif()
 
 # Generates windows installer with NSIS
-INCLUDE( HumbugCPack.cmake )
+INCLUDE( ZulipCPack.cmake )
 
 # Dependencies
 find_package( Qt4 COMPONENTS ${QT_COMPONENTS} REQUIRED )

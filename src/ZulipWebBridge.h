@@ -1,15 +1,15 @@
-#ifndef HUMBUGWEBBRIDGE_H
-#define HUMBUGWEBBRIDGE_H
+#ifndef ZULIPWEBBRIDGE_H
+#define ZULIPWEBBRIDGE_H
 
 #include <QObject>
 #include <QWebView>
 #include <QVariant>
 
-class HumbugWebBridge : public QObject
+class ZulipWebBridge : public QObject
 {
     Q_OBJECT
 public:
-    explicit HumbugWebBridge(QObject *parent = 0);
+    explicit ZulipWebBridge(QObject *parent = 0);
 
 public slots:
     QVariantMap systemInfo();
@@ -27,4 +27,4 @@ signals:
 
 };
 
-#endif // HUMBUGWEBBRIDGE_H
+#endif // ZULIPWEBBRIDGE_H

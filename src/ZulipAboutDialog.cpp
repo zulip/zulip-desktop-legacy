@@ -1,13 +1,13 @@
-#include "HumbugAboutDialog.h"
+#include "ZulipAboutDialog.h"
 
-#include "ui_HumbugAboutDialog.h"
+#include "ui_ZulipAboutDialog.h"
 #include "Config.h"
 
 #include <QFile>
 #include <QDebug>
 
-HumbugAboutDialog::HumbugAboutDialog(QWidget *parent) :
-    QDialog(parent), m_ui(new Ui::HumbugAboutDialog)
+ZulipAboutDialog::ZulipAboutDialog(QWidget *parent) :
+    QDialog(parent), m_ui(new Ui::ZulipAboutDialog)
 {
     m_ui->setupUi(this);
 
@@ -17,12 +17,12 @@ HumbugAboutDialog::HumbugAboutDialog(QWidget *parent) :
     } else {
         QString contents = QString::fromUtf8(html.readAll());
         // Add version string
-        contents = contents.arg(HUMBUG_VERSION_STRING);
+        contents = contents.arg(ZULIP_VERSION_STRING);
         m_ui->webView->loadHTML(contents);
     }
 }
 
 
-HumbugAboutDialog::~HumbugAboutDialog()
+ZulipAboutDialog::~ZulipAboutDialog()
 {
 }

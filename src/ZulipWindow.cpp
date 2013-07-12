@@ -1,9 +1,9 @@
-#include "HumbugWindow.h"
+#include "ZulipWindow.h"
 
-#include "HumbugApplication.h"
-#include "HumbugAboutDialog.h"
+#include "ZulipApplication.h"
+#include "ZulipAboutDialog.h"
 #include "IconRenderer.h"
-#include "ui_HumbugWindow.h"
+#include "ui_ZulipWindow.h"
 #include "Config.h"
 #include "PlatformInterface.h"
 
@@ -21,10 +21,10 @@
 #include <QFontDatabase>
 #include <QDebug>
 
-HumbugWindow::HumbugWindow(QWidget *parent) :
+ZulipWindow::ZulipWindow(QWidget *parent) :
     QMainWindow(parent),
-    m_ui(new Ui::HumbugWindow),
-    m_renderer(new IconRenderer(":images/hat.svg", this)),
+    m_ui(new Ui::ZulipWindow),
+    m_renderer(new IconRenderer(":images/zulip.svg", this)),
     m_trayTimer(new QTimer(this)),
     m_animationStep(0),
     m_domainMapper(new QSignalMapper(this)),
@@ -38,7 +38,7 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
     // Create the directory if it doesn't already exist
     data_dir.mkdir(data_dir.absolutePath());
 
-    QFontDatabase::addApplicationFont(":/humbug.ttc");
+    QFontDatabase::addApplicationFont(":/zulip.ttc");
 
     statusBar()->hide();
 
@@ -54,20 +54,20 @@ HumbugWindow::HumbugWindow(QWidget *parent) :
 }
 
 
-HumbugWindow::~HumbugWindow()
+ZulipWindow::~ZulipWindow()
 {
     delete m_ui;
 }
 
-HWebView* HumbugWindow::webView() const {
+HWebView* ZulipWindow::webView() const {
     return m_ui->webView;
 }
 
-IconRenderer* HumbugWindow::iconRenderer() const {
+IconRenderer* ZulipWindow::iconRenderer() const {
     return m_renderer;
 }
 
-void HumbugWindow::setupTray() {
+void ZulipWindow::setupTray() {
     m_tray = new QSystemTrayIcon(this);
     m_tray->setIcon(m_renderer->icon());
 
@@ -121,7 +121,7 @@ void HumbugWindow::setupTray() {
 
 #ifdef Q_OS_MAC
     // Similar "check for updates" action, but in a different menu
-    QMenu* about_menu = menuBar()->addMenu("Humbug");
+    QMenu* about_menu = menuBar()->addMenu("Zulip");
     about_menu->addAction(about_action);
 
     QAction* checkForUpdates = about_menu->addAction("Check for Updates...");
@@ -130,7 +130,7 @@ void HumbugWindow::setupTray() {
 #endif
 }
 
-void HumbugWindow::startTrayAnimation(const QList<QIcon> &stages) {
+void ZulipWindow::startTrayAnimation(const QList<QIcon> &stages) {
     m_animationStages = stages;
     m_animationStep = 0;
 
@@ -139,7 +139,7 @@ void HumbugWindow::startTrayAnimation(const QList<QIcon> &stages) {
     m_trayTimer->start();
 }
 
-void HumbugWindow::stopTrayAnimation() {
+void ZulipWindow::stopTrayAnimation() {
     m_animationStages.clear();
     m_animationStep = 0;
 
@@ -148,19 +148,19 @@ void HumbugWindow::stopTrayAnimation() {
     m_tray->setIcon(m_renderer->icon(m_unreadCount));
 }
 
-void HumbugWindow::animateTray() {
+void ZulipWindow::animateTray() {
     m_animationStep = (m_animationStep + 1) % m_animationStages.size();
     m_tray->setIcon(m_animationStages[m_animationStep]);
 }
 
-void HumbugWindow::closeEvent(QCloseEvent *ev) {
+void ZulipWindow::closeEvent(QCloseEvent *ev) {
     QSettings settings;
     settings.setValue("MainWindow/geometry", saveGeometry());
     settings.setValue("MainWindow/windowState", saveState());
     QMainWindow::closeEvent(ev);
 }
 
-void HumbugWindow::readSettings() {
+void ZulipWindow::readSettings() {
     QSettings settings;
     restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
     restoreState(settings.value("MainWindow/windowState").toByteArray());
@@ -179,31 +179,31 @@ void HumbugWindow::readSettings() {
         m_domains[domain]->setChecked(true);
 }
 
-void HumbugWindow::setUrl(const QUrl &url)
+void ZulipWindow::setUrl(const QUrl &url)
 {
     m_start = url;
 
     m_ui->webView->load(url);
 }
 
-void HumbugWindow::showAbout()
+void ZulipWindow::showAbout()
 {
-    HumbugAboutDialog *d = new HumbugAboutDialog(this);
+    ZulipAboutDialog *d = new ZulipAboutDialog(this);
     d->show();
 }
 
-void HumbugWindow::userQuit()
+void ZulipWindow::userQuit()
 {
     QApplication::quit();
 }
 
-void HumbugWindow::trayClicked()
+void ZulipWindow::trayClicked()
 {
     raise();
     activateWindow();
 }
 
-void HumbugWindow::linkClicked(const QUrl& url)
+void ZulipWindow::linkClicked(const QUrl& url)
 {
     if (url.host() == m_start.host()) {
         m_ui->webView->load(url);
@@ -212,7 +212,7 @@ void HumbugWindow::linkClicked(const QUrl& url)
     }
 }
 
-void HumbugWindow::countUpdated(int newCount)
+void ZulipWindow::countUpdated(int newCount)
 {
     const int old = m_unreadCount;
     m_unreadCount = newCount;
@@ -225,7 +225,7 @@ void HumbugWindow::countUpdated(int newCount)
     m_platform->unreadCountUpdated(old, newCount);
 }
 
-void HumbugWindow::pmCountUpdated(int newCount)
+void ZulipWindow::pmCountUpdated(int newCount)
 {
     const int old = m_unreadPMCount;
     m_unreadPMCount = newCount;
@@ -243,14 +243,14 @@ void HumbugWindow::pmCountUpdated(int newCount)
     }
 }
 
-void HumbugWindow::displayPopup(const QString &title, const QString &content)
+void ZulipWindow::displayPopup(const QString &title, const QString &content)
 {
     m_tray->showMessage(title, content);
 
     m_platform->desktopNotification(title, content);
 }
 
-void HumbugWindow::domainSelected(const QString &domain) {
+void ZulipWindow::domainSelected(const QString &domain) {
     QString site = domainToUrl(domain);
     if (site.isEmpty())
         return;
@@ -266,7 +266,7 @@ void HumbugWindow::domainSelected(const QString &domain) {
 }
 
 
-QString HumbugWindow::domainToUrl(const QString& domain) const {
+QString ZulipWindow::domainToUrl(const QString& domain) const {
     if (domain == "prod") {
         return "https://humbughq.com";
     } else if (domain == "staging") {

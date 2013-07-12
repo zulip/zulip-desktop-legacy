@@ -1,6 +1,6 @@
-#include "HumbugApplication.h"
+#include "ZulipApplication.h"
 
-#include "HumbugWindow.h"
+#include "ZulipWindow.h"
 #include "webview/HWebView.h"
 #include "mac/Converters.h"
 #include "mac/Utils.h"
@@ -17,7 +17,7 @@ static inline NSPoint flipPoint(const NSPoint& loc) {
 // WebKit doesn't seem to be getting the mouseMove events properly when embedded in our app
 // To work around this, we capture mousemove events ourselves, and if we see one that's in the
 // webview rect, we send a notificationcenter event to the app.
-bool HumbugApplication::macEventFilter(EventHandlerCallRef, EventRef event) {
+bool ZulipApplication::macEventFilter(EventHandlerCallRef, EventRef event) {
     NSEvent *e = reinterpret_cast<NSEvent *>(event);
 
     if ([e type] == NSMouseMoved) {

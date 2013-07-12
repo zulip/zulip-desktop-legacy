@@ -2,7 +2,7 @@
 # author: max@last.fm, muesli@tomahawk-player.org
 # brief:  Produces a compressed DMG from a bundle directory
 # usage:  Pass the bundle directory as the only parameter
-# note:   This script depends on the Humbug build system, and must be run from
+# note:   This script depends on the Zulip build system, and must be run from
 #         the build directory
 ################################################################################
 
@@ -43,7 +43,7 @@ ln -s /Applications "$TMP/Applications"
 cp -R "$IN" "$TMP"
 
 # create
-hdiutil makehybrid -hfs -hfs-volume-name Humbug -hfs-openfolder "$TMP" "$TMP" -o tmp.dmg
+hdiutil makehybrid -hfs -hfs-volume-name Zulip -hfs-openfolder "$TMP" "$TMP" -o tmp.dmg
 hdiutil convert -format UDZO -imagekey zlib-level=9 tmp.dmg -o "$OUT"
 
 # cleanup

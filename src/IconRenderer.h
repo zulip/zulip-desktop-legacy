@@ -10,7 +10,7 @@
 class QSvgRenderer;
 
 /**
- * Handles rendering & caching the Humbug hat with
+ * Handles rendering & caching the zulip icons with
  * optional additional configuration options
  */
 class IconRenderer : public QObject

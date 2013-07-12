@@ -1,5 +1,5 @@
-#ifndef HUMBUGWINDOW_H
-#define HUMBUGWINDOW_H
+#ifndef ZULIPWINDOW_H
+#define ZULIPWINDOW_H
 
 #include "cookiejar.h"
 #include "Config.h"
@@ -10,7 +10,7 @@
 class QAction;
 namespace Ui
 {
-class HumbugWindow;
+class ZulipWindow;
 }
 
 class QCloseEvent;
@@ -20,14 +20,14 @@ class QSignalMapper;
 class IconRenderer;
 class PlatformInterface;
 
-class HumbugWindow : public QMainWindow
+class ZulipWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit HumbugWindow(QWidget *parent = 0);
+    explicit ZulipWindow(QWidget *parent = 0);
     void setUrl(const QUrl &url);
-    ~HumbugWindow();
+    ~ZulipWindow();
 
     HWebView* webView() const;
     IconRenderer *iconRenderer() const;
@@ -57,7 +57,7 @@ private:
     void readSettings();
     QString domainToUrl(const QString& domain) const;
 
-    Ui::HumbugWindow *m_ui;
+    Ui::ZulipWindow *m_ui;
 
     // Tray icon
     IconRenderer *m_renderer;
@@ -79,4 +79,4 @@ private:
     PlatformInterface *m_platform;
 };
 
-#endif // HUMBUGWINDOW_H
+#endif // ZULIPWINDOW_H

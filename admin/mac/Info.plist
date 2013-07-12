@@ -5,23 +5,23 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>Humbug</string>
+        <string>Zulip</string>
 	<key>CFBundleIdentifier</key>
-        <string>com.humbug.Humbug</string>
+        <string>com.zulip.Zulip</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleVersion</key>
-        <string>HUMBUG_VERSION</string>
+        <string>ZULIP_VERSION</string>
 	<key>CFBundleShortVersionString</key>
-        <string>HUMBUG_VERSION</string>
+        <string>ZULIP_VERSION</string>
 	<key>CFBundleSignature</key>
-        <string>humbug</string>
+        <string>zulip</string>
 	<key>CFBundleIconFile</key>
-        <string>Humbug.icns</string>
+        <string>Zulip.icns</string>
 	<key>CFBundleName</key>
-        <string>Humbug</string>
+        <string>Zulip</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.5.0</string>
 	<key>NSPrincipalClass</key>
@@ -29,7 +29,7 @@
 	<key>NSHighResolutionCapable</key>
 	<true />
 	<key>SUFeedURL</key>
-        <string>https://humbughq.com/dist/apps/mac/sparkle.xml</string>
+        <string>https://zulip.com/dist/apps/mac/sparkle.xml</string>
 	<key>SUPublicDSAKeyFile</key>
 	<string>sparkle_pub.pem</string>
 	<key>SUEnableSystemProfiling</key>

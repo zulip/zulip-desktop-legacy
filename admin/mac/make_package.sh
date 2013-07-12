@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 #
-# Builds a humbug desktop app package for OS X
+# Builds a zulip desktop app package for OS X
 
 if [ -z $1 ]
 then
@@ -9,19 +9,19 @@ then
 fi
 
 cd /tmp
-rm -rf humbug-desktop
-git clone git@git.humbughq.com:humbug-desktop.git
-pushd humbug-desktop
+rm -rf zulip-desktop
+git clone git@git.humbughq.com:zulip-desktop.git
+pushd zulip-desktop
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j3
 ../admin/mac/build-release-osx.sh "$@"
 
-mv Humbug-$1.dmg ~/packages/
-mv Humbug-$1.tar.bz2 ~/packages/sparkle
+mv Zulip-$1.dmg ~/packages/
+mv Zulip-$1.tar.bz2 ~/packages/sparkle
 
 popd
-rm -rf humbug-desktop/
+rm -rf zulip-desktop/
 
-echo "Generated DMG Humbug-$1.dmg in ~/packages!"
+echo "Generated DMG Zulip-$1.dmg in ~/packages!"

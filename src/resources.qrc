@@ -1,10 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/hat.svg</file>
+        <file>images/zulip.svg</file>
         <file>about.html</file>
         <file>images/usericon.svg</file>
-        <file>humbug.ttc</file>
-        <file>audio/humbug.ogg</file>
-        <file>audio/humbug.wav</file>
+        <file>zulip.ttc</file>
+        <file>audio/zulip.ogg</file>
+        <file>audio/zulip.wav</file>
     </qresource>
 </RCC>
