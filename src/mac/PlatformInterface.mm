@@ -86,6 +86,8 @@ PlatformInterface::PlatformInterface(QObject *parent)
 {
     // Initialize Sparkle
     [[SUUpdater sharedUpdater] setDelegate: NSApp];
+    [[SUUpdater sharedUpdater] setUpdateCheckInterval:21600]; // 6 hour interval
+    [[SUUpdater sharedUpdater] setAutomaticallyDownloadsUpdates:YES];
 
     [GrowlApplicationBridge setGrowlDelegate:[[ZGrowlDelegate alloc] init]];
 }

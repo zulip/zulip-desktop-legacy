@@ -33,8 +33,10 @@
 	<key>SUPublicDSAKeyFile</key>
 	<string>sparkle_pub.pem</string>
 	<key>SUEnableSystemProfiling</key>
-	<true/>
+        <true />
         <key>SUEnableAutomaticChecks</key>
+        <true />
+        <key>SUAllowsAutomaticUpdates</key>
         <true />
 </dict>
 </plist>
