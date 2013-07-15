@@ -169,7 +169,7 @@ void ZulipWindow::readSettings() {
     QString site = domainToUrl(domain);
     if (site.isEmpty()) {
         domain = "prod";
-        site = "https://humbughq.com";
+        site = "https://zulip.com";
     }
 
     m_start = site;
@@ -268,9 +268,9 @@ void ZulipWindow::domainSelected(const QString &domain) {
 
 QString ZulipWindow::domainToUrl(const QString& domain) const {
     if (domain == "prod") {
-        return "https://humbughq.com";
+        return "https://zulip.com";
     } else if (domain == "staging") {
-        return "https://staging.humbughq.com";
+        return "https://staging.zulip.com";
     } else if (domain == "dev") {
         return "http://localhost:9991";
     } else {
