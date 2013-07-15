@@ -1,14 +1,14 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: humbug-desktop
-Source: https://humbughq.com/apps
+Upstream-Name: zulip-desktop
+Source: https://zulip.com/apps
 
 Files: *
 Copyright: 2013 Humbug, Inc.
 License: Humbug-Proprietary
  All files not explicitly enumerated below are Copyright © 2012-2013 Humbug,
- Inc. and is provided under the license described in the Humbug Terms of
+ Inc. and is provided under the license described in the Zulip Terms of
  Service, accessible online at:
-    <https://humbughq.com/terms>
+    <https://zulip.com/terms>
 
 Files: src/cookiejar.*
 Copyright: 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
