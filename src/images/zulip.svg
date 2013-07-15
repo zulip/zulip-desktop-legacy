@@ -1,112 +1,39 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="667.06"
-   height="667.06"
-   id="svg2"
-   version="1.1"
-   inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="hat.svg"
-   inkscape:export-filename="/home/lfaraone/Downloads/humbug.png"
-   inkscape:export-xdpi="216.42531"
-   inkscape:export-ydpi="216.42531">
-  <title
-     id="title2993">Humbug Hat</title>
-  <defs
-     id="defs4" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="0.35355339"
-     inkscape:cx="44.299826"
-     inkscape:cy="120.05373"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:window-width="716"
-     inkscape:window-height="747"
-     inkscape:window-x="0"
-     inkscape:window-y="19"
-     inkscape:window-maximized="0"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0" />
-  <metadata
-     id="metadata7">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title>Humbug Hat</dc:title>
-        <dc:creator>
-          <cc:Agent>
-            <dc:title>Luke Faraone &lt;lfaraone@humbughq.com&gt;</dc:title>
-          </cc:Agent>
-        </dc:creator>
-        <dc:rights>
-          <cc:Agent>
-            <dc:title>© 2012 Humbug, Inc. All Rights Reserved</dc:title>
-          </cc:Agent>
-        </dc:rights>
-        <dc:date>28 Sept 2012</dc:date>
-        <dc:language>The Hat transcends all language</dc:language>
-        <dc:coverage>Your head</dc:coverage>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-112.53125,-29.94001)">
-    <path
-       sodipodi:type="arc"
-       style="fill:#999999;fill-opacity:0.59633029;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       id="path2985"
-       sodipodi:cx="314.15744"
-       sodipodi:cy="236.15892"
-       sodipodi:rx="81.822357"
-       sodipodi:ry="101.01525"
-       d="m 395.9798,236.15892 c 0,55.78918 -36.63312,101.01525 -81.82236,101.01525 -45.18924,0 -81.82236,-45.22607 -81.82236,-101.01525 0,-55.78918 36.63312,-101.01525 81.82236,-101.01525 45.18924,0 81.82236,45.22607 81.82236,101.01525 z"
-       transform="matrix(0.91160631,0,0,0.73840115,164.83841,-69.490619)" />
-    <path
-       sodipodi:type="star"
-       style="fill:#ff0000;fill-opacity:0.59633029;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       id="path3761"
-       sodipodi:sides="3"
-       sodipodi:cx="165"
-       sodipodi:cy="545.36218"
-       sodipodi:r1="263.86551"
-       sodipodi:r2="131.93274"
-       sodipodi:arg1="0.52359878"
-       sodipodi:arg2="1.5707963"
-       inkscape:flatsided="false"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="M 393.51423,677.29494 165,677.29492 -63.514235,677.29494 50.742894,479.39582 165,281.49667 279.2571,479.39581 z"
-       inkscape:transform-center-y="-65.966374"
-       transform="translate(285.65685,-100.6518)" />
-    <rect
-       style="fill:#b3b3b3;fill-opacity:0.59633029;stroke:#000000;stroke-width:1.22679794;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       id="rect3765"
-       width="511.94531"
-       height="119.19256"
-       x="195.13708"
-       y="577.1864" />
-  </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="600px" height="600px" viewBox="0 0 600 600" enable-background="new 0 0 600 600" xml:space="preserve">
+<g>
+	<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="-4342.1318" y1="300" x2="1181.189" y2="300">
+		<stop  offset="0" style="stop-color:#0C4451"/>
+		<stop  offset="0.25" style="stop-color:#0A2028"/>
+		<stop  offset="0.3008" style="stop-color:#0A2028"/>
+		<stop  offset="0.3531" style="stop-color:#24363B"/>
+		<stop  offset="0.4447" style="stop-color:#485B5D"/>
+		<stop  offset="0.5369" style="stop-color:#698281"/>
+		<stop  offset="0.6282" style="stop-color:#87A5A0"/>
+		<stop  offset="0.7184" style="stop-color:#9FC1B9"/>
+		<stop  offset="0.807" style="stop-color:#AFD5CA"/>
+		<stop  offset="0.892" style="stop-color:#B6E0D3"/>
+	</linearGradient>
+	<path fill="url(#SVGID_1_)" d="M600,300.005C600,465.69,465.687,600,299.998,600C134.313,600,0,465.69,0,300.005
+		C0,134.319,134.313,0,299.998,0C465.687,0,600,134.319,600,300.005z"/>
+	<g>
+		<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="165.7656" y1="179.9478" x2="422.6035" y2="179.9478">
+			<stop  offset="0" style="stop-color:#1E965A"/>
+			<stop  offset="1" style="stop-color:#153D23"/>
+		</linearGradient>
+		<polygon fill="url(#SVGID_2_)" points="422.604,215.757 199.613,215.757 165.766,144.139 398.411,144.139 		"/>
+		<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="422.7764" y1="185.5254" x2="176.1981" y2="416.2493">
+			<stop  offset="0" style="stop-color:#1E965A"/>
+			<stop  offset="1" style="stop-color:#153D23"/>
+		</linearGradient>
+		<polygon fill="url(#SVGID_3_)" points="432.995,215.757 202.461,455.861 165.766,379.352 398.411,144.139 		"/>
+		<linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="69.1616" y1="417.6064" x2="527.4901" y2="417.6064">
+			<stop  offset="0" style="stop-color:#1E965A"/>
+			<stop  offset="1" style="stop-color:#153D23"/>
+		</linearGradient>
+		<polygon fill="url(#SVGID_4_)" points="434.234,455.861 202.461,455.861 165.766,379.352 399.475,379.352 		"/>
+	</g>
+</g>
 </svg>
