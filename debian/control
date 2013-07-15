@@ -13,6 +13,7 @@ Homepage: https://zulip.com/apps
 Package: zulip-desktop
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: humbug-desktop
 Description: Zulip desktop client
  This package provides a thin wrapper around the Zulip web application,
  providing native integrations with the desktop.
