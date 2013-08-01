@@ -2,6 +2,7 @@
 
 #include "cookiejar.h"
 #include "ZulipWebBridge.h"
+#include "Config.h"
 
 #include <QDir>
 #include <QDesktopServices>
@@ -44,6 +45,25 @@ private slots:
         }
 
         webView->page()->mainFrame()->addToJavaScriptWindowObject("bridge", bridge);
+
+        // QtWebkit has a bug where it won't fall back properly on fonts.
+        // If the first font listed in a CSS font-family declaration isn't
+        // found, instead of trying the others it simply resorts to a
+        // default font immediately.
+        //
+        // This workaround ensures we still get a fixed-width font for
+        // code blocks. jQuery isn't loaded yet when this is run,
+        // so we use a DOM method instead of $(...)
+        webView->page()->mainFrame()->evaluateJavaScript(
+            "document.addEventListener('DOMContentLoaded',"
+            "    function () {"
+            "        var css = '<style type=\"text/css\">'"
+            "                + 'code,pre{font-family:monospace !important;}'"
+            "                + '</style>';"
+            "        $('head').append(css);"
+            "   }"
+            ");"
+        );
     }
 
 public:
