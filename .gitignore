@@ -2,3 +2,4 @@ build/
 HumbugApp.pro.user
 CMakeLists.txt.user
 *.*~
+*.swp
