@@ -158,6 +158,12 @@ if (APPLE)
 
 endif (APPLE)
 
+if (WIN32)
+    SET(WINDOWS 1)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    SET(LINUX 1)
+endif (WIN32)
+
 target_link_libraries( zulip
     ${QT_LIBRARIES}
     ${EXTRA_LIBS}
