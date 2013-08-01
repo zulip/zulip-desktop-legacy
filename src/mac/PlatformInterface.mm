@@ -1,6 +1,7 @@
 #include "PlatformInterface.h"
 
 #include "Utils.h"
+#include "Config.h"
 #include "ZulipApplication.h"
 #include "ZulipWindow.h"
 
@@ -43,7 +44,7 @@ public:
         sound = [[NSSound alloc] initWithContentsOfFile:fromQString(file)
                                             byReference:NO];
 
-#ifdef DEBUG
+#ifdef DEBUG_BUILD
         [[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
                                                                                             forKey:@"WebKitDeveloperExtras"]];
 #endif
