@@ -48,6 +48,7 @@
 - (void)updatePMCount:(int)newCount;
 - (void)bell;
 - (void)desktopNotification:(NSString*)title withContent:(NSString*)content;
+- (NSString *)desktopAppVersion;
 @end
 
 class HWebViewPrivate : public QObject {
@@ -249,7 +250,8 @@ public:
     if (selector == @selector(updateCount:) ||
         selector == @selector(updatePMCount:) ||
         selector == @selector(bell) ||
-        selector == @selector(desktopNotification:withContent:)) {
+        selector == @selector(desktopNotification:withContent:) ||
+        selector == @selector(desktopAppVersion)) {
         return NO;
     }
     return YES;
@@ -267,6 +269,8 @@ public:
         return @"updatePMCount";
     } else if (sel == @selector(desktopNotification:withContent:)) {
         return @"desktopNotification";
+    } else if (sel == @selector(desktopAppVersion)) {
+        return @"desktopAppVersion";
     }
     return nil;
 }
@@ -286,6 +290,11 @@ public:
 - (void)desktopNotification:(NSString*)title withContent:(NSString*)content {
     q->desktopNotification(toQString(title), toQString(content));
 }
+
+- (NSString *)desktopAppVersion {
+    return fromQString(ZULIP_VERSION_STRING);
+}
+
 @end
 
 HWebView::HWebView(QWidget *parent)

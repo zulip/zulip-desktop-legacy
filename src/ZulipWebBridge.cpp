@@ -33,3 +33,8 @@ void ZulipWebBridge::updatePMCount(int count)
 {
     emit doUpdatePMCount(count);
 }
+
+QString ZulipWebBridge::desktopAppVersion()
+{
+  return ZULIP_VERSION_STRING;
+}
