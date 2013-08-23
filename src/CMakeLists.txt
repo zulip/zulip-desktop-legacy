@@ -2,12 +2,6 @@ project( zulip )
 
 include (AddAppIconMacro)
 
-# Build type
-IF( NOT CMAKE_BUILD_TYPE STREQUAL "Release" )
-    MESSAGE( "Building in debug mode, enabling domain selector" )
-    SET( DEBUG_BUILD ON )
-ENDIF()
-
 set( zulip_SRCS
       cookiejar.cpp
       ZulipWebBridge.cpp

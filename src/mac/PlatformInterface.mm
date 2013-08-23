@@ -44,10 +44,10 @@ public:
         sound = [[NSSound alloc] initWithContentsOfFile:fromQString(file)
                                             byReference:NO];
 
-#ifdef DEBUG_BUILD
-        [[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
-                                                                                            forKey:@"WebKitDeveloperExtras"]];
-#endif
+        if (APP->debugMode()) {
+            [[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
+                                                                                                forKey:@"WebKitDeveloperExtras"]];
+        }
 
         QTimer::singleShot(0, this, SLOT(enableFullscreen()));
     }

@@ -8,6 +8,10 @@ int main(int argc, char *argv[])
     a.setApplicationName("Zulip");
     a.setApplicationVersion(ZULIP_VERSION_STRING);
 
+    if (argc == 2 && QString(argv[1]) == QString("--debug")) {
+        a.setDebugMode(true);
+    }
+
     QCoreApplication::setOrganizationName("Zulip");
     QCoreApplication::setOrganizationDomain("zulip.com");
     QCoreApplication::setApplicationName("Zulip Desktop");

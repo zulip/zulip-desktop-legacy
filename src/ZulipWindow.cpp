@@ -81,32 +81,32 @@ void ZulipWindow::setupTray() {
     about_action->setMenuRole(QAction::AboutRole);
     connect(about_action, SIGNAL(triggered()), this, SLOT(showAbout()));
 
-#ifdef DEBUG_BUILD
-    QMenu* domain_menu = new QMenu("Domain", menu);
+    if (APP->debugMode()) {
+        QMenu* domain_menu = new QMenu("Domain", menu);
 
-    QAction* prod = domain_menu->addAction("Production");
-    prod->setCheckable(true);
-    connect(prod, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
-    m_domains["prod"] = prod;
+        QAction* prod = domain_menu->addAction("Production");
+        prod->setCheckable(true);
+        connect(prod, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
+        m_domains["prod"] = prod;
 
-    QAction* staging = domain_menu->addAction("Staging");
-    staging->setCheckable(true);
-    connect(staging, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
-    m_domains["staging"] = staging;
+        QAction* staging = domain_menu->addAction("Staging");
+        staging->setCheckable(true);
+        connect(staging, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
+        m_domains["staging"] = staging;
 
-    QAction* dev = domain_menu->addAction("Local");
-    dev->setCheckable(true);
-    connect(dev, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
-    m_domains["dev"] = dev;
+        QAction* dev = domain_menu->addAction("Local");
+        dev->setCheckable(true);
+        connect(dev, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
+        m_domains["dev"] = dev;
 
-    m_domainMapper->setMapping(prod, "prod");
-    m_domainMapper->setMapping(staging, "staging");
-    m_domainMapper->setMapping(dev, "dev");
+        m_domainMapper->setMapping(prod, "prod");
+        m_domainMapper->setMapping(staging, "staging");
+        m_domainMapper->setMapping(dev, "dev");
 
-    connect(m_domainMapper, SIGNAL(mapped(QString)), this, SLOT(domainSelected(QString)));
+        connect(m_domainMapper, SIGNAL(mapped(QString)), this, SLOT(domainSelected(QString)));
 
-    menu->addMenu(domain_menu);
-#endif
+        menu->addMenu(domain_menu);
+    }
 
 #ifdef Q_OS_WIN
     QAction* checkForUpdates = menu->addAction("Check for Updates...");
