@@ -19,7 +19,7 @@ set( zulip_RESOURCES resources.qrc )
 qt4_wrap_cpp(EXTRA_MOCS ZulipApplication.h)
 
 if (APPLE)
-    set(EXTRA_SRCS webview/HWebView_mac.mm mac/ZulipApplication_mac.mm mac/PlatformInterface.mm)
+    set(EXTRA_SRCS webview/HWebView_mac.mm mac/ZulipApplication_mac.mm mac/PlatformInterface.mm mac/NSData+Base64.m)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework
