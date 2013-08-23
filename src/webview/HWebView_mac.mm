@@ -2,6 +2,7 @@
 
 #include "mac/Converters.h"
 #include "mac/Utils.h"
+#include "mac/NSData+Base64.h"
 #include "Config.h"
 
 #include <QMacCocoaViewContainer>
@@ -122,7 +123,22 @@ public:
         }
         else if (keyCode == KEYCODE_V)
         {
-            [self paste:self];
+            // If the user is trying to paste an image, we grab it from her clipboard
+            // and upload it through the webapp manually.
+            // This is because Safari does not allow the JS to extract binary data (e.g. images)
+            // from the clipboard.
+            NSData *pngImage = [self pngInPasteboard];
+            if (pngImage) {
+                NSString *b64image = [[pngImage base64EncodedString] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                NSString *uploadCommand = [NSString stringWithFormat:@""
+                                           "var imageData = atob('%@');"
+                                           "var uploadData = {type: 'image/png', data: imageData};"
+                                           "$('#compose').trigger('imagedata-upload.zulip', uploadData);"
+                                           , b64image];
+                [self stringByEvaluatingJavaScriptFromString:uploadCommand];
+            } else {
+                [self paste:self];
+            }
             return YES;
         }
         else if (keyCode == KEYCODE_X)
@@ -141,6 +157,28 @@ public:
     }
 
     return NO;
+}
+
+- (NSData *)pngInPasteboard
+{
+    NSData *image = nil;
+    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+    NSArray *items = [pasteboard pasteboardItems];
+    for (NSPasteboardItem *item in items) {
+        NSString *imageMimeTypeFound = [item availableTypeFromArray:@[@"public.tiff"]];
+        if (imageMimeTypeFound) {
+            // Got an image in the pasteboard, lets use it
+            image = [item dataForType:@"public.tiff"];
+            break;
+        }
+    }
+
+    if (image) {
+        // We get a TIFF, but want a PNG, so convert it
+        NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:image];
+        return [rep representationUsingType:NSPNGFileType properties:nil];
+    }
+    return nil;
 }
 
 -(QWidget *) qt_qwidget {
@@ -189,6 +227,22 @@ public:
 
 - (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
     [windowObject setValue:self forKey:@"bridge"];
+
+    // The built-in WebKit sendAsBinary crashes when we try to use it with a large
+    // payload---specifically, when pasting large imagines. The traceback is deep in
+    // array handling code in JSC.
+    //
+    // To avoid the crash, we replace the native sendAsBinary with the suggested polyfill
+    // using typed arrays, from https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#sendAsBinary()
+    [sender stringByEvaluatingJavaScriptFromString:
+     @"XMLHttpRequest.prototype.sendAsBinary = function (sData) { "
+             "var nBytes = sData.length, ui8Data = new Uint8Array(nBytes); "
+             "for (var nIdx = 0; nIdx < nBytes; nIdx++) { "
+                 "ui8Data[nIdx] = sData.charCodeAt(nIdx) & 0xff; "
+             "} "
+             "this.send(ui8Data); "
+           "}"
+     ];
 }
 
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)selector {
