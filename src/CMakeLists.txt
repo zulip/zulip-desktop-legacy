@@ -25,7 +25,8 @@ if (APPLE)
                    /System/Library/Frameworks/AppKit.framework
                    /System/Library/Frameworks/WebKit.framework
                    /System/Library/Frameworks/ApplicationServices.framework
-                   /System/Library/Frameworks/Carbon.framework)
+                   /System/Library/Frameworks/Carbon.framework
+                   /System/Library/Frameworks/ServiceManagement.framework)
 
     qt4_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h PlatformInterface.h)
     set(EXTRA_SRCS ${MAC_EXTRA_MOCS} ${EXTRA_SRCS})

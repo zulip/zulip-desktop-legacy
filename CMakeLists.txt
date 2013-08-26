@@ -57,3 +57,7 @@ add_custom_target(uninstall
 
 add_subdirectory( thirdparty )
 add_subdirectory( src )
+
+if (APPLE)
+    add_subdirectory(src/mac/launchhelper)
+endif()

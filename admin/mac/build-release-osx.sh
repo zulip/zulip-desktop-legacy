@@ -38,16 +38,23 @@ VERSION=$1
     header "Renaming icon"
     cp $ROOT/../admin/mac/qt.conf Contents/Resources/qt.conf
 
-    #header "Copying Sparkle framework"
+    header "Copying Sparkle and Growl frameworks"
     cp -R /Library/Frameworks/Sparkle.framework Contents/Frameworks
     cp -R /Library/Frameworks/Growl.framework Contents/Frameworks
 
-    header "Creating DMG"
     cd ..
+
+    header "Copying launch helper app to main app bundle"
+    codesign -s "Developer ID Application: Leonardo Franchi" -f -v ./ZulipAppHelper.app
+
+    mkdir -p Zulip.app/Contents/Library/LoginItems
+    cp -R ZulipAppHelper.app Zulip.app/Contents/Library/LoginItems/
+
 
     header "Signing bundle"
     codesign -s "Developer ID Application: Leonardo Franchi" -f -v ./Zulip.app
 
+    header "Creating DMG"
     $ROOT/../admin/mac/create-dmg.sh Zulip.app
     mv Zulip.dmg Zulip-$VERSION.dmg
 
