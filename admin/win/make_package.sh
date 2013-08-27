@@ -10,7 +10,7 @@ fi
 
 cd /tmp
 rm -rf zulip-desktop
-git clone git@git.humbughq.com:zulip-desktop.git
+git clone git@git.zulip.net:zulip-desktop.git
 pushd zulip-desktop
 pushd admin/win
 popd
