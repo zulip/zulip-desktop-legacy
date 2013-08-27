@@ -1,3 +1,9 @@
+zulip-desktop (0.3.5) wheezy; urgency=low
+
+  * Reliability and reporting improvements
+
+ -- Luke Faraone <lfaraone@zulip.com>  Tue, 27 Aug 2013 13:35:27 -0400
+
 zulip-desktop (0.3.4) wheezy; urgency=low
 
   * Rebrand to Zulip.
