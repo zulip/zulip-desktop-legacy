@@ -241,7 +241,7 @@ public:
              "for (var nIdx = 0; nIdx < nBytes; nIdx++) { "
                  "ui8Data[nIdx] = sData.charCodeAt(nIdx) & 0xff; "
              "} "
-             "this.send(ui8Data); "
+             "this.send(ui8Data.buffer); "
            "}"
      ];
 }
