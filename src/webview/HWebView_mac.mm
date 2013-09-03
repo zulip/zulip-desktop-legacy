@@ -166,16 +166,16 @@ public:
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
     NSArray *items = [pasteboard pasteboardItems];
     for (NSPasteboardItem *item in items) {
-        NSString *imageMimeTypeFound = [item availableTypeFromArray:@[@"public.tiff"]];
+        NSArray *types = @[NSPasteboardTypeTIFF, NSPasteboardTypePNG];
+        NSString *imageMimeTypeFound = [item availableTypeFromArray:types];
         if (imageMimeTypeFound) {
             // Got an image in the pasteboard, lets use it
-            image = [item dataForType:@"public.tiff"];
-            break;
+            image = [item dataForType:imageMimeTypeFound];
         }
     }
 
     if (image) {
-        // We get a TIFF, but want a PNG, so convert it
+        // We get a TIFF or PNG, but want a PNG, so convert it regardless
         NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:image];
         return [rep representationUsingType:NSPNGFileType properties:nil];
     }
