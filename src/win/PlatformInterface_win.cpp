@@ -124,8 +124,51 @@ void PlatformInterface::playSound() {
     PlaySound(filename, NULL, SND_ASYNC | SND_FILENAME | SND_NODEFAULT);
 }
 
+// Extract QString error message from a Win32 API error code
+void handleSystemError(LONG errorCode) {
+
+    if (errorCode == ERROR_SUCCESS) {
+        return;
+    }
+
+    LPTSTR errorText = NULL;
+
+    QString errorString;
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+                  NULL, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&errorText, 0, NULL);
+
+    if (errorText != NULL) {
+        errorString = QString::fromWCharArray(errorText);
+        LocalFree(errorText);
+        errorText = NULL;
+    }
+
+    qDebug() << "WIN32 API Error:" << errorCode << errorString;
+}
+
 void PlatformInterface::setStartAtLogin(bool start) {
-    // Noop
+    // We enable start-on-login by writing to the registry,
+    // specifically HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run\Zulip
+    //
+    // In theory QSettings should be able to read/write from the registry, but I was unable
+    // to get it to work. So we use the native win32 API calls instead :-/
+    HKEY runFolder = NULL;
+    LONG ret = RegCreateKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
+                              NULL, 0, KEY_ALL_ACCESS | KEY_WOW64_32KEY, NULL, &runFolder, NULL);
+    handleSystemError(ret);
+
+    if (start) {
+        const QString path = QCoreApplication::applicationFilePath().replace('/', '\\');
+        wchar_t winPath[path.size()];
+        path.toWCharArray(winPath);
+
+       ret = RegSetValueEx(runFolder, L"Zulip", 0, REG_SZ , (BYTE*)winPath, sizeof(winPath));
+       handleSystemError(ret);
+    } else {
+        ret = RegDeleteValue(runFolder, L"Zulip");
+        handleSystemError(ret);
+    }
+    RegCloseKey(runFolder);
 }
 
 #include "PlatformInterface_win.moc"

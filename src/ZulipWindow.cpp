@@ -83,6 +83,12 @@ void ZulipWindow::setupTray() {
     about_action->setMenuRole(QAction::AboutRole);
     connect(about_action, SIGNAL(triggered()), this, SLOT(showAbout()));
 
+#ifdef Q_OS_WIN
+    m_startAtLogin = menu->addAction("Start at Login");
+    m_startAtLogin->setCheckable(true);
+    connect(m_startAtLogin, SIGNAL(triggered(bool)), this, SLOT(setStartAtLogin(bool)));
+#endif
+
     if (APP->debugMode()) {
         QMenu* domain_menu = new QMenu("Domain", menu);
 
@@ -279,6 +285,7 @@ void ZulipWindow::domainSelected(const QString &domain) {
 }
 
 void ZulipWindow::setStartAtLogin(bool start) {
+    qDebug () << "Window setting start at login:" << start;
     m_platform->setStartAtLogin(start);
 
     QSettings s;
