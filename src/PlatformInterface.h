@@ -19,6 +19,7 @@ public:
     void desktopNotification(const QString& title, const QString& content);
     void unreadCountUpdated(int oldCount, int newCount);
 
+    void setStartAtLogin(bool start);
 public slots:
     // Noop on linux
     void checkForUpdates();

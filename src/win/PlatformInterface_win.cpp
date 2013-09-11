@@ -124,4 +124,8 @@ void PlatformInterface::playSound() {
     PlaySound(filename, NULL, SND_ASYNC | SND_FILENAME | SND_NODEFAULT);
 }
 
+void PlatformInterface::setStartAtLogin(bool start) {
+    // Noop
+}
+
 #include "PlatformInterface_win.moc"

@@ -47,6 +47,10 @@ void PlatformInterface::desktopNotification(const QString &, const QString &) {
     // Noop
 }
 
+void PlatformInterface::setStartAtLogin(bool start) {
+    // Noop
+}
+
 void PlatformInterface::unreadCountUpdated(int, int) {
   
 }

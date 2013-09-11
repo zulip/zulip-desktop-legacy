@@ -28,6 +28,8 @@ ZulipWindow::ZulipWindow(QWidget *parent) :
     m_trayTimer(new QTimer(this)),
     m_animationStep(0),
     m_domainMapper(new QSignalMapper(this)),
+    m_checkForUpdates(0),
+    m_startAtLogin(0),
     m_unreadCount(0),
     m_unreadPMCount(0),
     m_platform(new PlatformInterface(this))
@@ -127,6 +129,11 @@ void ZulipWindow::setupTray() {
     QAction* checkForUpdates = about_menu->addAction("Check for Updates...");
     checkForUpdates->setMenuRole(QAction::ApplicationSpecificRole);
     connect(checkForUpdates, SIGNAL(triggered()), m_platform, SLOT(checkForUpdates()));
+
+    m_startAtLogin = about_menu->addAction("Start at Login");
+    m_startAtLogin->setCheckable(true);
+    m_startAtLogin->setMenuRole(QAction::ApplicationSpecificRole);
+    connect(m_startAtLogin, SIGNAL(triggered(bool)), this, SLOT(setStartAtLogin(bool)));
 #endif
 }
 
@@ -177,6 +184,12 @@ void ZulipWindow::readSettings() {
 
     if (m_domains.contains(domain))
         m_domains[domain]->setChecked(true);
+
+    bool startAtLoginSetting = settings.value("LaunchAtLogin", true).toBool();
+    if (m_startAtLogin) {
+        m_startAtLogin->setChecked(startAtLoginSetting);
+    }
+    m_platform->setStartAtLogin(startAtLoginSetting);
 }
 
 void ZulipWindow::setUrl(const QUrl &url)
@@ -265,6 +278,12 @@ void ZulipWindow::domainSelected(const QString &domain) {
     setUrl(site);
 }
 
+void ZulipWindow::setStartAtLogin(bool start) {
+    m_platform->setStartAtLogin(start);
+
+    QSettings s;
+    s.setValue("LaunchAtLogin", start);
+}
 
 QString ZulipWindow::domainToUrl(const QString& domain) const {
     if (domain == "prod") {

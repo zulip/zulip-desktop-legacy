@@ -33,66 +33,6 @@
 }
 @end
 
-@interface ZulipAppDelegate : NSObject <NSApplicationDelegate>
-
-@property (nonatomic, retain) NSMenuItem *launchAtLoginAction;
-@property (nonatomic, retain) NSMenu *menu;
-
-- (NSMenu *)applicationDockMenu:(NSApplication *)sender;
-
-- (void)toggleLaunchAtLogin;
-
-@end
-
-@implementation ZulipAppDelegate
-
-- (id)init {
-    self = [super init];
-    if (self) {
-        self.launchAtLoginAction = [[NSMenuItem alloc] initWithTitle:@"Open at login" action:@selector(toggleLaunchAtLogin) keyEquivalent:@""];
-
-        self.menu = [[NSMenu alloc] initWithTitle:@""];
-        [self.menu addItem:self.launchAtLoginAction];
-
-        QSettings settings;
-        bool launchAtLogin = settings.value("LaunchAtLogin", true).toBool();
-        [self setLaunchAtLogin:launchAtLogin];
-    }
-
-    return self;
-}
-
-- (NSMenu *)applicationDockMenu:(NSApplication *)sender  {
-    QSettings settings;
-    bool launchAtLogin = settings.value("LaunchAtLogin", true).toBool();
-
-    self.launchAtLoginAction.state = launchAtLogin ? NSOnState : NSOffState;
-    return self.menu;
-}
-
-- (void)toggleLaunchAtLogin {
-    bool launchAtLogin = self.launchAtLoginAction.state == NSOnState;
-    launchAtLogin = !launchAtLogin;
-
-    QSettings settings;
-    settings.setValue("LaunchAtLogin", launchAtLogin);
-    settings.sync();
-
-    self.launchAtLoginAction.state = launchAtLogin ? NSOnState : NSOffState;
-
-    [self setLaunchAtLogin:launchAtLogin];
-}
-
-- (void)setLaunchAtLogin:(BOOL)launchAtLogin {
-    // Launch at login by using SMLoginItemSetEnabled with our helper app
-    // identifier
-    if (!SMLoginItemSetEnabled ((__bridge CFStringRef)@"com.zulip.ZulipAppHelper", launchAtLogin ? YES : NO)) {
-        NSLog(@"Unable to add or remove ZulipAppHelper to login item list... wtf?");
-    }
-}
-
-@end
-
 class PlatformInterfacePrivate : public QObject {
     Q_OBJECT
 public:
@@ -152,8 +92,6 @@ PlatformInterface::PlatformInterface(QObject *parent)
     [[SUUpdater sharedUpdater] setAutomaticallyDownloadsUpdates:YES];
 
     [GrowlApplicationBridge setGrowlDelegate:[[ZGrowlDelegate alloc] init]];
-
-    [[NSApplication sharedApplication] setDelegate:[[ZulipAppDelegate alloc] init]];
 }
 
 PlatformInterface::~PlatformInterface() {
@@ -186,6 +124,15 @@ void PlatformInterface::unreadCountUpdated(int, int) {
 
 void PlatformInterface::playSound() {
     [m_d->sound play];
+}
+
+void PlatformInterface::setStartAtLogin(bool start)
+{
+    // Launch at login by using SMLoginItemSetEnabled with our helper app
+    // identifier
+    if (!SMLoginItemSetEnabled ((__bridge CFStringRef)@"com.zulip.ZulipAppHelper", start ? YES : NO)) {
+        NSLog(@"Unable to add or remove ZulipAppHelper to login item list... wtf?");
+    }
 }
 
 #include "PlatformInterface.moc"
