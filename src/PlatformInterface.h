@@ -20,6 +20,8 @@ public:
     void unreadCountUpdated(int oldCount, int newCount);
 
     void setStartAtLogin(bool start);
+
+    static QString platformWithVersion();
 public slots:
     // Noop on linux
     void checkForUpdates();

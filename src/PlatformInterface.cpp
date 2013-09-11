@@ -1,4 +1,5 @@
 #include "PlatformInterface.h"
+#include "Config.h"
 
 #include <QTemporaryFile>
 #include <QResource>
@@ -37,6 +38,10 @@ PlatformInterface::PlatformInterface(QObject *parent)
 
 PlatformInterface::~PlatformInterface() {
     delete m_d;
+}
+
+QString PlatformInterface::platformWithVersion() {
+    return "Linux " + QString::fromUtf8(ZULIP_VERSION_STRING);
 }
 
 void PlatformInterface::checkForUpdates() {

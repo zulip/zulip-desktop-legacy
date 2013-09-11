@@ -3,6 +3,7 @@
 #include "mac/Converters.h"
 #include "mac/Utils.h"
 #include "mac/NSData+Base64.h"
+#include "PlatformInterface.h"
 #include "Config.h"
 
 #include <QMacCocoaViewContainer>
@@ -292,7 +293,7 @@ public:
 }
 
 - (NSString *)desktopAppVersion {
-    return fromQString(ZULIP_VERSION_STRING);
+    return fromQString(PlatformInterface::platformWithVersion());
 }
 
 @end

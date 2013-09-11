@@ -135,4 +135,9 @@ void PlatformInterface::setStartAtLogin(bool start)
     }
 }
 
+QString PlatformInterface::platformWithVersion() {
+    return "Mac " + QString::fromUtf8(ZULIP_VERSION_STRING);
+}
+
+
 #include "PlatformInterface.moc"

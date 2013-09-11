@@ -1,8 +1,9 @@
 #include "ZulipWebBridge.h"
+#include "PlatformInterface.h"
+#include "ZulipWindow.h"
+
 #include <QSystemTrayIcon>
 #include <QSysInfo>
-#include <stdio.h>
-#include "ZulipWindow.h"
 
 ZulipWebBridge::ZulipWebBridge(QObject *parent) :
     QObject(parent)
@@ -36,5 +37,5 @@ void ZulipWebBridge::updatePMCount(int count)
 
 QString ZulipWebBridge::desktopAppVersion()
 {
-  return ZULIP_VERSION_STRING;
+  return PlatformInterface::platformWithVersion();
 }
