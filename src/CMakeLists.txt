@@ -8,6 +8,7 @@ set( zulip_SRCS
       ZulipWindow.cpp
       ZulipAboutDialog.cpp
       IconRenderer.cpp
+      Logger.cpp
       main.cpp )
 
 set( zulip_UIS

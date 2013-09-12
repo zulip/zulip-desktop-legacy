@@ -1,12 +1,15 @@
 #include "ZulipWindow.h"
 #include "ZulipApplication.h"
 #include "Config.h"
+#include "Logger.h"
 
 int main(int argc, char *argv[])
 {
     ZulipApplication a(argc, argv);
     a.setApplicationName("Zulip");
     a.setApplicationVersion(ZULIP_VERSION_STRING);
+
+    Logging::setupLogging();
 
     if (argc == 2 && QString(argv[1]) == QString("--debug")) {
         a.setDebugMode(true);
