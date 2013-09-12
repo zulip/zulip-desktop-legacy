@@ -319,11 +319,11 @@ HWebView::HWebView(QWidget *parent)
 
     // Try to enable LocalStorage
     if ([webPrefs respondsToSelector:@selector(_setLocalStorageDatabasePath:)])
-        [webPrefs _setLocalStorageDatabasePath:@"~/Library/Application Support/Zulip/Zulip Desktop/LocalStorage"];
+        [webPrefs performSelector:@selector(_setLocalStorageDatabasePath:) withObject:@"~/Library/Application Support/Zulip/Zulip Desktop/LocalStorage"];
     if ([webPrefs respondsToSelector:@selector(setLocalStorageEnabled:)])
-        [webPrefs setLocalStorageEnabled:YES];
+        [webPrefs performSelector:@selector(setLocalStorageEnabled:) withObject:@(YES)];
     if ([webPrefs respondsToSelector:@selector(setDatabasesEnabled:)])
-        [webPrefs setDatabasesEnabled:YES];
+        [webPrefs performSelector:@selector(setDatabasesEnabled:) withObject:@(YES)];
     [webView setPreferences:webPrefs];
     [webPrefs release];
 
