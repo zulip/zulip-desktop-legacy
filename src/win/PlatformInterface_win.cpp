@@ -56,9 +56,7 @@ public:
     }
 
     void setOverlayIcon(const QIcon& icon, const QString& description) {
-        qDebug() << "Setting windows overlay icon!";
         if (m_taskbarInterface) {
-            qDebug() << "Doing it now!";
             HICON overlay_icon = icon.isNull() ? NULL : icon.pixmap(48).toWinHICON();
             m_taskbarInterface->SetOverlayIcon(APP->mainWindow()->winId(), overlay_icon, description.toStdWString().c_str());
 
