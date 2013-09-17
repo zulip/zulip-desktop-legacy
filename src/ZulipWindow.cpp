@@ -205,7 +205,7 @@ void ZulipWindow::trayClicked()
 
 void ZulipWindow::linkClicked(const QUrl& url)
 {
-    if (url.host() == m_start.host()) {
+    if (url.host() == m_start.host() && url.path() == "/") {
         m_ui->webView->load(url);
     } else {
         QDesktopServices::openUrl(url);
