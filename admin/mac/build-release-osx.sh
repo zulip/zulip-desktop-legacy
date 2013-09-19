@@ -45,14 +45,14 @@ VERSION=$1
     cd ..
 
     header "Copying launch helper app to main app bundle"
-    codesign -s "Developer ID Application: Leonardo Franchi" -f -v ./ZulipAppHelper.app
+    codesign -s "Developer ID Application: Zulip, Inc" -f -v ./ZulipAppHelper.app
 
     mkdir -p Zulip.app/Contents/Library/LoginItems
     cp -R ZulipAppHelper.app Zulip.app/Contents/Library/LoginItems/
 
 
     header "Signing bundle"
-    codesign -s "Developer ID Application: Leonardo Franchi" -f -v ./Zulip.app
+    codesign -s "Developer ID Application: Zulip, Inc" -f -v ./Zulip.app
 
     header "Creating DMG"
     $ROOT/../admin/mac/create-dmg.sh Zulip.app
