@@ -46,6 +46,7 @@ public slots:
 private slots:
     void domainSelected(const QString& domain);
     void setStartAtLogin(bool start);
+    void showSystemTray(bool show);
 
     void animateTray();
 
@@ -72,6 +73,7 @@ private:
     QHash<QString, QAction*> m_domains;
     QAction *m_checkForUpdates;
     QAction *m_startAtLogin;
+    QAction *m_showSysTray;
 
     CookieJar *m_cookies;
     QUrl m_start;

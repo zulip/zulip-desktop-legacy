@@ -30,6 +30,7 @@ ZulipWindow::ZulipWindow(QWidget *parent) :
     m_domainMapper(new QSignalMapper(this)),
     m_checkForUpdates(0),
     m_startAtLogin(0),
+    m_showSysTray(0),
     m_unreadCount(0),
     m_unreadPMCount(0),
     m_platform(new PlatformInterface(this))
@@ -141,6 +142,17 @@ void ZulipWindow::setupTray() {
     m_startAtLogin->setMenuRole(QAction::ApplicationSpecificRole);
     connect(m_startAtLogin, SIGNAL(triggered(bool)), this, SLOT(setStartAtLogin(bool)));
 #endif
+
+    m_showSysTray = new QAction("Show Tray Icon", this);
+    m_showSysTray->setCheckable(true);
+    connect(m_showSysTray, SIGNAL(triggered(bool)), this, SLOT(showSystemTray(bool)));
+
+#if defined(Q_OS_MAC)
+    about_menu->addAction(m_showSysTray);
+    m_showSysTray->setMenuRole(QAction::ApplicationSpecificRole);
+#else
+    menu->insertAction(exit_action, m_showSysTray);
+#endif
 }
 
 void ZulipWindow::startTrayAnimation(const QList<QIcon> &stages) {
@@ -196,6 +208,10 @@ void ZulipWindow::readSettings() {
         m_startAtLogin->setChecked(startAtLoginSetting);
     }
     m_platform->setStartAtLogin(startAtLoginSetting);
+
+    bool showSysTray = settings.value("ShowSystemTray", true).toBool();
+    m_tray->setVisible(showSysTray);
+    m_showSysTray->setChecked(showSysTray);
 }
 
 void ZulipWindow::setUrl(const QUrl &url)
@@ -290,6 +306,13 @@ void ZulipWindow::setStartAtLogin(bool start) {
 
     QSettings s;
     s.setValue("LaunchAtLogin", start);
+}
+
+void ZulipWindow::showSystemTray(bool show) {
+    m_tray->setVisible(show);
+
+    QSettings s;
+    s.setValue("ShowSystemTray", show);
 }
 
 QString ZulipWindow::domainToUrl(const QString& domain) const {
