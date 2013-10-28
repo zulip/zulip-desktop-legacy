@@ -25,6 +25,8 @@
 #define KEYCODE_V 9
 #define KEYCODE_Z 6
 
+typedef void(^CSRFSnatcherCallback)(NSString *token);
+
 @interface ZulipWebDelegate : NSObject
 {
     HWebViewPrivate* q;
@@ -197,12 +199,178 @@ public:
 
 @end
 
+@interface ZulipCookieSnatcher : NSObject
+
+@property (nonatomic, retain) NSString *siteURL;
+@property (readwrite, copy) CSRFSnatcherCallback callback;
+
+- (id)initWithSite:(NSString *)siteURL callback:(CSRFSnatcherCallback)callback;
+
+@end
+
+@implementation ZulipCookieSnatcher
+
+- (id)initWithSite:(NSString *)siteURL callback:(CSRFSnatcherCallback)callback
+{
+    self = [super init];
+    if (self) {
+        self.siteURL = siteURL;
+        self.callback = callback;
+    }
+    return self;
+}
+
+- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
+    NSHTTPCookieStorage *cookies = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray *cookieList = [cookies cookiesForURL:[NSURL URLWithString:self.siteURL]];
+    for (NSHTTPCookie *cookie in cookieList) {
+        if ([[cookie name] isEqualToString:@"csrftoken"]) {
+            self.callback([cookie value]);
+            return;
+        }
+    }
+
+    self.callback(nil);
+}
+
+@end
+
+
 @implementation ZulipWebDelegate
 - (id)initWithPrivate:(HWebViewPrivate*)qq {
     self = [super init];
     q = qq;
 
     return self;
+}
+
+- (NSDictionary *)parseURLParameters:(NSString *)parameterString {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+
+    NSArray *kvs = [parameterString componentsSeparatedByString:@"&"];
+    for (NSString *kv in kvs) {
+        if ([kv rangeOfString:@"="].location == NSNotFound)
+            continue;
+
+        NSArray *kvList = [kv componentsSeparatedByString:@"="];
+        if ([kvList count] != 2) {
+            continue;
+        }
+        NSString *key = [kvList objectAtIndex:0];
+        NSString *val = [kvList objectAtIndex:1];
+
+        [dict setObject:val forKey:key];
+    }
+    return dict;
+}
+
+- (NSString *)parameterDictToString:(NSDictionary *)params {
+    NSMutableArray *parts = [NSMutableArray arrayWithArray:@[]];
+    for (NSString *key in params) {
+        [parts addObject:[NSString stringWithFormat:@"%@=%@", key, [params valueForKey:key]]];
+    }
+    return [parts componentsJoinedByString:@"&"];
+}
+
+- (void)csrfTokenForZulipServer:(NSString *)siteUrl callback:(CSRFSnatcherCallback)callback
+{
+    WebView *wv = [[WebView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+    [wv setFrameLoadDelegate:[[ZulipCookieSnatcher alloc] initWithSite:siteUrl callback:callback]];
+
+    // Load the login page directly to avoid a redirect
+    [wv setMainFrameURL:[NSString stringWithFormat:@"%@%@", siteUrl, @"login/?next=/"]];
+}
+
+- (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource {
+
+    if ([[request HTTPMethod] isEqualToString:@"POST"] &&
+        [[[request URL] path] isEqualToString:@"/accounts/login"])
+    {
+        NSString *stringBody = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
+        NSDictionary *paramDict = [self parseURLParameters:stringBody];
+        NSString *email = [paramDict objectForKey:@"username"];
+
+        if (!email) {
+            return request;
+        }
+
+        NSLog(@"Preflighting login request for %@", email);
+        // Do a GET to the central Zulip server to determine the domain for this user
+        NSString *preflightURL = [NSString stringWithFormat:@"https://api.zulip.com/v1/deployments/endpoints?email=%@", email];
+        NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:preflightURL]];
+
+        NSURLResponse *response = nil;
+        NSError *error = nil;
+        NSData *responseData = [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:&error];
+        if (error) {
+            NSLog(@"Error making preflight request: %@ %@", [error localizedDescription], [error userInfo]);
+            return request;
+        }
+
+        error = nil;
+        NSDictionary *json = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&error];
+        if (error) {
+            NSLog(@"Error decoding JSON: %@ %@", [error localizedDescription], [error userInfo]);
+            return request;
+        }
+        NSDictionary *result = [json objectForKey:@"result"];
+        if (!result) {
+            return request;
+        }
+
+        __block NSString *baseSiteURL = [result objectForKey:@"base_site_url"];
+        NSURL *siteURL = [NSURL URLWithString:baseSiteURL];
+        NSString *siteHost = [siteURL host];
+
+        // We have the "true" base URL to use
+        // If it's the same as what we're already on---just let the existing request go through
+        NSString *requestHost = [[request URL] host];
+        if ([siteHost isEqualToString:requestHost]) {
+            return request;
+        }
+
+        // However if it's different, we need to do the redirect
+        // First, we need a valid CSRF token for our login form
+        [self csrfTokenForZulipServer:baseSiteURL callback:^(NSString *token) {
+            if (token == nil) {
+                // We failed to get a csrf token, so aborting!
+                NSLog(@"ERROR: Failed to grab a CSRF token from %@", baseSiteURL);
+                return;
+            }
+
+            // If our base site URL ends with a trailing /, our path also starts with a /
+            // so remove one of them
+            if ([baseSiteURL characterAtIndex:[baseSiteURL length] - 1] == '/') {
+                baseSiteURL = [baseSiteURL substringToIndex:[baseSiteURL length] - 1];
+            }
+
+            NSString *newURLString = [NSString stringWithFormat:@"%@%@/?%@", baseSiteURL, [[request URL] path], [[request URL] query]];
+            NSURL *newURL = [NSURL URLWithString:newURLString];
+
+            // NSURL is immutable so we have to construct a new one with the modified host
+            NSMutableURLRequest *newRequest = [request mutableCopy];
+            [newRequest setURL:newURL];
+            // Spoof the Origin and Referer headers
+            [newRequest setValue:baseSiteURL forHTTPHeaderField:@"Origin"];
+            [newRequest setValue:[NSString stringWithFormat:@"%@/login/", baseSiteURL] forHTTPHeaderField:@"Referer"];
+
+            // Splice in our new CSRF token into the POST body
+            NSMutableDictionary *mutableBody = [NSMutableDictionary dictionaryWithDictionary:paramDict];
+            [mutableBody setObject:token forKey:@"csrfmiddlewaretoken"];
+            NSString *newBody = [self parameterDictToString:mutableBody];
+
+            [newRequest setHTTPBody:[newBody dataUsingEncoding:NSUTF8StringEncoding]];
+
+            // Make our new request in the web frame---this will cause a redirect to the logged-in
+            // Zulip at the target site
+            [[sender mainFrame] loadRequest:newRequest];
+        }];
+
+        // While our async CSRF-snatcher is working, we need to return a valid NSURLRequest, but we don't
+        // want the user to be moved to any new page
+        return [NSURLRequest requestWithURL:[NSURL URLWithString:@""]];
+    }
+    return request;
 }
 
 - (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id < WebPolicyDecisionListener >)listener {
@@ -334,6 +502,7 @@ HWebView::HWebView(QWidget *parent)
 
     dptr->delegate = [[ZulipWebDelegate alloc] initWithPrivate:dptr];
     [dptr->webView setPolicyDelegate:dptr->delegate];
+    [dptr->webView setResourceLoadDelegate:dptr->delegate];
     [dptr->webView setFrameLoadDelegate:dptr->delegate];
     [dptr->webView setUIDelegate:dptr->delegate];
 
