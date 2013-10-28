@@ -96,21 +96,21 @@ void ZulipWindow::setupTray() {
         QAction* prod = domain_menu->addAction("Production");
         prod->setCheckable(true);
         connect(prod, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
-        m_domains["prod"] = prod;
+        m_domains["https://zulip.com"] = prod;
 
         QAction* staging = domain_menu->addAction("Staging");
         staging->setCheckable(true);
         connect(staging, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
-        m_domains["staging"] = staging;
+        m_domains["https://staging.zulip.com"] = staging;
 
         QAction* dev = domain_menu->addAction("Local");
         dev->setCheckable(true);
         connect(dev, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
-        m_domains["dev"] = dev;
+        m_domains["http://localhost:9991"] = dev;
 
-        m_domainMapper->setMapping(prod, "prod");
-        m_domainMapper->setMapping(staging, "staging");
-        m_domainMapper->setMapping(dev, "dev");
+        m_domainMapper->setMapping(prod, "https://zulip.com");
+        m_domainMapper->setMapping(staging, "https://staging.zulip.com");
+        m_domainMapper->setMapping(dev, "http://localhost:9991");
 
         connect(m_domainMapper, SIGNAL(mapped(QString)), this, SLOT(domainSelected(QString)));
 
@@ -195,6 +195,8 @@ void ZulipWindow::readSettings() {
     if (site.isEmpty()) {
         domain = "prod";
         site = "https://zulip.com";
+    } else {
+        APP->setExplicitDomain(site);
     }
 
     m_start = site;
@@ -316,12 +318,16 @@ void ZulipWindow::showSystemTray(bool show) {
 }
 
 QString ZulipWindow::domainToUrl(const QString& domain) const {
-    if (domain == "prod") {
+    if (domain.isEmpty()) {
+        return QString();
+    } else if (domain == "prod") {
         return "https://zulip.com";
     } else if (domain == "staging") {
         return "https://staging.zulip.com";
     } else if (domain == "dev") {
         return "http://localhost:9991";
+    } else if (domain.contains("http")) {
+        return domain;
     } else {
         qWarning() << "Selected invalid domain?" << domain;
         return QString();

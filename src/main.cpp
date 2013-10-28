@@ -21,7 +21,9 @@ int main(int argc, char *argv[])
 
     ZulipWindow w;
     if (argc == 3 && QString(argv[1]) == QString("--site")) {
-        w.setUrl(QUrl(argv[2]));
+        const QString domain = argv[2];
+        w.setUrl(QUrl(domain));
+        a.setExplicitDomain(domain);
     }
 
     a.setMainWindow(&w);

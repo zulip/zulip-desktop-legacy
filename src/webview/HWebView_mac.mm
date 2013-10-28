@@ -5,6 +5,7 @@
 #include "mac/NSData+Base64.h"
 #include "PlatformInterface.h"
 #include "Config.h"
+#include "ZulipApplication.h"
 
 #include <QMacCocoaViewContainer>
 #include <QVBoxLayout>
@@ -283,7 +284,8 @@ public:
 
 - (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource {
 
-    if ([[request HTTPMethod] isEqualToString:@"POST"] &&
+    if (!APP->explicitDomain() &&
+        [[request HTTPMethod] isEqualToString:@"POST"] &&
         [[[request URL] path] isEqualToString:@"/accounts/login"])
     {
         NSString *stringBody = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
@@ -329,6 +331,7 @@ public:
             return request;
         }
 
+        APP->setExplicitDomain(toQString(baseSiteURL));
         // However if it's different, we need to do the redirect
         // First, we need a valid CSRF token for our login form
         [self csrfTokenForZulipServer:baseSiteURL callback:^(NSString *token) {
@@ -369,6 +372,11 @@ public:
         // While our async CSRF-snatcher is working, we need to return a valid NSURLRequest, but we don't
         // want the user to be moved to any new page
         return [NSURLRequest requestWithURL:[NSURL URLWithString:@""]];
+    }
+    if ([[request HTTPMethod] isEqualToString:@"POST"] &&
+        [[[request URL] path] isEqualToString:@"/accounts/logout"]) {
+        // On logout, reset our "custom domain" if we saved one
+        APP->setExplicitDomain(QString());
     }
     return request;
 }
