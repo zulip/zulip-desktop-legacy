@@ -86,6 +86,7 @@ include_directories(
     .
     ${CMAKE_SOURCE_DIR}/thirdparty/qtsparkle/src
     ${QT_INCLUDES}
+    ${QJSON_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -162,6 +163,7 @@ endif (WIN32)
 
 target_link_libraries( zulip
     ${QT_LIBRARIES}
+    ${QJSON_LIBRARIES}
     ${EXTRA_LIBS}
 )
 
