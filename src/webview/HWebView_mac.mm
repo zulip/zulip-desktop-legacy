@@ -246,34 +246,6 @@ public:
     return self;
 }
 
-- (NSDictionary *)parseURLParameters:(NSString *)parameterString {
-    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-
-    NSArray *kvs = [parameterString componentsSeparatedByString:@"&"];
-    for (NSString *kv in kvs) {
-        if ([kv rangeOfString:@"="].location == NSNotFound)
-            continue;
-
-        NSArray *kvList = [kv componentsSeparatedByString:@"="];
-        if ([kvList count] != 2) {
-            continue;
-        }
-        NSString *key = [kvList objectAtIndex:0];
-        NSString *val = [kvList objectAtIndex:1];
-
-        [dict setObject:val forKey:key];
-    }
-    return dict;
-}
-
-- (NSString *)parameterDictToString:(NSDictionary *)params {
-    NSMutableArray *parts = [NSMutableArray arrayWithArray:@[]];
-    for (NSString *key in params) {
-        [parts addObject:[NSString stringWithFormat:@"%@=%@", key, [params valueForKey:key]]];
-    }
-    return [parts componentsJoinedByString:@"&"];
-}
-
 - (void)csrfTokenForZulipServer:(NSString *)siteUrl callback:(CSRFSnatcherCallback)callback
 {
     WebView *wv = [[WebView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
@@ -290,10 +262,10 @@ public:
         [[[request URL] path] isEqualToString:@"/accounts/login"])
     {
         NSString *stringBody = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
-        NSDictionary *paramDict = [self parseURLParameters:stringBody];
-        NSString *email = [paramDict objectForKey:@"username"];
+        __block QHash<QString, QString> paramDict = Utils::parseURLParameters(toQString(stringBody));
+        NSString *email = fromQString(paramDict.value("username", QString()));
 
-        if (!email) {
+        if ([email length] == 0) {
             return request;
         }
 
@@ -359,10 +331,8 @@ public:
             [newRequest setValue:[NSString stringWithFormat:@"%@/login/", baseSiteURL] forHTTPHeaderField:@"Referer"];
 
             // Splice in our new CSRF token into the POST body
-            NSMutableDictionary *mutableBody = [NSMutableDictionary dictionaryWithDictionary:paramDict];
-            [mutableBody setObject:token forKey:@"csrfmiddlewaretoken"];
-            NSString *newBody = [self parameterDictToString:mutableBody];
-
+            paramDict["csrfmiddlewaretoken"] = toQString(token);
+            NSString *newBody = fromQString(Utils::parametersDictToString(paramDict));
             [newRequest setHTTPBody:[newBody dataUsingEncoding:NSUTF8StringEncoding]];
 
             // Make our new request in the web frame---this will cause a redirect to the logged-in
