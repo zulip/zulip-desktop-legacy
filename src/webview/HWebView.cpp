@@ -3,26 +3,145 @@
 #include "cookiejar.h"
 #include "ZulipWebBridge.h"
 #include "Config.h"
+#include "ZulipApplication.h"
+#include "Utils.h"
 
 #include <QDir>
 #include <QDesktopServices>
+#include <QDebug>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
 #include <QWebView>
 #include <QWebFrame>
 #include <QVBoxLayout>
+#include <QBuffer>
+
+class ZulipNAM : public QNetworkAccessManager
+{
+    Q_OBJECT
+public:
+    ZulipNAM(QWebView *webView, QObject *parent = 0)
+        : QNetworkAccessManager(parent)
+        , m_zulipWebView(webView)
+        , m_csrfWebView(0)
+        , m_redirectedRequest(false)
+    {
+    }
+
+protected:
+    QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
+    {
+        QNetworkReply* origRequest = QNetworkAccessManager::createRequest(op, request, outgoingData);
+
+        // If this is an original login to the app, we preflight the user
+        // to redirect to the site-local Zulip instance if appropriate
+        if (!m_redirectedRequest && !APP->explicitDomain() && op == PostOperation &&
+            outgoingData && request.url().path() == "/accounts/login/") {
+            m_redirectedRequest = false;
+
+            QString postBody = QString::fromUtf8(outgoingData->readAll());
+            m_savedPayload = Utils::parseURLParameters(postBody);
+            QString email = m_savedPayload.value("username", QString());
+
+            if (email.size() == 0) {
+                return origRequest;
+            }
+
+            m_siteBaseUrl = Utils::baseUrlForEmail(this, email);
+            QUrl baseSite(m_siteBaseUrl);
+
+            if (baseSite.host() == request.url().host()) {
+                return origRequest;
+            }
+
+            qDebug() << "Got different base URL, redirecting" << baseSite;
+            APP->setExplicitDomain(m_siteBaseUrl);
+
+            QUrl newUrl(request.url());
+            newUrl.setHost(baseSite.host());
+            m_savedRequest = QNetworkRequest(request);
+            m_savedRequest.setUrl(newUrl);
+            m_savedRequest.setRawHeader("Origin", newUrl.toEncoded());
+            m_savedRequest.setRawHeader("Referer", newUrl.toEncoded());
+
+            // Steal CSRF token
+            // This will asynchronously load the webpage in the background
+            // and then redirect the user
+            snatchCSRFToken();
+
+            // Create new dummy request
+            return QNetworkAccessManager::createRequest(op, QNetworkRequest(QUrl("")), 0);
+        }
+
+        if (op == PostOperation && request.url().path().contains("/accounts/logout")) {
+            APP->setExplicitDomain(QString());
+        }
+
+        return origRequest;
+    }
+
+private slots:
+    void csrfLoadFinished() {
+        QList<QNetworkCookie> cookies = m_csrfWebView->page()->networkAccessManager()->cookieJar()->cookiesForUrl(QUrl(m_siteBaseUrl));
+        foreach (const QNetworkCookie &cookie, cookies) {
+            if (cookie.name() == "csrftoken") {
+                m_savedPayload["csrfmiddlewaretoken"] = cookie.value();
+                loginToRealHost();
+                break;
+            }
+        }
+
+        m_siteBaseUrl.clear();
+        m_csrfWebView->deleteLater();
+        m_csrfWebView = 0;
+    }
+
+private:
+    QString snatchCSRFToken() {
+        // Load the login page for the target Zulip server and extract the CSRF token
+        m_csrfWebView = new QWebView();
+        // Make sure to share the same NAM---then we use the same Cookie Jar and when we
+        // make our redirected POST request, our CSRF token in our cookie matches with
+        // the value in the POST
+        m_csrfWebView->page()->setNetworkAccessManager(this);
+        QUrl loginUrl(m_siteBaseUrl + "login/");
+
+        QObject::connect(m_csrfWebView, SIGNAL(loadFinished(bool)), this, SLOT(csrfLoadFinished()));
+        m_csrfWebView->load(loginUrl);
+        return QString();
+    }
+
+    void loginToRealHost() {
+        QString rebuiltPayload = Utils::parametersDictToString(m_savedPayload);
+        m_redirectedRequest = true;
+        m_zulipWebView->load(m_savedRequest, QNetworkAccessManager::PostOperation, rebuiltPayload.toUtf8());
+    }
+
+    QString m_siteBaseUrl;
+    QWebView *m_zulipWebView;
+    QWebView *m_csrfWebView;
+
+    QNetworkRequest m_savedRequest;
+    QHash<QString, QString> m_savedPayload;
+
+    bool m_redirectedRequest;
+};
 
 class HWebViewPrivate : public QObject {
     Q_OBJECT
 public:
     HWebViewPrivate(HWebView* qq)
         : QObject(qq),
-          q(qq),
           webView(new QWebView(qq)),
+          q(qq),
           bridge(new ZulipWebBridge(qq))
     {
         webView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 
         QDir data_dir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
         CookieJar *m_cookies = new CookieJar(data_dir.absoluteFilePath("default.dat"));
+        ZulipNAM* nam = new ZulipNAM(webView, this);
+        webView->page()->setNetworkAccessManager(nam);
         webView->page()->networkAccessManager()->setCookieJar(m_cookies);
 
         connect(webView, SIGNAL(linkClicked(QUrl)), q, SIGNAL(linkClicked(QUrl)));
