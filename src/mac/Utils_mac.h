@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTILS_MAC_H
+#define UTILS_MAC_H
 
 #include "Converters.h"
 

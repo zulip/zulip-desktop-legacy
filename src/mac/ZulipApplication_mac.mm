@@ -3,7 +3,7 @@
 #include "ZulipWindow.h"
 #include "webview/HWebView.h"
 #include "mac/Converters.h"
-#include "mac/Utils.h"
+#include "mac/Utils_mac.h"
 #include "Config.h"
 
 #include <QDesktopWidget>

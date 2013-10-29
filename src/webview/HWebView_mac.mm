@@ -1,11 +1,12 @@
 #include "HWebView.h"
 
 #include "mac/Converters.h"
-#include "mac/Utils.h"
+#include "mac/Utils_mac.h"
 #include "mac/NSData+Base64.h"
 #include "PlatformInterface.h"
 #include "Config.h"
 #include "ZulipApplication.h"
+#include "Utils.h"
 
 #include <QMacCocoaViewContainer>
 #include <QVBoxLayout>

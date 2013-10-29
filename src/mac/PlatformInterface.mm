@@ -1,6 +1,6 @@
 #include "PlatformInterface.h"
 
-#include "Utils.h"
+#include "Utils_mac.h"
 #include "Config.h"
 #include "ZulipApplication.h"
 #include "ZulipWindow.h"
