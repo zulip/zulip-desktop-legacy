@@ -39,6 +39,7 @@ endif()
 INCLUDE( ZulipCPack.cmake )
 
 # Dependencies
+find_program(QT_QMAKE_EXECUTABLE NAMES qmake4 qmake-qt4 qmake qmake-mac)
 find_package( Qt4 COMPONENTS ${QT_COMPONENTS} REQUIRED )
 
 if(NOT APPLE AND NOT WIN32)
