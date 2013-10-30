@@ -48,27 +48,18 @@ protected:
             }
 
             m_siteBaseUrl = Utils::baseUrlForEmail(this, email);
-            QUrl baseSite(m_siteBaseUrl);
 
-            if (baseSite.host() == request.url().host()) {
-                return origRequest;
+            m_savedOriginalRequest = request;
+
+            if (m_siteBaseUrl == "") {
+                // Failed to load, so we ask the user directly
+                APP->askForCustomServer([=](QString domain) {
+                    m_siteBaseUrl = domain;
+                    snatchCSRFAndRedirect();
+                });
             }
 
-            qDebug() << "Got different base URL, redirecting" << baseSite;
-            APP->setExplicitDomain(m_siteBaseUrl);
-
-            QUrl newUrl(request.url());
-            newUrl.setHost(baseSite.host());
-            m_savedRequest = QNetworkRequest(request);
-            m_savedRequest.setUrl(newUrl);
-            m_savedRequest.setRawHeader("Origin", newUrl.toEncoded());
-            m_savedRequest.setRawHeader("Referer", newUrl.toEncoded());
-
-            // Steal CSRF token
-            // This will asynchronously load the webpage in the background
-            // and then redirect the user
-            snatchCSRFToken();
-
+            snatchCSRFAndRedirect();
             // Create new dummy request
             return QNetworkAccessManager::createRequest(op, QNetworkRequest(QUrl("")), 0);
         }
@@ -117,10 +108,34 @@ private:
         m_zulipWebView->load(m_savedRequest, QNetworkAccessManager::PostOperation, rebuiltPayload.toUtf8());
     }
 
+    void snatchCSRFAndRedirect() {
+        QUrl baseSite(m_siteBaseUrl);
+
+        if (baseSite.host() == m_savedOriginalRequest.url().host()) {
+            return;
+        }
+
+        qDebug() << "Got different base URL, redirecting" << baseSite;
+        APP->setExplicitDomain(m_siteBaseUrl);
+
+        QUrl newUrl(m_savedOriginalRequest.url());
+        newUrl.setHost(baseSite.host());
+        m_savedRequest = QNetworkRequest(m_savedOriginalRequest);
+        m_savedRequest.setUrl(newUrl);
+        m_savedRequest.setRawHeader("Origin", newUrl.toEncoded());
+        m_savedRequest.setRawHeader("Referer", newUrl.toEncoded());
+
+        // Steal CSRF token
+        // This will asynchronously load the webpage in the background
+        // and then redirect the user
+        snatchCSRFToken();
+    }
+
     QString m_siteBaseUrl;
     QWebView *m_zulipWebView;
     QWebView *m_csrfWebView;
 
+    QNetworkRequest m_savedOriginalRequest;
     QNetworkRequest m_savedRequest;
     QHash<QString, QString> m_savedPayload;
 
@@ -145,6 +160,7 @@ public:
         webView->page()->networkAccessManager()->setCookieJar(m_cookies);
 
         connect(webView, SIGNAL(linkClicked(QUrl)), q, SIGNAL(linkClicked(QUrl)));
+        connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(zulipLoadFinished(bool)));
         connect(bridge, SIGNAL(doDesktopNotification(QString,QString)), q, SIGNAL(desktopNotification(QString,QString)));
         connect(bridge, SIGNAL(doUpdateCount(int)), q, SIGNAL(updateCount(int)));
         connect(bridge, SIGNAL(doUpdatePMCount(int)), q, SIGNAL(updatePMCount(int)));
@@ -183,6 +199,16 @@ private slots:
             "   }"
             ");"
         );
+    }
+
+    void zulipLoadFinished(bool successful) {
+        if (!successful && !APP->explicitDomain()) {
+            qDebug() << "Failed to load initial Zulip login page, asking directly";
+            APP->askForCustomServer([=](QString domain) {
+                qDebug() << "Got manually entered domain" << domain << ", redirecting";
+                webView->load(QUrl(domain));
+            });
+        }
     }
 
 public:
