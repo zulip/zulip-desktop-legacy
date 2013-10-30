@@ -274,12 +274,15 @@ public:
         NSString *preflightURL = [NSString stringWithFormat:@"https://api.zulip.com/v1/deployments/endpoints?email=%@", email];
         NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:preflightURL]];
 
+        NSURLRequest *emptyRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@""]];
+
         NSURLResponse *response = nil;
         NSError *error = nil;
         NSData *responseData = [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:&error];
         if (error) {
             NSLog(@"Error making preflight request: %@ %@", [error localizedDescription], [error userInfo]);
-            return request;
+            APP->askForCustomServer();
+            return emptyRequest;
         }
 
         error = nil;
@@ -342,7 +345,7 @@ public:
 
         // While our async CSRF-snatcher is working, we need to return a valid NSURLRequest, but we don't
         // want the user to be moved to any new page
-        return [NSURLRequest requestWithURL:[NSURL URLWithString:@""]];
+        return emptyRequest;
     }
     if ([[request HTTPMethod] isEqualToString:@"POST"] &&
         [[[request URL] path] isEqualToString:@"/accounts/logout"]) {
