@@ -12,12 +12,7 @@ class ZulipApplication : public QApplication
 {
     Q_OBJECT
 public:
-    explicit ZulipApplication(int & argc, char ** argv) : QApplication(argc, argv),
-                                                          m_mw(0),
-                                                          m_debugMode(false),
-                                                          m_explicitDomain(false)
-    {
-    }
+    explicit ZulipApplication(int & argc, char ** argv);
 
     void setMainWindow(ZulipWindow* mw) { m_mw = mw; }
     ZulipWindow* mainWindow() const { return m_mw; }
@@ -25,19 +20,8 @@ public:
     void setDebugMode(bool debugMode) { m_debugMode = debugMode; }
     bool debugMode() const { return m_debugMode; }
 
-    bool explicitDomain() const { return m_explicitDomain; }
-    void setExplicitDomain(const QString& domain) {
-        QSettings s;
-
-        if (domain.isEmpty()) {
-            s.remove("Domain");
-            m_explicitDomain = false;
-        } else {
-            s.setValue("Domain", domain);
-            m_explicitDomain = true;
-        }
-    }
-
+    bool explicitDomain() const;
+    void setExplicitDomain(const QString& domain);
 protected:
 #ifdef Q_OS_MAC
     bool macEventFilter(EventHandlerCallRef, EventRef);

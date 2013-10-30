@@ -9,6 +9,7 @@ set( zulip_SRCS
       ZulipAboutDialog.cpp
       IconRenderer.cpp
       Logger.cpp
+      ZulipApplication.cpp
       main.cpp )
 
 set( zulip_UIS
@@ -16,8 +17,6 @@ set( zulip_UIS
     ZulipAboutDialog.ui )
 
 set( zulip_RESOURCES resources.qrc )
-
-qt4_wrap_cpp(EXTRA_MOCS ZulipApplication.h)
 
 if (APPLE)
     set(EXTRA_SRCS webview/HWebView_mac.mm mac/ZulipApplication_mac.mm mac/PlatformInterface.mm mac/NSData+Base64.m)
