@@ -418,6 +418,32 @@ public:
      ];
 }
 
+- (void)handleInitialLoadFailed {
+    NSLog(@"Failed to initially load Zulip");
+    // If we failed to load Zulip **and** we don't have an explicit domain set,
+    // prompt for a custom domain. An intranet with a local Zulip install might block
+    // the zulip.com default page load
+
+    // TODO Show error page when load fails
+    if (APP->explicitDomain()) {
+        return;
+    }
+
+    APP->askForCustomServer([=](QString domain) {
+        // We don't do anything fancy with the proper domain---we just load
+        // it in the webview directly
+        [[q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:fromQString(domain)]]];
+    });
+}
+
+- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame {
+    [self handleInitialLoadFailed];
+}
+
+- (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame {
+    [self handleInitialLoadFailed];
+}
+
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)selector {
     if (selector == @selector(updateCount:) ||
         selector == @selector(updatePMCount:) ||
