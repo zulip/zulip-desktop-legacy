@@ -19,7 +19,11 @@ set( zulip_UIS
 set( zulip_RESOURCES resources.qrc )
 
 if (APPLE)
-    set(EXTRA_SRCS webview/HWebView_mac.mm mac/ZulipApplication_mac.mm mac/PlatformInterface.mm mac/NSData+Base64.m)
+    set(EXTRA_SRCS ../thirdparty/qocoa/qbutton_mac.mm
+                   webview/HWebView_mac.mm
+                   mac/ZulipApplication_mac.mm
+                   mac/PlatformInterface.mm
+                   mac/NSData+Base64.m)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework
@@ -31,8 +35,10 @@ if (APPLE)
     qt4_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h PlatformInterface.h)
     set(EXTRA_SRCS ${MAC_EXTRA_MOCS} ${EXTRA_SRCS})
 else()
-    set(EXTRA_SRCS webview/HWebView.cpp)
+    set(EXTRA_SRCS ../thirdparty/qocoa/qbutton_nonmac.cpp webview/HWebView.cpp)
 endif()
+
+qt4_wrap_cpp(EXTRA_MOCS ../thirdparty/qocoa/qbutton.h)
 
 if (WIN32)
   set( CMAKE_BUILD_TYPE "Release" )
@@ -77,7 +83,7 @@ endif()
 if (NOT WIN32 AND NOT APPLE)
     set(EXTRA_SRCS ${EXTRA_SRCS} PlatformInterface.cpp)
 
-    include_directories(${PHONON_INCLUDES})
+    include_directories(${PHONON_INCLUDES} ${CMAKE_SOURCE_DIR}/..)
     set(EXTRA_LIBS ${EXTRA_LIBS} ${PHONON_LIBS})
 endif()
 
