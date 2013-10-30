@@ -11,8 +11,6 @@
 #include <QDebug>
 #include <QUrl>
 
-class QNetworkAccessManager;
-
 namespace Utils {
 
     static inline QHash<QString, QString> parseURLParameters(const QString& url) {
@@ -46,12 +44,23 @@ namespace Utils {
     // Does a SYNCHRONOUS HTTP request for the base url
     static inline QString baseUrlForEmail(QNetworkAccessManager *nam, const QString& email) {
         QString fetchURL = QString("https://api.zulip.com/v1/deployments/endpoints?email=%1").arg(email);
+
+        bool createdNam = false;
+        if (!nam) {
+            createdNam = true;
+            nam = new QNetworkAccessManager();
+        }
+
         QNetworkReply *reply = nam->get(QNetworkRequest(QUrl(fetchURL)));
 
         // Ugh
         QEventLoop loop;
         QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
         loop.exec(QEventLoop::ExcludeUserInputEvents);
+
+        if (createdNam) {
+            nam->deleteLater();
+        }
 
         QJson::Parser p;
         QVariantMap result = p.parse(reply).toMap();

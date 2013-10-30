@@ -332,37 +332,21 @@ public:
             return request;
         }
 
-        NSLog(@"Preflighting login request for %@", email);
-        // Do a GET to the central Zulip server to determine the domain for this user
-        NSString *preflightURL = [NSString stringWithFormat:@"https://api.zulip.com/v1/deployments/endpoints?email=%@", email];
-        NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:preflightURL]];
-
         NSURLRequest *emptyRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@""]];
         self.origRequest = request;
 
-        NSURLResponse *response = nil;
-        NSError *error = nil;
-        NSData *responseData = [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:&error];
-        if (error) {
-            NSLog(@"Error making preflight request: %@ %@", [error localizedDescription], [error userInfo]);
+        NSLog(@"Preflighting login request for %@", email);
+        // Do a GET to the central Zulip server to determine the domain for this user
+        NSString *preflightURL = fromQString(Utils::baseUrlForEmail(0, toQString(email)));
+        if ([preflightURL isEqualToString:@""]) {
+            NSLog(@"Error making preflight request, asking");
             APP->askForCustomServer([=](QString domain) {
                 [self snatchCSRFAndRedirect:fromQString(domain)];
             });
             return emptyRequest;
         }
 
-        error = nil;
-        NSDictionary *json = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&error];
-        if (error) {
-            NSLog(@"Error decoding JSON: %@ %@", [error localizedDescription], [error userInfo]);
-            return request;
-        }
-        NSDictionary *result = [json objectForKey:@"result"];
-        if (!result) {
-            return request;
-        }
-
-        [self snatchCSRFAndRedirect:[result objectForKey:@"base_site_url"]];
+        [self snatchCSRFAndRedirect:preflightURL];
 
         // While our async CSRF-snatcher is working, we need to return a valid NSURLRequest, but we don't
         // want the user to be moved to any new page
