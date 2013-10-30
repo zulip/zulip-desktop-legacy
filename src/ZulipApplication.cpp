@@ -38,9 +38,11 @@ void ZulipApplication::setExplicitDomain(const QString &domain) {
     }
 }
 
-void ZulipApplication::askForCustomServer(std::function<void (QString)> success)
+void ZulipApplication::askForCustomServer(std::function<void (QString)> success,
+                                          std::function<void (void)> retry)
 {
     m_customDomainSuccess = success;
+    m_customDomainRetry = retry;
 
     m_customServerDialog = QWeakPointer<QDialog>(new QDialog(APP->mainWindow()));
     m_customServerDialog.data()->setWindowFlags(Qt::Sheet);
@@ -62,16 +64,16 @@ void ZulipApplication::askForCustomServer(std::function<void (QString)> success)
     domainEntry->setSpacing(2);
     QLabel *domainLabel = new QLabel("https:", m_customServerDialog.data());
     m_customDomain = new QLineEdit(m_customServerDialog.data());
-    m_customDomain->setPlaceholderText("https://zulip.com");
+    m_customDomain->setPlaceholderText("zulip.com");
     domainEntry->addWidget(domainLabel);
     domainEntry->addWidget(m_customDomain);
     m_customServerDialog.data()->layout()->addItem(domainEntry);
 
     QHBoxLayout *buttons = new QHBoxLayout();
     QButton *cancelButton = new QButton(m_customServerDialog.data());
-    cancelButton->setText("Cancel");
+    cancelButton->setText("Retry");
     QButton *okButton = new QButton(m_customServerDialog.data());
-    okButton->setText("OK");
+    okButton->setText("Go");
 
     buttons->addSpacing(60);
     buttons->addWidget(cancelButton);
@@ -90,8 +92,13 @@ void ZulipApplication::customServerOK()
     if (m_customServerDialog.isNull()) {
         return;
     }
-    const QString domain = m_customDomain->text().trimmed();
-    qDebug() << "Setting explicit domain to:" << domain;
+    QString domain = m_customDomain->text().trimmed();
+    if (domain.startsWith("http://")) {
+        domain.replace("http://", "https://");
+    } else if (!domain.startsWith("https://")) {
+        domain = "https://" + domain;
+    }
+
     setExplicitDomain(domain);
     m_customDomainSuccess(domain);
 
@@ -104,7 +111,9 @@ void ZulipApplication::customServerCancel()
     if (m_customServerDialog.isNull()) {
         return;
     }
-    // User hit cancel---abort the login completely.
+    // User hit Retry
     m_customServerDialog.data()->hide();
     m_customServerDialog.data()->deleteLater();
+
+    m_customDomainRetry();
 }

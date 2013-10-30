@@ -39,7 +39,8 @@ protected:
             outgoingData && request.url().path() == "/accounts/login/") {
             m_redirectedRequest = false;
 
-            QString postBody = QString::fromUtf8(outgoingData->readAll());
+            const QByteArray dataBuffer = outgoingData->readAll();
+            const QString postBody = QString::fromUtf8(dataBuffer);
             m_savedPayload = Utils::parseURLParameters(postBody);
             QString email = m_savedPayload.value("username", QString());
 
@@ -56,6 +57,9 @@ protected:
                 APP->askForCustomServer([=](QString domain) {
                     m_siteBaseUrl = domain;
                     snatchCSRFAndRedirect();
+                }, [=] {
+                    // Retry
+                    m_zulipWebView->load(request, op, dataBuffer);
                 });
             }
 
@@ -207,6 +211,9 @@ private slots:
             APP->askForCustomServer([=](QString domain) {
                 qDebug() << "Got manually entered domain" << domain << ", redirecting";
                 webView->load(QUrl(domain));
+            }, [=] () {
+                // Retry
+                webView->load(startUrl);
             });
         }
     }

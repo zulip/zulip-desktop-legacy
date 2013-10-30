@@ -73,7 +73,7 @@ namespace Utils {
         } else if (!domain.startsWith("https://")) {
             domain = "https://" + domain;
         }
-        
+
         return domain;
     }
 }

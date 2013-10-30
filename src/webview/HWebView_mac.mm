@@ -96,6 +96,7 @@ public:
     HWebView* q;
     WebView* webView;
     ZulipWebDelegate* delegate;
+    QUrl originalURL;
 };
 
 // Override performKeyEquivalent to make shortcuts work
@@ -245,6 +246,7 @@ public:
 @implementation ZulipWebDelegate
 - (id)initWithPrivate:(HWebViewPrivate*)qq {
     self = [super init];
+    self.origRequest = nil;
     q = qq;
 
     return self;
@@ -342,6 +344,18 @@ public:
             NSLog(@"Error making preflight request, asking");
             APP->askForCustomServer([=](QString domain) {
                 [self snatchCSRFAndRedirect:fromQString(domain)];
+            }, [=]() {
+                // Retry
+                // Make a strong reference to the parameters
+                // so they are still around when our delayed block gets executed
+                __block WebView* _sender = sender;
+                __block id _identifier = identifier;
+                __block NSURLRequest *_request = request;
+                __block NSURLResponse *_redirectResponse = redirectResponse;
+                __block WebDataSource *_dataSource = dataSource;
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^(void){
+                    [self webView:_sender resource:_identifier willSendRequest:_request redirectResponse:_redirectResponse fromDataSource:_dataSource];
+                });
             });
             return emptyRequest;
         }
@@ -409,7 +423,7 @@ public:
     // the zulip.com default page load
 
     // TODO Show error page when load fails
-    if (APP->explicitDomain()) {
+    if (APP->explicitDomain() || self.origRequest) {
         return;
     }
 
@@ -417,6 +431,13 @@ public:
         // We don't do anything fancy with the proper domain---we just load
         // it in the webview directly
         [[q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:fromQString(domain)]]];
+    }, [=]() {
+        // Retry
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^(void){
+            // For some reason calling reload: or reloadFromOrigin both don't cause a reload,
+            // yet calling loadRequest does.
+            [[q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:fromQUrl(q->originalURL)]];
+        });
     });
 }
 
@@ -547,6 +568,7 @@ void HWebView::load(const QUrl &url) {
         return;
     }
 
+    dptr->originalURL = url;
     NSURL* u = fromQUrl(url);
 
     [[dptr->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:u]];
