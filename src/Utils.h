@@ -66,7 +66,15 @@ namespace Utils {
         QVariantMap result = p.parse(reply).toMap();
 
         result = result.value("result", QVariantMap()).toMap();
-        return result.value("base_site_url", QString()).toString();
+        QString domain = result.value("base_site_url", QString()).toString();
+        // Only allow http:// on localhost for testing
+        if (domain.startsWith("http://") && !domain.startsWith("http://localhost:")) {
+            domain.replace("http://", "https://");
+        } else if (!domain.startsWith("https://")) {
+            domain = "https://" + domain;
+        }
+        
+        return domain;
     }
 }
 
