@@ -54,6 +54,10 @@ typedef void(^CSRFSnatcherCallback)(NSString *token);
 - (void)bell;
 - (void)desktopNotification:(NSString*)title withContent:(NSString*)content;
 - (NSString *)desktopAppVersion;
+
+
+// For CSRF/Auto-redirecting
+@property (nonatomic, retain)NSURLRequest *origRequest;
 @end
 
 class HWebViewPrivate : public QObject {
@@ -255,6 +259,65 @@ public:
     [wv setMainFrameURL:[NSString stringWithFormat:@"%@%@", siteUrl, @"login/?next=/"]];
 }
 
+- (void)snatchCSRFAndRedirect:(NSString *)customDomain {
+    NSURLRequest *request = self.origRequest;
+
+    __block NSString *baseSiteURL = customDomain;
+
+    if ([baseSiteURL characterAtIndex:[baseSiteURL length] - 1] != '/') {
+        baseSiteURL = [NSString stringWithFormat:@"%@/", baseSiteURL];
+    }
+
+    NSURL *siteURL = [NSURL URLWithString:baseSiteURL];
+    NSString *siteHost = [siteURL host];
+
+    // We have the "true" base URL to use
+    // If it's the same as what we're already on---just let the existing request go through
+    NSString *requestHost = [[request URL] host];
+    if ([siteHost isEqualToString:requestHost]) {
+//        return request;
+        return;
+    }
+
+    APP->setExplicitDomain(toQString(baseSiteURL));
+    // However if it's different, we need to do the redirect
+    // First, we need a valid CSRF token for our login form
+    [self csrfTokenForZulipServer:baseSiteURL callback:^(NSString *token) {
+        if (token == nil) {
+            // We failed to get a csrf token, so aborting!
+            NSLog(@"ERROR: Failed to grab a CSRF token from %@", baseSiteURL);
+            return;
+        }
+
+        // If our base site URL ends with a trailing /, our path also starts with a /
+        // so remove one of them
+        if ([baseSiteURL characterAtIndex:[baseSiteURL length] - 1] == '/') {
+            baseSiteURL = [baseSiteURL substringToIndex:[baseSiteURL length] - 1];
+        }
+
+        NSString *newURLString = [NSString stringWithFormat:@"%@%@/?%@", baseSiteURL, [[request URL] path], [[request URL] query]];
+        NSURL *newURL = [NSURL URLWithString:newURLString];
+
+        // NSURL is immutable so we have to construct a new one with the modified host
+        NSMutableURLRequest *newRequest = [request mutableCopy];
+        [newRequest setURL:newURL];
+        // Spoof the Origin and Referer headers
+        [newRequest setValue:baseSiteURL forHTTPHeaderField:@"Origin"];
+        [newRequest setValue:[NSString stringWithFormat:@"%@/login/", baseSiteURL] forHTTPHeaderField:@"Referer"];
+
+        // Splice in our new CSRF token into the POST body
+        NSString *stringBody = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
+        QHash<QString, QString> paramDict = Utils::parseURLParameters(toQString(stringBody));
+        paramDict["csrfmiddlewaretoken"] = toQString(token);
+        NSString *newBody = fromQString(Utils::parametersDictToString(paramDict));
+        [newRequest setHTTPBody:[newBody dataUsingEncoding:NSUTF8StringEncoding]];
+
+        // Make our new request in the web frame---this will cause a redirect to the logged-in
+        // Zulip at the target site
+        [[q->webView mainFrame] loadRequest:newRequest];
+    }];
+}
+
 - (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource {
 
     if (!APP->explicitDomain() &&
@@ -262,7 +325,7 @@ public:
         [[[request URL] path] isEqualToString:@"/accounts/login"])
     {
         NSString *stringBody = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
-        __block QHash<QString, QString> paramDict = Utils::parseURLParameters(toQString(stringBody));
+        QHash<QString, QString> paramDict = Utils::parseURLParameters(toQString(stringBody));
         NSString *email = fromQString(paramDict.value("username", QString()));
 
         if ([email length] == 0) {
@@ -275,13 +338,16 @@ public:
         NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:preflightURL]];
 
         NSURLRequest *emptyRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@""]];
+        self.origRequest = request;
 
         NSURLResponse *response = nil;
         NSError *error = nil;
         NSData *responseData = [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:&error];
         if (error) {
             NSLog(@"Error making preflight request: %@ %@", [error localizedDescription], [error userInfo]);
-            APP->askForCustomServer();
+            APP->askForCustomServer([=](QString domain) {
+                [self snatchCSRFAndRedirect:fromQString(domain)];
+            });
             return emptyRequest;
         }
 
@@ -296,52 +362,7 @@ public:
             return request;
         }
 
-        __block NSString *baseSiteURL = [result objectForKey:@"base_site_url"];
-        NSURL *siteURL = [NSURL URLWithString:baseSiteURL];
-        NSString *siteHost = [siteURL host];
-
-        // We have the "true" base URL to use
-        // If it's the same as what we're already on---just let the existing request go through
-        NSString *requestHost = [[request URL] host];
-        if ([siteHost isEqualToString:requestHost]) {
-            return request;
-        }
-
-        APP->setExplicitDomain(toQString(baseSiteURL));
-        // However if it's different, we need to do the redirect
-        // First, we need a valid CSRF token for our login form
-        [self csrfTokenForZulipServer:baseSiteURL callback:^(NSString *token) {
-            if (token == nil) {
-                // We failed to get a csrf token, so aborting!
-                NSLog(@"ERROR: Failed to grab a CSRF token from %@", baseSiteURL);
-                return;
-            }
-
-            // If our base site URL ends with a trailing /, our path also starts with a /
-            // so remove one of them
-            if ([baseSiteURL characterAtIndex:[baseSiteURL length] - 1] == '/') {
-                baseSiteURL = [baseSiteURL substringToIndex:[baseSiteURL length] - 1];
-            }
-
-            NSString *newURLString = [NSString stringWithFormat:@"%@%@/?%@", baseSiteURL, [[request URL] path], [[request URL] query]];
-            NSURL *newURL = [NSURL URLWithString:newURLString];
-
-            // NSURL is immutable so we have to construct a new one with the modified host
-            NSMutableURLRequest *newRequest = [request mutableCopy];
-            [newRequest setURL:newURL];
-            // Spoof the Origin and Referer headers
-            [newRequest setValue:baseSiteURL forHTTPHeaderField:@"Origin"];
-            [newRequest setValue:[NSString stringWithFormat:@"%@/login/", baseSiteURL] forHTTPHeaderField:@"Referer"];
-
-            // Splice in our new CSRF token into the POST body
-            paramDict["csrfmiddlewaretoken"] = toQString(token);
-            NSString *newBody = fromQString(Utils::parametersDictToString(paramDict));
-            [newRequest setHTTPBody:[newBody dataUsingEncoding:NSUTF8StringEncoding]];
-
-            // Make our new request in the web frame---this will cause a redirect to the logged-in
-            // Zulip at the target site
-            [[sender mainFrame] loadRequest:newRequest];
-        }];
+        [self snatchCSRFAndRedirect:[result objectForKey:@"base_site_url"]];
 
         // While our async CSRF-snatcher is working, we need to return a valid NSURLRequest, but we don't
         // want the user to be moved to any new page
