@@ -11,6 +11,14 @@ set( ZULIP_VERSION_SHORT "${ZULIP_VERSION}" )
 
 set( ZULIP_APPLICATION_NAME "Zulip")
 
+# Yay C++11!
+add_definitions("-std=c++11")
+# Older OS Xes (10.7) default to gnu libc which is
+# old and doesn't support cpp11
+if (APPLE)
+    add_definitions("-stdlib=libc++")
+endif()
+
 # enforce proper symbol exporting on all platforms
 add_definitions( "-fvisibility=hidden" )
 # enforce using constBegin, constEnd for const-iterators

@@ -23,7 +23,7 @@ if (APPLE)
                    webview/HWebView_mac.mm
                    mac/ZulipApplication_mac.mm
                    mac/PlatformInterface.mm
-                   mac/NSData+Base64.m)
+                   mac/NSData+Base64.mm)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework
