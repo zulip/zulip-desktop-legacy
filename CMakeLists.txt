@@ -12,11 +12,11 @@ set( ZULIP_VERSION_SHORT "${ZULIP_VERSION}" )
 set( ZULIP_APPLICATION_NAME "Zulip")
 
 # Yay C++11!
-add_definitions("-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 # Older OS Xes (10.7) default to gnu libc which is
 # old and doesn't support cpp11
 if (APPLE)
-    add_definitions("-stdlib=libc++")
+    set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 endif()
 
 # enforce proper symbol exporting on all platforms
