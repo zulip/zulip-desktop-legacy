@@ -95,7 +95,7 @@ void ZulipApplication::customServerOK()
     QString domain = m_customDomain->text().trimmed();
     if (domain.startsWith("http://")) {
         domain.replace("http://", "https://");
-    } else if (!domain.startsWith("https://")) {
+    } else if (domain.length() > 0 && !domain.startsWith("https://")) {
         domain = "https://" + domain;
     }
 

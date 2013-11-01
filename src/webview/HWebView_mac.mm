@@ -339,8 +339,9 @@ public:
 
         NSLog(@"Preflighting login request for %@", email);
         // Do a GET to the central Zulip server to determine the domain for this user
-        NSString *preflightURL = fromQString(Utils::baseUrlForEmail(0, toQString(email)));
-        if ([preflightURL isEqualToString:@""]) {
+        bool requestSuccessful;
+        NSString *preflightURL = fromQString(Utils::baseUrlForEmail(0, toQString(email), &requestSuccessful));
+        if (!requestSuccessful) {
             NSLog(@"Error making preflight request, asking");
             APP->askForCustomServer([=](QString domain) {
                 [self snatchCSRFAndRedirect:fromQString(domain)];
@@ -358,6 +359,8 @@ public:
                 });
             });
             return emptyRequest;
+        } else if ([preflightURL isEqualToString:@""]) {
+            return request;
         }
 
         [self snatchCSRFAndRedirect:preflightURL];

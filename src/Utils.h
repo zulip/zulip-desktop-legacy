@@ -42,7 +42,7 @@ namespace Utils {
     }
 
     // Does a SYNCHRONOUS HTTP request for the base url
-    static inline QString baseUrlForEmail(QNetworkAccessManager *nam, const QString& email) {
+    static inline QString baseUrlForEmail(QNetworkAccessManager *nam, const QString& email, bool *requestSuccessful) {
         QString fetchURL = QString("https://api.zulip.com/v1/deployments/endpoints?email=%1").arg(email);
 
         bool createdNam = false;
@@ -62,6 +62,16 @@ namespace Utils {
             nam->deleteLater();
         }
 
+        // If we get anything outside a 404 (user deployment not known) or 200,
+        // we assume that our attempt at preflight failed because we could not connect
+        // to zulip.com
+        if (reply->error() != QNetworkReply::NoError &&
+            reply->error() != QNetworkReply::ContentNotFoundError) {
+            *requestSuccessful = false;
+            return QString();
+        }
+
+        *requestSuccessful = true;
         QJson::Parser p;
         QVariantMap result = p.parse(reply).toMap();
 
@@ -70,7 +80,7 @@ namespace Utils {
         // Only allow http:// on localhost for testing
         if (domain.startsWith("http://") && !domain.startsWith("http://localhost:")) {
             domain.replace("http://", "https://");
-        } else if (!domain.startsWith("https://")) {
+        } else if (domain.length() > 0 && !domain.startsWith("https://")) {
             domain = "https://" + domain;
         }
 

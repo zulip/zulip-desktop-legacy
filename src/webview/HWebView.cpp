@@ -48,11 +48,12 @@ protected:
                 return origRequest;
             }
 
-            m_siteBaseUrl = Utils::baseUrlForEmail(this, email);
+            bool requestSuccessful;
+            m_siteBaseUrl = Utils::baseUrlForEmail(this, email, &requestSuccessful);
 
             m_savedOriginalRequest = request;
 
-            if (m_siteBaseUrl == "") {
+            if (!requestSuccessful) {
                 // Failed to load, so we ask the user directly
                 APP->askForCustomServer([=](QString domain) {
                     m_siteBaseUrl = domain;
@@ -61,6 +62,8 @@ protected:
                     // Retry
                     m_zulipWebView->load(request, op, dataBuffer);
                 });
+            } else if (m_siteBaseUrl.length() == 0) {
+                return origRequest;
             }
 
             snatchCSRFAndRedirect();
