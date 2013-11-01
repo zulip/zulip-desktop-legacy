@@ -1,8 +1,11 @@
 #include "PlatformInterface.h"
 #include "Config.h"
+#include "ZulipApplication.h"
+#include "ZulipWindow.h"
 
 #include <QTemporaryFile>
 #include <QResource>
+#include <QSystemTrayIcon>
 
 #include <phonon/MediaObject>
 #include <phonon/MediaSource>
@@ -48,8 +51,8 @@ void PlatformInterface::checkForUpdates() {
     // Noop
 }
 
-void PlatformInterface::desktopNotification(const QString &, const QString &) {
-    // Noop
+void PlatformInterface::desktopNotification(const QString &title, const QString &content) {
+    APP->mainWindow()->trayIcon()->showMessage(title, content);
 }
 
 void PlatformInterface::setStartAtLogin(bool start) {

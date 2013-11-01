@@ -31,6 +31,7 @@ public:
 
     HWebView* webView() const;
     IconRenderer *iconRenderer() const;
+    QSystemTrayIcon *trayIcon() const;
 
 public slots:
     void closeEvent(QCloseEvent *);

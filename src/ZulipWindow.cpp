@@ -70,6 +70,10 @@ IconRenderer* ZulipWindow::iconRenderer() const {
     return m_renderer;
 }
 
+QSystemTrayIcon *ZulipWindow::trayIcon() const {
+    return m_tray;
+}
+
 void ZulipWindow::setupTray() {
     m_tray = new QSystemTrayIcon(this);
     m_tray->setIcon(m_renderer->icon());
@@ -282,8 +286,14 @@ void ZulipWindow::pmCountUpdated(int newCount)
 
 void ZulipWindow::displayPopup(const QString &title, const QString &content)
 {
-    m_tray->showMessage(title, content);
-
+    // QSystemTrayIcon::showMessage tries to be clever on OS X:
+    // If it finds Growl to be installed, it uses AppleScript [!!! >:(]
+    // to send a message to GrowlHelperApp, the **old** process name for
+    // Growl < 1.3. Starting with Growl >= 1.3, this causes a popup window
+    // asking the user to locate Growl, which is terrible.
+    // Furthermore, if the user has Growl < 1.3 installed, this will display
+    // duplicate desktop notifications, as we properly use the Growl framework.
+    // So we use Growl on OS X, and showMessage() elsewhere
     m_platform->desktopNotification(title, content);
 }
 

@@ -18,13 +18,14 @@
 #include <QTimer>
 #include <QTemporaryFile>
 #include <QResource>
+#include <QSystemTrayIcon>
 
 class PlatformInterfacePrivate : public QObject {
     Q_OBJECT
 public:
     PlatformInterfacePrivate(PlatformInterface *qq) : QObject(qq), q(qq), updater(0) {
         setupTaskbarIcon();
-        
+
         sound_temp.open();
         QResource memory_soundfile(":/audio/zulip.wav");
         sound_temp.write((char*) memory_soundfile.data(), memory_soundfile.size());
@@ -33,7 +34,7 @@ public:
 
         QTimer::singleShot(0, this, SLOT(setupQtSparkle()));
     }
-    
+
     virtual ~PlatformInterfacePrivate() {
     }
 
@@ -101,6 +102,10 @@ void PlatformInterface::checkForUpdates() {
 }
 
 void PlatformInterface::desktopNotification(const QString &title, const QString &content) {
+    // On Windows/Linux, let Qt show the (default, crappy) notification message
+    // until we have a better one
+    APP->mainWindow()->trayIcon()->showMessage(title, content);
+
     FLASHWINFO finfo;
     finfo.cbSize = sizeof( FLASHWINFO );
     finfo.hwnd = APP->mainWindow()->winId();
