@@ -9,12 +9,19 @@
 #include <QDir>
 #include <QDesktopServices>
 #include <QDebug>
+#include <QHash>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QWebView>
 #include <QWebFrame>
 #include <QVBoxLayout>
 #include <QBuffer>
+
+// QWebkit, WHY DO YOU MAKE ME DO THIS
+typedef QHash<QNetworkReply *, QByteArray *> PayloadHash;
+typedef QHash<QNetworkReply *, QBuffer *> PayloadBufferHash;
+Q_GLOBAL_STATIC(PayloadHash, s_payloads);
+Q_GLOBAL_STATIC(PayloadBufferHash, s_payloadBuffers);
 
 class ZulipNAM : public QNetworkAccessManager
 {
@@ -26,13 +33,12 @@ public:
         , m_csrfWebView(0)
         , m_redirectedRequest(false)
     {
+        connect(this, SIGNAL(finished(QNetworkReply*)), this, SLOT(cleanupFinishedReplies(QNetworkReply*)));
     }
 
 protected:
     QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
     {
-        QNetworkReply* origRequest = QNetworkAccessManager::createRequest(op, request, outgoingData);
-
         // If this is an original login to the app, we preflight the user
         // to redirect to the site-local Zulip instance if appropriate
         if (!m_redirectedRequest && !APP->explicitDomain() && op == PostOperation &&
@@ -45,7 +51,12 @@ protected:
             QString email = m_savedPayload.value("username", QString());
 
             if (email.size() == 0) {
-                return origRequest;
+                QByteArray *tempData = new QByteArray(dataBuffer);
+                QBuffer *tempBuffer = new QBuffer(tempData, 0);
+                QNetworkReply *rebuildReply = QNetworkAccessManager::createRequest(op, request, tempBuffer);
+                s_payloads()->insert(rebuildReply, tempData);
+                s_payloadBuffers()->insert(rebuildReply, tempBuffer);
+                return rebuildReply;
             }
 
             bool requestSuccessful;
@@ -63,7 +74,12 @@ protected:
                     m_zulipWebView->load(request, op, dataBuffer);
                 });
             } else if (m_siteBaseUrl.length() == 0) {
-                return origRequest;
+                QByteArray *tempData = new QByteArray(dataBuffer);
+                QBuffer *tempBuffer = new QBuffer(tempData, 0);
+                QNetworkReply *rebuildReply = QNetworkAccessManager::createRequest(op, request, tempBuffer);
+                s_payloads()->insert(rebuildReply, tempData);
+                s_payloadBuffers()->insert(rebuildReply, tempBuffer);
+                return rebuildReply;
             }
 
             snatchCSRFAndRedirect();
@@ -75,7 +91,7 @@ protected:
             APP->setExplicitDomain(QString());
         }
 
-        return origRequest;
+        return QNetworkAccessManager::createRequest(op, request, outgoingData);
     }
 
 private slots:
@@ -92,6 +108,15 @@ private slots:
         m_siteBaseUrl.clear();
         m_csrfWebView->deleteLater();
         m_csrfWebView = 0;
+    }
+    
+    void cleanupFinishedReplies(QNetworkReply* reply) {
+        if (s_payloads()->contains(reply)) {
+            delete s_payloads()->take(reply);
+        }
+        if (s_payloadBuffers()->contains(reply)) {
+            s_payloadBuffers()->take(reply)->deleteLater();
+        }
     }
 
 private:
