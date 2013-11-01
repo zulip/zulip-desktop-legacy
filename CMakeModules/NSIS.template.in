@@ -311,6 +311,7 @@ Section "Zulip" SEC_ZULIP
    File "${MING_BIN}\libpng15-15.dll"
    File "${MING_BIN}\libjpeg-8.dll"
    File "${MING_BIN}\zlib1.dll"
+   File "${MING_BIN}\libqjson.dll"
 
    ; Crypto
    File "${MING_BIN}\libqca.dll"
