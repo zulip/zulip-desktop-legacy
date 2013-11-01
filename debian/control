@@ -6,7 +6,8 @@ Build-Depends: debhelper (>= 8.0.0),
  cmake,
  libqt4-dev,
  libqtwebkit-dev,
- libphonon-dev
+ libphonon-dev,
+ libqjson-dev
 Standards-Version: 3.9.2
 Homepage: https://zulip.com/apps
 
