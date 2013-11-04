@@ -62,7 +62,7 @@ void ZulipApplication::askForCustomServer(std::function<void (QString)> success,
 
     QHBoxLayout *domainEntry = new QHBoxLayout();
     domainEntry->setSpacing(2);
-    QLabel *domainLabel = new QLabel("https:", m_customServerDialog.data());
+    QLabel *domainLabel = new QLabel("https://", m_customServerDialog.data());
     m_customDomain = new QLineEdit(m_customServerDialog.data());
     m_customDomain->setPlaceholderText("zulip.com");
     domainEntry->addWidget(domainLabel);
