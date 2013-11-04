@@ -148,7 +148,7 @@ void ZulipWindow::setupTray() {
     m_startAtLogin->setCheckable(true);
     connect(m_startAtLogin, SIGNAL(triggered(bool)), this, SLOT(setStartAtLogin(bool)));
 
-    m_bounceDock = options_menu->addAction("Bounce dock icon");
+    m_bounceDock = options_menu->addAction("Bounce Dock Icon");
     m_bounceDock->setCheckable(true);
     connect(m_bounceDock, SIGNAL(triggered(bool)), this, SLOT(setBounceDockIcon(bool)));
 #endif
