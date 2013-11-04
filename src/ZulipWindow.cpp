@@ -331,14 +331,14 @@ void ZulipWindow::setStartAtLogin(bool start) {
     s.setValue("LaunchAtLogin", start);
 }
 
-#ifdef Q_OS_MAC
 void ZulipWindow::setBounceDockIcon(bool bounce) {
     QSettings s;
     s.setValue("BounceDockIcon", bounce);
 
+#ifdef Q_OS_MAC
     APP->setBounceDockIcon(bounce);
-}
 #endif
+}
 
 void ZulipWindow::showSystemTray(bool show) {
     m_tray->setVisible(show);
