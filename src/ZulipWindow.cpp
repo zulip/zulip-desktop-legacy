@@ -1,3 +1,4 @@
+
 #include "ZulipWindow.h"
 
 #include "ZulipApplication.h"
@@ -31,6 +32,7 @@ ZulipWindow::ZulipWindow(QWidget *parent) :
     m_checkForUpdates(0),
     m_startAtLogin(0),
     m_showSysTray(0),
+    m_bounceDock(0),
     m_unreadCount(0),
     m_unreadPMCount(0),
     m_platform(new PlatformInterface(this))
@@ -141,10 +143,14 @@ void ZulipWindow::setupTray() {
     checkForUpdates->setMenuRole(QAction::ApplicationSpecificRole);
     connect(checkForUpdates, SIGNAL(triggered()), m_platform, SLOT(checkForUpdates()));
 
-    m_startAtLogin = about_menu->addAction("Start at Login");
+    QMenu *options_menu = menuBar()->addMenu("Options");
+    m_startAtLogin = options_menu->addAction("Start at Login");
     m_startAtLogin->setCheckable(true);
-    m_startAtLogin->setMenuRole(QAction::ApplicationSpecificRole);
     connect(m_startAtLogin, SIGNAL(triggered(bool)), this, SLOT(setStartAtLogin(bool)));
+
+    m_bounceDock = options_menu->addAction("Bounce dock icon");
+    m_bounceDock->setCheckable(true);
+    connect(m_bounceDock, SIGNAL(triggered(bool)), this, SLOT(setBounceDockIcon(bool)));
 #endif
 
     m_showSysTray = new QAction("Show Tray Icon", this);
@@ -152,8 +158,7 @@ void ZulipWindow::setupTray() {
     connect(m_showSysTray, SIGNAL(triggered(bool)), this, SLOT(showSystemTray(bool)));
 
 #if defined(Q_OS_MAC)
-    about_menu->addAction(m_showSysTray);
-    m_showSysTray->setMenuRole(QAction::ApplicationSpecificRole);
+    options_menu->addAction(m_showSysTray);
 #else
     menu->insertAction(exit_action, m_showSysTray);
 #endif
@@ -218,6 +223,12 @@ void ZulipWindow::readSettings() {
     bool showSysTray = settings.value("ShowSystemTray", true).toBool();
     m_tray->setVisible(showSysTray);
     m_showSysTray->setChecked(showSysTray);
+
+#ifdef Q_OS_MAC
+    bool bounceDockIcon = settings.value("BounceDockIcon", true).toBool();
+    APP->setBounceDockIcon(bounceDockIcon);
+    m_bounceDock->setChecked(bounceDockIcon);
+#endif
 }
 
 void ZulipWindow::setUrl(const QUrl &url)
@@ -319,6 +330,15 @@ void ZulipWindow::setStartAtLogin(bool start) {
     QSettings s;
     s.setValue("LaunchAtLogin", start);
 }
+
+#ifdef Q_OS_MAC
+void ZulipWindow::setBounceDockIcon(bool bounce) {
+    QSettings s;
+    s.setValue("BounceDockIcon", bounce);
+
+    APP->setBounceDockIcon(bounce);
+}
+#endif
 
 void ZulipWindow::showSystemTray(bool show) {
     m_tray->setVisible(show);

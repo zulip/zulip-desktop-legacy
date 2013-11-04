@@ -48,6 +48,9 @@ private slots:
     void domainSelected(const QString& domain);
     void setStartAtLogin(bool start);
     void showSystemTray(bool show);
+#ifdef Q_OS_MAC
+    void setBounceDockIcon(bool bounce);
+#endif
 
     void animateTray();
 
@@ -75,6 +78,7 @@ private:
     QAction *m_checkForUpdates;
     QAction *m_startAtLogin;
     QAction *m_showSysTray;
+    QAction *m_bounceDock;
 
     CookieJar *m_cookies;
     QUrl m_start;
