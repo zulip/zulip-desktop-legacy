@@ -261,7 +261,7 @@ public:
     [wv setMainFrameURL:[NSString stringWithFormat:@"%@%@", siteUrl, @"login/?next=/"]];
 }
 
-- (void)snatchCSRFAndRedirect:(NSString *)customDomain {
+- (bool)snatchCSRFAndRedirect:(NSString *)customDomain {
     NSURLRequest *request = self.origRequest;
 
     __block NSString *baseSiteURL = customDomain;
@@ -277,8 +277,7 @@ public:
     // If it's the same as what we're already on---just let the existing request go through
     NSString *requestHost = [[request URL] host];
     if ([siteHost isEqualToString:requestHost]) {
-//        return request;
-        return;
+        return false;
     }
 
     APP->setExplicitDomain(toQString(baseSiteURL));
@@ -318,6 +317,8 @@ public:
         // Zulip at the target site
         [[q->webView mainFrame] loadRequest:newRequest];
     }];
+
+    return true;
 }
 
 - (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource {
@@ -363,11 +364,13 @@ public:
             return request;
         }
 
-        [self snatchCSRFAndRedirect:preflightURL];
-
-        // While our async CSRF-snatcher is working, we need to return a valid NSURLRequest, but we don't
-        // want the user to be moved to any new page
-        return emptyRequest;
+        if (![self snatchCSRFAndRedirect:preflightURL]) {
+            return request;
+        } else {
+            // While our async CSRF-snatcher is working, we need to return a valid NSURLRequest, but we don't
+            // want the user to be moved to any new page
+            return emptyRequest;
+        }
     }
     if ([[request HTTPMethod] isEqualToString:@"POST"] &&
         [[[request URL] path] isEqualToString:@"/accounts/logout"]) {
