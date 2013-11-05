@@ -66,7 +66,8 @@ namespace Utils {
         // we assume that our attempt at preflight failed because we could not connect
         // to zulip.com
         if (reply->error() != QNetworkReply::NoError &&
-            reply->error() != QNetworkReply::ContentNotFoundError) {
+            reply->error() != QNetworkReply::ContentNotFoundError &&
+            reply->error() != QNetworkReply::UnknownContentError) { /*  UnknownContentError is a server 503 */
             *requestSuccessful = false;
             return QString();
         }
