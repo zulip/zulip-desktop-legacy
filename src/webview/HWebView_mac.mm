@@ -406,7 +406,7 @@ public:
     [windowObject setValue:self forKey:@"bridge"];
 
     // The built-in WebKit sendAsBinary crashes when we try to use it with a large
-    // payload---specifically, when pasting large imagines. The traceback is deep in
+    // payload---specifically, when pasting large images. The traceback is deep in
     // array handling code in JSC.
     //
     // To avoid the crash, we replace the native sendAsBinary with the suggested polyfill
