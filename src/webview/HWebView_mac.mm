@@ -423,16 +423,15 @@ public:
 }
 
 - (void)handleInitialLoadFailed {
-    NSLog(@"Failed to initially load Zulip");
     // If we failed to load Zulip **and** we don't have an explicit domain set,
     // prompt for a custom domain. An intranet with a local Zulip install might block
     // the zulip.com default page load
 
-    // TODO Show error page when load fails
     if (APP->explicitDomain() || self.origRequest) {
         return;
     }
 
+    NSLog(@"Failed to initially load Zulip (explicit domain %i and origRequest %@", APP->explicitDomain(), self.origRequest);
     APP->askForCustomServer([=](QString domain) {
         // We don't do anything fancy with the proper domain---we just load
         // it in the webview directly
