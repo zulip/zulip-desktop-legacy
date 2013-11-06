@@ -23,6 +23,21 @@ typedef QHash<QNetworkReply *, QBuffer *> PayloadBufferHash;
 Q_GLOBAL_STATIC(PayloadHash, s_payloads);
 Q_GLOBAL_STATIC(PayloadBufferHash, s_payloadBuffers);
 
+class LoggingPage : public QWebPage
+{
+    Q_OBJECT
+public:
+    LoggingPage(QObject *parent)
+        : QWebPage(parent)
+    {
+    }
+
+protected:
+    void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID ) {
+        qDebug() << "WebKit Console Message" << message << "Line" << lineNumber << "sourceID" << sourceID;
+    }
+};
+
 class ZulipNAM : public QNetworkAccessManager
 {
     Q_OBJECT
@@ -190,6 +205,7 @@ public:
           q(qq),
           bridge(new ZulipWebBridge(qq))
     {
+        webView->setPage(new LoggingPage(webView));
         webView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 
         QDir data_dir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
