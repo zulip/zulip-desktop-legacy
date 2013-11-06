@@ -53,9 +53,13 @@ set( QT_USE_QTNETWORK TRUE )
 include( ${QT_USE_FILE} )
 add_definitions( ${QT_DEFINITIONS} )
 
+# Output directories
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" )
 set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" )
+
+# Flag controlling whether this is a local server + SSO build or not
+set( SSO_BUILD OFF CACHE BOOL "Whether or not to make the desktop app use the SSO login page")
 
 # make uninstall support
 configure_file(
