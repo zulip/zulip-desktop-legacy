@@ -432,6 +432,25 @@ public:
      ];
 }
 
+// Grab console.log output to our own logfile
+// This is an undocumented delegate method found in WebUIDelegatePrivate.h
+- (void)webView:(WebView *)webView addMessageToConsole:(NSDictionary *)message withSource:(NSString *)source
+{
+    if (![message isKindOfClass:[NSDictionary class]]) {
+        return;
+    }
+
+    NSString *messageString = [message objectForKey:@"message"];
+    NSString *messageLevel = [message objectForKey:@"MessageLevel"];
+    NSString *sourceURL = [message objectForKey:@"sourceURL"];
+    int columnNumber = [[message objectForKey:@"columnNumber"] intValue];
+    int lineNumber = [[message objectForKey:@"lineNumber"] intValue];
+
+    // Use qDebug() as it ties in to our log handler
+    qDebug() << "WebKit Console Message" << toQString(messageString) << "from" << toQString(messageLevel)
+             << toQString(sourceURL) << "line" << lineNumber << "col" << columnNumber;
+}
+
 - (void)handleInitialLoadFailed {
     // If we failed to load Zulip **and** we don't have an explicit domain set,
     // prompt for a custom domain. An intranet with a local Zulip install might block
