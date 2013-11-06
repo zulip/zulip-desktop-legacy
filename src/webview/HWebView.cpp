@@ -39,6 +39,13 @@ public:
 protected:
     QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
     {
+        // Disable automatic redirection for local server until bugs are ironed out
+        if (op == PostOperation && request.url().path().contains("/accounts/logout")) {
+            APP->setExplicitDomain(QString());
+        }
+
+        return QNetworkAccessManager::createRequest(op, request, outgoingData);
+
         // If this is an original login to the app, we preflight the user
         // to redirect to the site-local Zulip instance if appropriate
         if (!m_redirectedRequest && !APP->explicitDomain() && op == PostOperation &&
@@ -234,6 +241,9 @@ private slots:
     }
 
     void zulipLoadFinished(bool successful) {
+        // Disable local-server firewall guess
+        return;
+
         if (!successful && !APP->explicitDomain()) {
             qDebug() << "Failed to load initial Zulip login page, asking directly";
             APP->askForCustomServer([=](QString domain) {

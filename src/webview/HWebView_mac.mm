@@ -321,7 +321,16 @@ public:
     return true;
 }
 
-- (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource {
+- (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource
+{
+    if ([[request HTTPMethod] isEqualToString:@"POST"] &&
+        [[[request URL] path] isEqualToString:@"/accounts/logout"]) {
+        // On logout, reset our "custom domain" if we saved one
+        APP->setExplicitDomain(QString());
+    }
+
+    // Disable automatic redirection for local server until bugs are ironed out
+    return request;
 
     if (!APP->explicitDomain() &&
         [[request HTTPMethod] isEqualToString:@"POST"] &&
@@ -447,11 +456,13 @@ public:
 }
 
 - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame {
-    [self handleInitialLoadFailed];
+    // Disable local-server firewall guess
+//    [self handleInitialLoadFailed];
 }
 
 - (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame {
-    [self handleInitialLoadFailed];
+    // Disable local-server firewall guess
+//    [self handleInitialLoadFailed];
 }
 
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)selector {
