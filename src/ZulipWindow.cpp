@@ -22,8 +22,8 @@
 #include <QFontDatabase>
 #include <QDebug>
 
-static QString s_defaultZulipURL = "https://zulip.com";
-static QString s_defaultZulipSSOURL = "https://zulip.com/accounts/login/sso";
+static QString s_defaultZulipURL = "https://zulip.com/desktop_home";
+static QString s_defaultZulipSSOURL = "https://zulip.com/accounts/deployment_dispatch";
 
 ZulipWindow::ZulipWindow(QWidget *parent) :
     QMainWindow(parent),

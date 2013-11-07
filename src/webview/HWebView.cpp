@@ -222,6 +222,7 @@ public:
         connect(bridge, SIGNAL(doBell()), q, SIGNAL(bell()));
 
         connect(webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));
+        connect(webView->page()->mainFrame(), SIGNAL(urlChanged(QUrl)), this, SLOT(urlChanged(QUrl)));
     }
     ~HWebViewPrivate() {}
 
@@ -283,11 +284,27 @@ private slots:
         }
     }
 
+    void urlChanged(const QUrl& url) {
+        const QString dispatch_path = "accounts/deployment_dispatch";
+        if (!lastUrl.path().contains(dispatch_path) ||
+            url.path().contains(dispatch_path))
+        {
+            lastUrl = url;
+            return;
+        }
+
+        qDebug() << "Got redirect from deployment_dispatch login, saving as explicit domain:" << url;
+        APP->setExplicitDomain(url.toString());
+        lastUrl = url;
+    }
+
+
 public:
     QWebView* webView;
     HWebView* q;
     ZulipWebBridge* bridge;
     QUrl startUrl;
+    QUrl lastUrl;
 };
 
 HWebView::HWebView(QWidget *parent)
@@ -308,6 +325,7 @@ HWebView::~HWebView()
 
 void HWebView::load(const QUrl &url) {
     dptr->startUrl = url;
+    dptr->lastUrl = url;
     dptr->webView->load(url);
 }
 

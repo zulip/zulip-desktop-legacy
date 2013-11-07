@@ -390,6 +390,20 @@ public:
     return request;
 }
 
+- (void)webView:(WebView *)sender didReceiveServerRedirectForProvisionalLoadForFrame:(WebFrame *)frame
+{
+    NSString *orig_url = [[[[frame dataSource] request] URL] absoluteString];
+    NSString *redirected_url = [[[[frame provisionalDataSource] request] URL] absoluteString];
+
+    // We capture the redirect from the deployment_dispatch SSO login page, as this is when
+    // our Zulip server is telling is where this particular user's SSO deployment is hosted
+    if ([orig_url rangeOfString:@"accounts/deployment_dispatch"].location != NSNotFound) {
+        const QString domain = toQString(redirected_url);
+        qDebug() << "Got redirect from deployment_dispatch login, saving as explicit domain:" << domain;
+        APP->setExplicitDomain(domain);
+    }
+}
+
 - (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id < WebPolicyDecisionListener >)listener {
     q->linkClicked(toQUrl([request URL]));
 
