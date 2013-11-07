@@ -59,7 +59,7 @@ VERSION=$1
     mv Zulip.dmg Zulip-$VERSION.dmg
 
     header "Creating signed Sparkle update"
-    $ROOT/../admin/mac/sign_bundle.rb $VERSION ~/Documents/humbug/sparkle_privkey.pem
+    $ROOT/../admin/mac/sign_bundle.rb $VERSION ~/Documents/humbug/sparkle_privkey.pem > signature.raw
     mv Zulip.app zulip.app
 
     header "Done!"

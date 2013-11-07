@@ -29,7 +29,7 @@
 	<key>NSHighResolutionCapable</key>
 	<true />
 	<key>SUFeedURL</key>
-        <string>https://zulip.com/dist/apps/mac/sparkle.xml</string>
+        <string>SPARKLE_URL</string>
 	<key>SUPublicDSAKeyFile</key>
 	<string>sparkle_pub.pem</string>
 	<key>SUEnableSystemProfiling</key>

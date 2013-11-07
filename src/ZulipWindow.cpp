@@ -22,6 +22,9 @@
 #include <QFontDatabase>
 #include <QDebug>
 
+static QString s_defaultZulipURL = "https://zulip.com";
+static QString s_defaultZulipSSOURL = "https://zulip.com/accounts/login/sso";
+
 ZulipWindow::ZulipWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::ZulipWindow),
@@ -203,7 +206,11 @@ void ZulipWindow::readSettings() {
     QString site = domainToUrl(domain);
     if (site.isEmpty()) {
         domain = "prod";
-        site = "https://zulip.com";
+#ifdef SSO_BUILD
+        site = s_defaultZulipSSOURL;
+#else
+        site = s_defaultZulipURL;
+#endif
     } else {
         APP->setExplicitDomain(site);
     }

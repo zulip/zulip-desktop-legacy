@@ -20,6 +20,7 @@ make -j3
 
 mv Zulip-$1.dmg ~/packages/
 mv Zulip-$1.tar.bz2 ~/packages/sparkle
+mv signature.raw ~/packages/sparkle/Zulip-$1.tar.bz2.sig
 
 popd
 rm -rf zulip-desktop/

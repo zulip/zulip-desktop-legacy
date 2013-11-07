@@ -143,11 +143,22 @@ if (APPLE)
     SET(LEOPARD 1)
   endif (DARWIN_VERSION GREATER 11)
 
+ if (SSO_BUILD)
+    SET(SPARKLE_URL "https://zulip.com/dist/apps/mac/sparkle-sso.xml")
+  else()
+    SET(SPARKLE_URL "https://zulip.com/dist/apps/mac/sparkle.xml")
+  endif()
+
   FILE(READ ${CMAKE_SOURCE_DIR}/admin/mac/Info.plist plist)
   STRING( REPLACE "ZULIP_VERSION"
               ${ZULIP_VERSION}
               edited_plist # save in this variable
               "${plist}" # from the contents of this var
+          )
+  STRING( REPLACE "SPARKLE_URL"
+              ${SPARKLE_URL}
+              edited_plist # save in this variable
+              "${edited_plist}" # from the contents of this var
           )
   FILE( WRITE ${CMAKE_BINARY_DIR}/Info.plist "${edited_plist}" )
 

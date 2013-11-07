@@ -6,8 +6,6 @@ if ARGV.length < 2
 end
 
 tarball = "zulip-#{ARGV[0]}.tar.bz2"
-puts "Zipping: #{tarball}..."
 `tar jcvf "#{tarball}" Zulip.app`
 
-puts "Signing..."
 puts `openssl dgst -sha1 -binary < "#{tarball}" | openssl dgst -dss1 -sign "#{ARGV[1]}" | openssl enc -base64`
