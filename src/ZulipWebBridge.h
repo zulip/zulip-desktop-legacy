@@ -18,6 +18,7 @@ public slots:
     void bell();
     void updateCount(int count);
     void updatePMCount(int count);
+    void log(const QString& msg);
     QString desktopAppVersion();
 
 signals:

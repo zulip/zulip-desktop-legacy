@@ -2,6 +2,7 @@
 #include "PlatformInterface.h"
 #include "ZulipWindow.h"
 
+#include <QDebug>
 #include <QSystemTrayIcon>
 #include <QSysInfo>
 
@@ -38,4 +39,8 @@ void ZulipWebBridge::updatePMCount(int count)
 QString ZulipWebBridge::desktopAppVersion()
 {
   return PlatformInterface::platformWithVersion();
+}
+
+void ZulipWebBridge::log(const QString &msg) {
+    qDebug() << "QtWebkit Log:" << msg;
 }

@@ -54,6 +54,7 @@ typedef void(^CSRFSnatcherCallback)(NSString *token);
 - (void)bell;
 - (void)desktopNotification:(NSString*)title withContent:(NSString*)content;
 - (NSString *)desktopAppVersion;
+- (void)log:(NSString *)msg;
 
 
 // For CSRF/Auto-redirecting
@@ -478,7 +479,8 @@ public:
         selector == @selector(updatePMCount:) ||
         selector == @selector(bell) ||
         selector == @selector(desktopNotification:withContent:) ||
-        selector == @selector(desktopAppVersion)) {
+        selector == @selector(desktopAppVersion) ||
+        selector == @selector(log:)) {
         return NO;
     }
     return YES;
@@ -498,6 +500,8 @@ public:
         return @"desktopNotification";
     } else if (sel == @selector(desktopAppVersion)) {
         return @"desktopAppVersion";
+    } else if (sel == @selector(log:)) {
+        return @"log";
     }
     return nil;
 }
@@ -520,6 +524,11 @@ public:
 
 - (NSString *)desktopAppVersion {
     return fromQString(PlatformInterface::platformWithVersion());
+}
+
+- (void)log:(NSString *)msg {
+    // Use qDebug() for file-logging and timestamps
+    qDebug() << "WebView Log:" << toQString(msg);
 }
 
 @end
