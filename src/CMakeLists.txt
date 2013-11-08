@@ -38,7 +38,7 @@ else()
     set(EXTRA_SRCS ../thirdparty/qocoa/qbutton_nonmac.cpp webview/HWebView.cpp)
 endif()
 
-qt4_wrap_cpp(EXTRA_MOCS ../thirdparty/qocoa/qbutton.h)
+qt4_wrap_cpp(EXTRA_MOCS ../thirdparty/qocoa/qbutton.h Utils.h)
 
 if (WIN32)
   set( CMAKE_BUILD_TYPE "Release" )

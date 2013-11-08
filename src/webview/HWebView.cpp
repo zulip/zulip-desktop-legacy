@@ -244,7 +244,18 @@ private slots:
         // Disable local-server firewall guess
         return;
 
-        if (!successful && !APP->explicitDomain()) {
+        if (successful) {
+            return;
+        }
+
+        Utils::connectedToInternet(webView->page()->networkAccessManager(), [=](Utils::ConnectionStatus status) {
+            if (status != Utils::Online)
+                askForInitialLoadDomain();
+        });
+    }
+
+    void askForInitialLoadDomain() {
+        if (!APP->explicitDomain()) {
             qDebug() << "Failed to load initial Zulip login page, asking directly";
             APP->askForCustomServer([=](QString domain) {
                 qDebug() << "Got manually entered domain" << domain << ", redirecting";

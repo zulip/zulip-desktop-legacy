@@ -87,6 +87,72 @@ namespace Utils {
 
         return domain;
     }
+
+    enum ConnectionStatus {
+        Offline = 0, // No internet connection
+        Captive,     // Online but captive, LAN redirecting request
+        Online       // Connected to external internet
+    };
+    typedef std::function<void (ConnectionStatus)> ConnectionStatusCallback;
+
+    // Object to stick around with a waiting slot for the network request to finish
+    // TODO port ugly synchronous event loop code above to use this
+    class NetworkWatcher : public QObject {
+        Q_OBJECT
+    public:
+        NetworkWatcher(QNetworkReply *reply, ConnectionStatusCallback callback, QObject *parent = 0)
+            : QObject(parent),
+              m_reply(reply),
+              m_callback(callback)
+        {
+        }
+
+    public slots:
+        void execute() {
+            if (!m_reply) {
+                return;
+            }
+
+            int responseCode = m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            ConnectionStatus connection;
+
+            if (m_reply->error() != QNetworkReply::NoError) {
+                connection = Offline;
+            } else if (responseCode == 204) {
+                connection = Online;
+            } else {
+                connection = Captive;
+            }
+            qDebug() << "Found network connection status:" << connection << responseCode << m_reply->error() << m_reply->errorString();
+            m_callback(connection);
+
+            if (m_reply->manager()->property("CreatedByUs").toBool()) {
+                m_reply->manager()->deleteLater();
+            }
+            m_reply->deleteLater();
+            m_reply = 0;
+
+            deleteLater();
+        }
+
+    private:
+        QNetworkReply *m_reply;
+        ConnectionStatusCallback m_callback;
+
+    };
+
+    static inline void connectedToInternet(QNetworkAccessManager *nam, ConnectionStatusCallback result) {
+        if (!nam) {
+            nam = new QNetworkAccessManager();
+            nam->setProperty("CreatedByUs", true);
+        }
+
+
+        QNetworkReply *reply = nam->get(QNetworkRequest(QUrl("http://www.gstatic.com/generate_204")));
+        NetworkWatcher *watcher = new NetworkWatcher(reply, result);
+
+        QObject::connect(reply, SIGNAL(finished()), watcher, SLOT(execute()));
+    }
 }
 
 #endif // UTILS_H

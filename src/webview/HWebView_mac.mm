@@ -440,6 +440,14 @@ public:
         return;
     }
 
+    Utils::connectedToInternet(0, [=](Utils::ConnectionStatus status) {
+        if (status != Utils::Online) {
+            [self askForInitialLoadDomain];
+        }
+    });
+}
+
+- (void)askForInitialLoadDomain {
     NSLog(@"Failed to initially load Zulip (explicit domain %i and origRequest %@", APP->explicitDomain(), self.origRequest);
     APP->askForCustomServer([=](QString domain) {
         // We don't do anything fancy with the proper domain---we just load
