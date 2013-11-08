@@ -131,16 +131,31 @@ QPixmap IconRenderer::render(const QSize &size, int unreadNormal, int unreadPMs)
     m_renderer->render(&p);
 
     if (unreadNormal > 0) {
+        const int padding = 1;
+
+        // Add a half-transparent white layer
+        QBrush translucentWhite(QColor(255, 255, 255, 200));
+        p.save();
+        p.setBrush(translucentWhite);
+        p.setPen(Qt::NoPen);
+        p.drawEllipse((QPointF)image.rect().center() + QPointF(padding, padding), size.width()/2, size.width()/2);
+        p.restore();
+
         // Unicode ∞ if greater than 99 unread msgs
         const QString disp = unreadNormal > 99 ? QChar(0x221e) : QString::number(unreadNormal);
-        const int padding = 1;
-        const QRect bottomHalf(padding + size.width() / 4, size.height() / 2, size.width() - 2*padding, size.height() / 2 - 2*padding);
 
-        f.setPixelSize(bottomHalf.height() + 2);
+        QRectF textRect = image.rect();
+        textRect.translate(0, 1);
+
+#ifdef Q_OS_LINUX
+        textRect.translate(0, -1);
+        textRect.adjust(2, 2, -2, -2);
+#endif
+
+        f.setPixelSize(textRect.height() - 4);
         p.setFont(f);
 
-//        qDebug() << "Drawing in" << bottomHalf << "from" << QRect(QPoint(0, 0), size);
-        p.drawText(bottomHalf, Qt::AlignCenter, disp);
+        p.drawText(textRect, Qt::AlignCenter, disp);
     }
 
     p.end();
