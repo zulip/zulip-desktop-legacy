@@ -33,6 +33,11 @@ void logHandler(QtMsgType type, const char *msg) {
     }
     logfile.flush();
 
+    // Only show Critical and Fatal debug messages on the console
+    if ((type == QtDebugMsg || type == QtWarningMsg)) {
+        return;
+    }
+
     cout << QTime::currentTime().toString().toUtf8().data() << "\t" << msg << endl << flush;
 }
 
