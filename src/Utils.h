@@ -43,7 +43,7 @@ namespace Utils {
 
     // Does a SYNCHRONOUS HTTP request for the base url
     static inline QString baseUrlForEmail(QNetworkAccessManager *nam, const QString& email, bool *requestSuccessful) {
-        QString fetchURL = QString("https://api.zulip.com/v1/deployments/endpoints?email=%1").arg(email);
+        QString fetchURL = QString("https://zulip.com/api/v1/deployments/endpoints?email=%1").arg(email);
 
         bool createdNam = false;
         if (!nam) {
