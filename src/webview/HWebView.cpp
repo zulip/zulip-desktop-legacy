@@ -6,22 +6,175 @@
 #include "ZulipApplication.h"
 #include "Utils.h"
 
+#include <QApplication>
+#include <QBuffer>
+#include <QClipboard>
 #include <QDir>
 #include <QDesktopServices>
 #include <QDebug>
 #include <QHash>
+#include <QHttpMultiPart>
+#include <QImage>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QWebView>
 #include <QWebFrame>
 #include <QVBoxLayout>
-#include <QBuffer>
+#include <QKeyEvent>
+
+#include <qjson/parser.h>
 
 // QWebkit, WHY DO YOU MAKE ME DO THIS
 typedef QHash<QNetworkReply *, QByteArray *> PayloadHash;
 typedef QHash<QNetworkReply *, QBuffer *> PayloadBufferHash;
 Q_GLOBAL_STATIC(PayloadHash, s_payloads);
 Q_GLOBAL_STATIC(PayloadBufferHash, s_payloadBuffers);
+Q_GLOBAL_STATIC(PayloadHash, s_imageUploadPayloads);
+
+static QString csrfTokenFromWebPage(QWebPage *page, QUrl baseUrl) {
+    QList<QNetworkCookie> cookies = page->networkAccessManager()->cookieJar()->cookiesForUrl(baseUrl);
+    foreach (const QNetworkCookie &cookie, cookies) {
+        if (cookie.name() == "csrftoken") {
+            return cookie.value();
+        }
+    }
+
+    return QString();
+}
+
+// Only install this on a QWebView!
+class KeyPressEventFilter : public QObject
+{
+    Q_OBJECT
+public:
+    KeyPressEventFilter(QWebView *webview)
+        : QObject(webview)
+        , m_webView(webview)
+    {
+    }
+
+    bool eventFilter(QObject *obj, QEvent *ev) {
+        if (ev->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
+
+            if (keyEvent->matches(QKeySequence::Paste)) {
+                QClipboard *clipboard = QApplication::clipboard();
+
+                if (clipboard->mimeData()->hasImage()) {
+                    const QString csrfToken = csrfTokenFromWebPage(m_webView->page(), m_webView->page()->mainFrame()->url());
+                    QNetworkReply *imageUpload = uploadImageFromClipboard(csrfToken);
+
+                    connect(imageUpload, SIGNAL(finished()), this, SLOT(imageUploadFinished()));
+                    connect(imageUpload, SIGNAL(uploadProgress(qint64,qint64)), this, SLOT(imageUploadProgress(qint64, qint64)));
+                    connect(imageUpload, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(imageUploadError(QNetworkReply::NetworkError)));
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+private slots:
+    void imageUploadFinished() {
+        QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
+        reply->deleteLater();
+
+        if (s_imageUploadPayloads()->contains(reply)) {
+            delete s_imageUploadPayloads()->take(reply);
+        }
+
+        qDebug() << "Image Upload Finished!!";
+
+        QJson::Parser p;
+        bool ok;
+        QVariant data = p.parse(reply, &ok);
+
+        if (ok) {
+            QVariantMap result = data.toMap();
+            const QString imageLink = result.value("uri", QString()).toString();
+
+            m_webView->page()->mainFrame()->evaluateJavaScript(QString("compose.uploadFinished(0, undefined, {\"uri\": \"%1\"}, undefined);")
+                                                                       .arg(imageLink));
+            return;
+        }
+
+        m_webView->page()->mainFrame()->evaluateJavaScript("compose.uploadError('Unknown Error');");
+
+    }
+
+    void imageUploadProgress(qint64 bytesSent ,qint64 bytesTotal) {
+        // Trigger progress bar change
+        int percent = (bytesSent * 100 / bytesTotal);
+        m_webView->page()->mainFrame()->evaluateJavaScript(QString("compose.progressUpdated(0, undefined, \"%1\");").arg(percent));
+
+     }
+
+     void imageUploadError(QNetworkReply::NetworkError error) {
+         qDebug() << "Got Upload error:" << error;
+         m_webView->page()->mainFrame()->evaluateJavaScript("compose.uploadError('Unknown Error');");
+     }
+
+private:
+    QNetworkReply* uploadImageFromClipboard(const QString &csrfToken) {
+        QBuffer *buffer;
+        QByteArray *imgData;
+        const QString suffix;
+        const QString mimetype;
+
+        {
+            // Delete QImage after we're done with it
+            QClipboard *clipboard = QApplication::clipboard();
+
+            // Write image data to QBuffer
+            QImage img = qvariant_cast<QImage>(clipboard->mimeData()->imageData());
+            imgData = new QByteArray(img.byteCount(), Qt::Uninitialized);
+            buffer = new QBuffer(imgData);
+            buffer->open(QIODevice::WriteOnly);
+            img.save(buffer, "PNG");
+            buffer->close();
+            buffer->open(QIODevice::ReadOnly);
+        }
+
+        QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+        QHttpPart textPart;
+        textPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"csrfmiddlewaretoken\""));
+        textPart.setBody(csrfToken.toUtf8());
+
+        QHttpPart imagePart;
+        imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
+        imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"pasted-image\""));
+        // Set PNG image in QBuffer as body part of QHttpPart
+        imagePart.setBodyDevice(buffer);
+        // The buffer needs to live as long as the HttpPart object, so parent it to the multi part
+        buffer->setParent(multiPart);
+
+        multiPart->append(textPart);
+        multiPart->append(imagePart);
+
+        // Create POST request to /json/upload_file
+        QUrl url(m_webView->page()->mainFrame()->url());
+        url.setPath("/json/upload_file");
+        url.addQueryItem("mimetype",  "image/png");
+        QNetworkRequest request(url);
+        request.setRawHeader("Origin", m_webView->page()->mainFrame()->url().toString().toUtf8());
+        request.setRawHeader("Referer", m_webView->page()->mainFrame()->url().toString().toUtf8());
+
+        QNetworkReply *reply = m_webView->page()->networkAccessManager()->post(request, multiPart);
+        multiPart->setParent(reply); // Delete the QHttpMultiPart with the reply
+
+        s_imageUploadPayloads()->insert(reply, imgData);
+
+        // Trigger start
+        m_webView->page()->mainFrame()->evaluateJavaScript("compose.uploadStarted();");
+        return reply;
+    }
+
+    QWebView *m_webView;
+};
+
 
 class LoggingPage : public QWebPage
 {
@@ -118,20 +271,18 @@ protected:
 
 private slots:
     void csrfLoadFinished() {
-        QList<QNetworkCookie> cookies = m_csrfWebView->page()->networkAccessManager()->cookieJar()->cookiesForUrl(QUrl(m_siteBaseUrl));
-        foreach (const QNetworkCookie &cookie, cookies) {
-            if (cookie.name() == "csrftoken") {
-                m_savedPayload["csrfmiddlewaretoken"] = cookie.value();
-                loginToRealHost();
-                break;
-            }
+        const QString csrfToken = csrfTokenFromWebPage(m_csrfWebView->page(), QUrl(m_siteBaseUrl));
+
+        if (!csrfToken.isEmpty()) {
+            m_savedPayload["csrfmiddlewaretoken"] = csrfToken;
+            loginToRealHost();
         }
 
         m_siteBaseUrl.clear();
         m_csrfWebView->deleteLater();
         m_csrfWebView = 0;
     }
-    
+
     void cleanupFinishedReplies(QNetworkReply* reply) {
         if (s_payloads()->contains(reply)) {
             delete s_payloads()->take(reply);
@@ -226,6 +377,8 @@ public:
 
         connect(webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(addJavaScriptObject()));
         connect(webView->page()->mainFrame(), SIGNAL(urlChanged(QUrl)), this, SLOT(urlChanged(QUrl)));
+
+        webView->installEventFilter(new KeyPressEventFilter(webView));
     }
     ~HWebViewPrivate() {}
 
