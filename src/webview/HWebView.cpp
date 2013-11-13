@@ -54,12 +54,14 @@ public:
 protected:
     QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
     {
-        // Disable automatic redirection for local server until bugs are ironed out
+#ifndef SSO_BUILD
+        // Disable automatic redirection for local server non-SSO builds until bugs are ironed out
         if (op == PostOperation && request.url().path().contains("/accounts/logout")) {
             APP->setExplicitDomain(QString());
         }
 
         return QNetworkAccessManager::createRequest(op, request, outgoingData);
+#endif
 
         // If this is an original login to the app, we preflight the user
         // to redirect to the site-local Zulip instance if appropriate
