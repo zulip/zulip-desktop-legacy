@@ -60,6 +60,9 @@ set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" )
 
 # Flag controlling whether this is a local server + SSO build or not
 set( SSO_BUILD OFF CACHE BOOL "Whether or not to make the desktop app use the SSO login page")
+if( SSO_BUILD )
+  message("Building SSO version of Zulip Desktop")
+endif()
 
 # make uninstall support
 configure_file(
