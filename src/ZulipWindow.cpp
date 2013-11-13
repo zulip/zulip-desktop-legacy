@@ -83,6 +83,8 @@ void ZulipWindow::setupTray() {
     m_tray = new QSystemTrayIcon(this);
     m_tray->setIcon(m_renderer->icon());
 
+    connect(m_tray, SIGNAL(messageClicked()), this, SLOT(trayClicked()));
+
     // Animation for tray icon is 2seconds per image
     m_trayTimer->setInterval(2000);
     m_trayTimer->setSingleShot(false);
