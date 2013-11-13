@@ -116,7 +116,7 @@ void PlatformInterface::desktopNotification(const QString &titleQ, const QString
                                    iconData:nil
                                    priority:0
                                    isSticky:NO
-                               clickContext:nil];
+                               clickContext:@"ZulipApp"]; // Non-nil context needed for click notifications to fire
 }
 
 void PlatformInterface::unreadCountUpdated(int, int) {
