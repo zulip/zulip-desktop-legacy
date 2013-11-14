@@ -13,4 +13,19 @@
 	dh $@ 
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release
+	mkdir -p build
+	mkdir -p build-sso
+	dh_auto_configure --builddirectory build -- -DCMAKE_BUILD_TYPE=Release
+	dh_auto_configure --builddirectory build-sso -- -DCMAKE_BUILD_TYPE=Release -DSSO_BUILD=On
+
+override_dh_auto_build:
+	dh_auto_build --builddirectory build
+	dh_auto_build --builddirectory build-sso
+
+override_dh_auto_install:
+	dh_auto_install --builddirectory build --destdir debian/zulip-desktop
+	dh_auto_install --builddirectory build-sso --destdir debian/zulip-desktop-sso
+
+override_dh_auto_clean:
+	dh_auto_clean --builddirectory build
+	dh_auto_clean --builddirectory build-sso

@@ -14,7 +14,20 @@ Homepage: https://zulip.com/apps
 Package: zulip-desktop
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: zulip-desktop-sso
 Replaces: humbug-desktop
 Description: Zulip desktop client
  This package provides a thin wrapper around the Zulip web application,
  providing native integrations with the desktop.
+
+Package: zulip-desktop-sso
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: zulip-desktop
+Description: Zulip desktop client for organizations using Single Sign On
+ This package provides a thin wrapper around the Zulip web application,
+ providing native integrations with the desktop.
+ .
+ Install this package if your deployment of Zulip does not use usernames or
+ passwords but instead uses some custom single sign on solution. Ask your
+ system administrator if you have questions about which package to install.
