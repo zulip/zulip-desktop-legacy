@@ -22,6 +22,9 @@ parser.add_option("-l", "--length",    dest="length",
 parser.add_option("-w", "--windows",   dest="windows",
 	help="Write a windows sparkle formatted XML file",
 	action="store_true", default=False)
+parser.add_option("-o", "--sso",   dest="sso",
+	help="Write an SSO build file",
+	action="store_true", default=False)
 
 (options, _) = parser.parse_args()
 
@@ -40,10 +43,12 @@ except IOError:
 
 pubDate = datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
 version = "Version %s" % options.version
+sso_path = "sso/" if options.sso else ""
+
 if options.windows:
-	path = "dist/apps/win/zulip-%s.exe" % (options.version,)
+	path = "dist/apps/%swin/zulip-%s.exe" % (sso_path, options.version,)
 else:
-	path = "dist/apps/mac/Zulip-%s.tar.bz2" % (options.version,)
+	path = "dist/apps/%smac/Zulip-%s.tar.bz2" % (sso_path, options.version,)
 
 url = "https://zulip.com/%s" % (path,)
 
