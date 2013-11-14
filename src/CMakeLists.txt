@@ -144,7 +144,7 @@ if (APPLE)
   endif (DARWIN_VERSION GREATER 11)
 
  if (SSO_BUILD)
-    SET(SPARKLE_URL "https://zulip.com/dist/apps/sso/mac/sparkle-sso.xml")
+    SET(SPARKLE_URL "https://zulip.com/dist/apps/sso/mac/sparkle.xml")
   else()
     SET(SPARKLE_URL "https://zulip.com/dist/apps/mac/sparkle.xml")
   endif()
