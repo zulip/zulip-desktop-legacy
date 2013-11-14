@@ -207,6 +207,9 @@ public:
     {
         webView->setPage(new LoggingPage(webView));
         webView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+        if (APP->debugMode()) {
+            webView->page()->setProperty("_q_webInspectorServerPort", 8888);
+        }
 
         QDir data_dir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
         CookieJar *m_cookies = new CookieJar(data_dir.absoluteFilePath("default.dat"));
