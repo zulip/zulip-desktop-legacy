@@ -1,3 +1,10 @@
+zulip-desktop (0.3.11) wheezy; urgency=low
+
+  * Bring zulip to front when message popup is clicked
+  * More visible unread indicator in tray icon
+
+ -- Luke Faraone <lfaraone@zulip.com>  Thu, 14 Nov 2013 10:46:12 -0500
+
 zulip-desktop (0.3.9) wheezy; urgency=low
 
   * Improved image pasting
