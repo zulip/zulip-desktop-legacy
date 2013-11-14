@@ -324,17 +324,14 @@ public:
 
 - (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource
 {
-
-// Disable automatic redirection for local server non-SSO builds until bugs are ironed out
-#ifndef SSO_BUILD
     if ([[request HTTPMethod] isEqualToString:@"POST"] &&
         [[[request URL] path] isEqualToString:@"/accounts/logout"]) {
         // On logout, reset our "custom domain" if we saved one
         APP->setExplicitDomain(QString());
     }
 
+    // Disable automatic redirection for local server until bugs are ironed out
     return request;
-#endif
 
     if (!APP->explicitDomain() &&
         [[request HTTPMethod] isEqualToString:@"POST"] &&
