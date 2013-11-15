@@ -9,11 +9,15 @@
 #include "Utils.h"
 #include "mac/NSArray+Blocks.h"
 
+#include <QDir>
+#include <QDesktopServices>
 #include <QMacCocoaViewContainer>
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QClipboard>
 #include <QFile>
+
+#import "thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.h"
 
 #import "Foundation/NSAutoreleasePool.h"
 #import "Foundation/NSNotification.h"
@@ -49,6 +53,11 @@ typedef void(^CSRFSnatcherCallback)(NSString *token);
 // WebUIDelegate for handling open file click
 - (void)webView:(WebView *)sender runOpenPanelForFileButtonWithResultListener:(id < WebOpenPanelResultListener >)resultListener;
 
+// Standalone cookie options
+- (void)webView:(WebView *)sender resource:(id)identifier didReceiveResponse:(NSURLResponse *)response fromDataSource:(WebDataSource *)dataSource;
+- (void)saveCookies;
+- (void)loadCookies;
+
 // Methods we're sharing with JavaScript
 - (void)updateCount:(int)newCount;
 - (void)updatePMCount:(int)newCount;
@@ -60,6 +69,10 @@ typedef void(^CSRFSnatcherCallback)(NSString *token);
 
 // For CSRF/Auto-redirecting
 @property (nonatomic, retain)NSURLRequest *origRequest;
+
+// Isolated cookies
+@property (nonatomic, retain)BSHTTPCookieStorage *cookieStorage;
+@property (nonatomic, copy)NSDate *cookieFileSaveDate;
 @end
 
 class HWebViewPrivate : public QObject {
@@ -230,8 +243,8 @@ public:
 }
 
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
-    NSHTTPCookieStorage *cookies = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    NSArray *cookieList = [cookies cookiesForURL:[NSURL URLWithString:self.siteURL]];
+    ZulipWebDelegate *delegate = (ZulipWebDelegate *)[sender frameLoadDelegate];
+    NSArray *cookieList = [delegate.cookieStorage cookiesForURL:[NSURL URLWithString:self.siteURL]];
     for (NSHTTPCookie *cookie in cookieList) {
         if ([[cookie name] isEqualToString:@"csrftoken"]) {
             self.callback([cookie value]);
@@ -248,9 +261,15 @@ public:
 @implementation ZulipWebDelegate
 - (id)initWithPrivate:(HWebViewPrivate*)qq {
     self = [super init];
-    self.origRequest = nil;
-    q = qq;
 
+    if (self) {
+        self.origRequest = nil;
+        self.cookieStorage = [[BSHTTPCookieStorage alloc] init];
+        self.cookieFileSaveDate = nil;
+
+        [self loadCookies];
+        q = qq;
+    }
     return self;
 }
 
@@ -331,8 +350,17 @@ public:
         APP->setExplicitDomain(QString());
     }
 
+    if ([redirectResponse isKindOfClass:[NSHTTPURLResponse class]]) {
+        [self.cookieStorage handleCookiesInResponse:(NSHTTPURLResponse*) redirectResponse];
+        [self saveCookies];
+    }
+
+    NSMutableURLRequest* modifiedRequest = [request mutableCopy];
+    [modifiedRequest setHTTPShouldHandleCookies:NO];
+    [self.cookieStorage handleCookiesInRequest:modifiedRequest];
+
     // Disable automatic redirection for local server until bugs are ironed out
-    return request;
+    return modifiedRequest;
 
     if (!APP->explicitDomain() &&
         [[request HTTPMethod] isEqualToString:@"POST"] &&
@@ -389,6 +417,14 @@ public:
         APP->setExplicitDomain(QString());
     }
     return request;
+}
+
+- (void)webView:(WebView *)sender resource:(id)identifier didReceiveResponse:(NSURLResponse *)response fromDataSource:(WebDataSource *)dataSource
+{
+    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+        [self.cookieStorage handleCookiesInResponse:(NSHTTPURLResponse*) response];
+        [self saveCookies];
+    }
 }
 
 - (void)webView:(WebView *)sender didReceiveServerRedirectForProvisionalLoadForFrame:(WebFrame *)frame
@@ -473,6 +509,38 @@ public:
         return  [filteredActionNames indexOfObject:[obj title]] == NSNotFound;
     }];
     return filteredMenuItems;
+}
+
+- (NSString *)cookiesFilePath
+{
+    QDir data_dir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    return fromQString(data_dir.absoluteFilePath("Zulip_Cookies.dat"));
+}
+
+- (void)saveCookies
+{
+    // De-bounce saves to every 3s
+    if (!self.cookieFileSaveDate ||
+        [[NSDate date] timeIntervalSinceDate:self.cookieFileSaveDate] > 3.0)
+    {
+        NSString *filePath = [self cookiesFilePath];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.cookieStorage];
+        [data writeToFile:filePath atomically:YES];
+
+        self.cookieFileSaveDate = [NSDate date];
+    }
+}
+
+- (void)loadCookies
+{
+    NSString *filePath = [self cookiesFilePath];
+
+    if (![[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        return;
+    }
+
+    NSData *data = [[NSFileManager defaultManager] contentsAtPath:filePath];
+    self.cookieStorage = [NSKeyedUnarchiver unarchiveObjectWithData:data];
 }
 
 - (void)handleInitialLoadFailed {
