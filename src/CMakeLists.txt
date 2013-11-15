@@ -1,6 +1,7 @@
 project( zulip )
 
 include (AddAppIconMacro)
+include (CTObjCARCSetEnabled)
 
 set( zulip_SRCS
       cookiejar.cpp
@@ -20,6 +21,7 @@ set( zulip_RESOURCES resources.qrc )
 
 if (APPLE)
     set(EXTRA_SRCS ../thirdparty/qocoa/qbutton_mac.mm
+                   ../thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.mm
                    webview/HWebView_mac.mm
                    mac/ZulipApplication_mac.mm
                    mac/PlatformInterface.mm
@@ -33,6 +35,7 @@ if (APPLE)
                    /System/Library/Frameworks/Carbon.framework
                    /System/Library/Frameworks/ServiceManagement.framework)
 
+    CTObjCARCSetEnabled(TRUE SOURCES ../thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.mm)
     qt4_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h PlatformInterface.h)
     set(EXTRA_SRCS ${MAC_EXTRA_MOCS} ${EXTRA_SRCS})
 else()
@@ -90,6 +93,7 @@ endif()
 
 include_directories(
     .
+    ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/thirdparty/qtsparkle/src
     ${QT_INCLUDES}
     ${QJSON_INCLUDE_DIR}
