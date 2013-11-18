@@ -31,7 +31,7 @@ static inline QUrl toQUrl(NSURL* url) {
     if (!url)
         return QUrl();
 
-    return QUrl(toQString([url absoluteString]));
+    return QUrl::fromEncoded(toQString([url absoluteString]).toUtf8());
 }
 
 #endif
