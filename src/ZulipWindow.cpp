@@ -55,7 +55,7 @@ ZulipWindow::ZulipWindow(QWidget *parent) :
     connect(m_ui->webView, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
     connect(m_ui->webView, SIGNAL(desktopNotification(QString,QString)), this, SLOT(displayPopup(QString,QString)));
     connect(m_ui->webView, SIGNAL(updateCount(int)), this, SLOT(countUpdated(int)));
-    connect(m_ui->webView, SIGNAL(updatePMCount(int)), this, SLOT(pmCountUpdated(int)));    
+    connect(m_ui->webView, SIGNAL(updatePMCount(int)), this, SLOT(pmCountUpdated(int)));
     connect(m_ui->webView, SIGNAL(bell()), m_platform, SLOT(playSound()));
 
     readSettings();
@@ -132,7 +132,7 @@ void ZulipWindow::setupTray() {
     QAction* checkForUpdates = menu->addAction("Check for Updates...");
     connect(checkForUpdates, SIGNAL(triggered()), m_platform, SLOT(checkForUpdates()));
 #endif
-    
+
     QAction *exit_action = menu->addAction("Exit");
     connect(exit_action, SIGNAL(triggered()), this, SLOT(userQuit()));
     connect(m_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayClicked()));
@@ -266,7 +266,20 @@ void ZulipWindow::trayClicked()
 
 void ZulipWindow::linkClicked(const QUrl& url)
 {
-    if (url.host() == m_start.host() && url.path() == "/") {
+    QStringList whitelistedPaths = QStringList() << "/accounts" << "/desktop_home";
+    bool whitelisted = false;
+    foreach (QString path, whitelistedPaths) {
+        if (url.path().startsWith(path)) {
+            whitelisted = true;
+            break;
+        }
+    }
+
+    // We need the check for m_start.host() (to make sure we don't display non-zulip.com
+    // hosts in the app), and additionally we allow / (the main zulip page) and whitelisted
+    // pages (that we need to show in-app, such as Google openid auth)
+    if (url.host() == m_start.host() &&
+         (url.path() == "/" || whitelisted)) {
         m_ui->webView->load(url);
     } else {
         QDesktopServices::openUrl(url);
