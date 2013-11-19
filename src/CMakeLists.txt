@@ -24,8 +24,8 @@ if (APPLE)
                    ../thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.mm
                    webview/HWebView_mac.mm
                    mac/ZulipApplication_mac.mm
+                   mac/NSData+Base64.mm
                    mac/NSArray+Blocks.mm)
-                   mac/NSData+Base64.mm)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework

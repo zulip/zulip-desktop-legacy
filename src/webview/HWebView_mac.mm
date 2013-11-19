@@ -66,6 +66,8 @@ typedef void(^CSRFSnatcherCallback)(NSString *token);
 - (void)desktopNotification:(NSString*)title withContent:(NSString*)content;
 - (NSString *)desktopAppVersion;
 - (void)log:(NSString *)msg;
+- (void)websocketPreOpen;
+- (void)websocketPostOpen;
 
 
 // For CSRF/Auto-redirecting
@@ -74,6 +76,9 @@ typedef void(^CSRFSnatcherCallback)(NSString *token);
 // Isolated cookies
 @property (nonatomic, retain)BSHTTPCookieStorage *cookieStorage;
 @property (nonatomic, copy)NSDate *cookieFileSaveDate;
+
+@property (nonatomic, retain) NSArray *systemCookies;
+@property (nonatomic, assign) BOOL storedSystemCookies;
 @end
 
 #pragma mark - HWebViewPrivate
@@ -274,11 +279,19 @@ public:
         self.origRequest = nil;
         self.cookieStorage = [[BSHTTPCookieStorage alloc] init];
         self.cookieFileSaveDate = nil;
+        self.systemCookies = @[];
+        self.storedSystemCookies = NO;
 
         [self loadCookies];
         q = qq;
     }
     return self;
+}
+
+- (void)dealloc
+{
+    // In case we are quitting while we've swizzled
+    [self restoreSystemCookies];
 }
 
 - (void)csrfTokenForZulipServer:(NSString *)siteUrl callback:(CSRFSnatcherCallback)callback
@@ -489,6 +502,23 @@ public:
              "this.send(ui8Data.buffer); "
            "}"
      ];
+
+    // Hook into websocket creation to swizzle the system cookies
+    [sender stringByEvaluatingJavaScriptFromString:
+     @"document.addEventListener('DOMContentLoaded', function(event) {"
+     "    $(document).on('websocket_preopen.zulip', function (event) {"
+     "        if (typeof window.bridge !== 'undefined' &&"
+     "            typeof window.bridge.websocketPreOpen !== 'undefined') {"
+     "            window.bridge.websocketPreOpen();"
+     "        }"
+     "    });"
+     "    $(document).on('websocket_postopen.zulip', function (event) {"
+     "        if (typeof window.bridge !== 'undefined' &&"
+     "            typeof window.bridge.websocketPostOpen !== 'undefined') {"
+     "            window.bridge.websocketPostOpen();"
+     "        }"
+     "    });"
+     "});"];
 }
 
 // Grab console.log output to our own logfile
@@ -599,7 +629,9 @@ public:
         selector == @selector(bell) ||
         selector == @selector(desktopNotification:withContent:) ||
         selector == @selector(desktopAppVersion) ||
-        selector == @selector(log:)) {
+        selector == @selector(log:) ||
+        selector == @selector(websocketPreOpen) ||
+        selector == @selector(websocketPostOpen)) {
         return NO;
     }
     return YES;
@@ -621,6 +653,10 @@ public:
         return @"desktopAppVersion";
     } else if (sel == @selector(log:)) {
         return @"log";
+    } else if (sel == @selector(websocketPostOpen)) {
+        return @"websocketPostOpen";
+    } else if (sel == @selector(websocketPreOpen)) {
+        return @"websocketPreOpen";
     }
     return nil;
 }
@@ -648,6 +684,55 @@ public:
 - (void)log:(NSString *)msg {
     // Use qDebug() for file-logging and timestamps
     qDebug() << "WebView Log:" << toQString(msg);
+}
+
+- (void)websocketPreOpen
+{
+    [self injectOurCookies];
+}
+
+- (void)websocketPostOpen
+{
+    [self restoreSystemCookies];
+}
+
+// Replace the system cookie jar with our own cookies
+// just for long enough that the HTTP request to initiate
+// the WebSocket protocol goes through
+- (void)injectOurCookies
+{
+    NSURL *url = [[[[q->webView mainFrame] dataSource] request] URL];
+    self.systemCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
+    for (NSHTTPCookie *cookie in self.systemCookies) {
+        [[NSHTTPCookieStorage sharedHTTPCookieStorage] deleteCookie:cookie];
+    }
+
+    self.storedSystemCookies = YES;
+    NSArray *cookies = [self.cookieStorage cookiesForURL:url];
+    [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:cookies forURL:url mainDocumentURL:nil];
+
+    // Timeout in 5s to be safe so we don't leave our cookies hanging
+    double delayInSeconds = 5.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [self restoreSystemCookies];
+    });
+}
+
+- (void)restoreSystemCookies
+{
+    if (!self.storedSystemCookies) {
+        return;
+    }
+    self.storedSystemCookies = NO;
+
+    NSURL *url = [[[[q->webView mainFrame] dataSource] request] URL];
+    for (NSHTTPCookie *cookie in [self.cookieStorage cookiesForURL:url]) {
+        [[NSHTTPCookieStorage sharedHTTPCookieStorage] deleteCookie:cookie];
+    }
+
+    [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:self.systemCookies forURL:url mainDocumentURL:nil];
+    self.systemCookies = @[];
 }
 
 @end
