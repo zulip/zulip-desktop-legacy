@@ -50,7 +50,7 @@ public:
                                                                                                 forKey:@"WebKitDeveloperExtras"]];
         }
 
-        QTimer::singleShot(0, this, SLOT(enableFullscreen()));
+        QTimer::singleShot(0, this, SLOT(setupMainWindow()));
     }
 
     ~PlatformInterfacePrivate() {
@@ -58,20 +58,23 @@ public:
     }
 
 public slots:
-    void enableFullscreen() {
+    void setupMainWindow() {
+        ZulipWindow *w = APP->mainWindow();
+
+        if (!w)
+            return;
+
+        NSView *nsview = (NSView *)w->winId();
+        NSWindow *nswindow = [nsview window];
+
+        [nswindow setRestorable:NO];
+
         // We don't support anything below leopard, so if it's not [snow] leopard it must be lion
         // Can't check for lion as Qt 4.7 doesn't have the enum val, not checking for Unknown as it will be lion
         // on 4.8
         if ( QSysInfo::MacintoshVersion != QSysInfo::MV_SNOWLEOPARD &&
              QSysInfo::MacintoshVersion != QSysInfo::MV_LEOPARD   )
         {
-            ZulipWindow *w = APP->mainWindow();
-
-            if (!w)
-                return;
-
-            NSView *nsview = (NSView *)w->winId();
-            NSWindow *nswindow = [nsview window];
             [nswindow setCollectionBehavior:SET_LION_FULLSCREEN];
         }
     }
