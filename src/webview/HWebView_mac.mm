@@ -33,6 +33,8 @@
 
 typedef void(^CSRFSnatcherCallback)(NSString *token);
 
+#pragma mark - ZulipWebDelegate Interface
+
 @interface ZulipWebDelegate : NSObject
 {
     HWebViewPrivate* q;
@@ -74,6 +76,8 @@ typedef void(^CSRFSnatcherCallback)(NSString *token);
 @property (nonatomic, copy)NSDate *cookieFileSaveDate;
 @end
 
+#pragma mark - HWebViewPrivate
+
 class HWebViewPrivate : public QObject {
     Q_OBJECT
 public:
@@ -112,6 +116,8 @@ public:
     ZulipWebDelegate* delegate;
     QUrl originalURL;
 };
+
+#pragma mark - ZulipWebView
 
 // Override performKeyEquivalent to make shortcuts work
 @interface ZulipWebView : WebView
@@ -220,6 +226,8 @@ public:
 
 @end
 
+#pragma mark - ZulipCookieSnatcher
+
 @interface ZulipCookieSnatcher : NSObject
 
 @property (nonatomic, retain) NSString *siteURL;
@@ -256,6 +264,7 @@ public:
 
 @end
 
+#pragma mark - ZulipWebDelegate
 
 @implementation ZulipWebDelegate
 - (id)initWithPrivate:(HWebViewPrivate*)qq {
@@ -642,6 +651,8 @@ public:
 }
 
 @end
+
+#pragma mark - HWebView
 
 HWebView::HWebView(QWidget *parent)
     : QWidget(parent)
