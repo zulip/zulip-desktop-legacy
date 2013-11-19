@@ -24,7 +24,6 @@ THE SOFTWARE.
 
 #include "qocoa_mac.h"
 
-#import "Foundation/NSAutoreleasePool.h"
 #import "AppKit/NSButton.h"
 #import "AppKit/NSFont.h"
 
@@ -141,7 +140,6 @@ public:
     }
 
     ~QButtonPrivate() {
-        [[nsButton target] release];
         [nsButton setTarget:nil];
     }
 
@@ -167,8 +165,6 @@ public:
 
 QButton::QButton(QWidget *parent, BezelStyle bezelStyle) : QWidget(parent)
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
     NSButton *button = [[NSButton alloc] init];
     pimpl = new QButtonPrivate(this, button, bezelStyle);
 
@@ -178,11 +174,7 @@ QButton::QButton(QWidget *parent, BezelStyle bezelStyle) : QWidget(parent)
 
     [button setAction:@selector(clicked)];
 
-    setupLayout(button, this);
-
-    [button release];
-
-    [pool drain];
+    setupLayout((__bridge void *)button, this);
 }
 
 void QButton::setText(const QString &text)
@@ -191,9 +183,7 @@ void QButton::setText(const QString &text)
     if (!pimpl)
         return;
 
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     [pimpl->nsButton setTitle:fromQString(text)];
-    [pool drain];
 }
 
 void QButton::setImage(const QPixmap &image)
