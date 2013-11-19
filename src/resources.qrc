@@ -6,5 +6,6 @@
         <file>zulip.ttc</file>
         <file>audio/zulip.ogg</file>
         <file>audio/zulip.wav</file>
+        <file>mac/JSExtras.js</file>
     </qresource>
 </RCC>
