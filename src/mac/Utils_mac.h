@@ -16,15 +16,8 @@ static inline  NSString* fromQBA(const QByteArray& ba) {
 }
 
 static inline NSURL* fromQUrl(const QUrl& url) {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
     const QByteArray utf8 = url.toEncoded();
-    NSURL* nsU = [NSURL URLWithString:fromQBA(utf8)];
-
-    [nsU retain];
-
-    [pool drain];
-    return nsU;
+    return [NSURL URLWithString:fromQBA(utf8)];
 }
 
 static inline QUrl toQUrl(NSURL* url) {

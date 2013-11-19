@@ -24,9 +24,8 @@ if (APPLE)
                    ../thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.mm
                    webview/HWebView_mac.mm
                    mac/ZulipApplication_mac.mm
-                   mac/PlatformInterface.mm
-                   mac/NSData+Base64.mm
                    mac/NSArray+Blocks.mm)
+                   mac/NSData+Base64.mm)
 
     set(EXTRA_LIBS /System/Library/Frameworks/Foundation.framework
                    /System/Library/Frameworks/AppKit.framework
@@ -35,7 +34,11 @@ if (APPLE)
                    /System/Library/Frameworks/Carbon.framework
                    /System/Library/Frameworks/ServiceManagement.framework)
 
-    CTObjCARCSetEnabled(TRUE SOURCES ../thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.mm)
+    CTObjCARCSetEnabled(TRUE SOURCES ${EXTRA_SRCS})
+
+    # Don't ARC PlatformInterface.m since otherwise we can't cast QWidget::winID
+    set(EXTRA_SRCS ${EXTRA_SRCS} mac/PlatformInterface.mm)
+
     qt4_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h PlatformInterface.h)
     set(EXTRA_SRCS ${MAC_EXTRA_MOCS} ${EXTRA_SRCS})
 else()

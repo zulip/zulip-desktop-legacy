@@ -18,7 +18,7 @@ static inline NSPoint flipPoint(const NSPoint& loc) {
 // To work around this, we capture mousemove events ourselves, and if we see one that's in the
 // webview rect, we send a notificationcenter event to the app.
 bool ZulipApplication::macEventFilter(EventHandlerCallRef, EventRef event) {
-    NSEvent *e = reinterpret_cast<NSEvent *>(event);
+    NSEvent *e = (__bridge NSEvent *)event;
 
     if ([e type] == NSMouseMoved) {
         // If we're in the webview, pass it along

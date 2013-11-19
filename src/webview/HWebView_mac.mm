@@ -19,7 +19,6 @@
 
 #import "thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.h"
 
-#import "Foundation/NSAutoreleasePool.h"
 #import "Foundation/NSNotification.h"
 #import "AppKit/NSApplication.h"
 #import "Foundation/Foundation.h"
@@ -648,11 +647,9 @@ HWebView::HWebView(QWidget *parent)
     : QWidget(parent)
     , dptr(new HWebViewPrivate(this))
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
     ZulipWebView *webView = [[ZulipWebView alloc] init];
     [webView setQWidget:this];
-    setupLayout(webView, this);
+    setupLayout((__bridge void *)webView, this);
 
     [webView setApplicationNameForUserAgent:[NSString stringWithFormat:@"Zulip Desktop/%@", fromQString(ZULIP_VERSION_STRING)]];
 
@@ -672,7 +669,6 @@ HWebView::HWebView(QWidget *parent)
     if ([webPrefs respondsToSelector:@selector(setDatabasesEnabled:)])
         [webPrefs performSelector:@selector(setDatabasesEnabled:) withObject:@(YES)];
     [webView setPreferences:webPrefs];
-    [webPrefs release];
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -683,10 +679,6 @@ HWebView::HWebView(QWidget *parent)
     [dptr->webView setResourceLoadDelegate:dptr->delegate];
     [dptr->webView setFrameLoadDelegate:dptr->delegate];
     [dptr->webView setUIDelegate:dptr->delegate];
-
-    [webView release];
-
-    [pool drain];
 }
 
 HWebView::~HWebView()
