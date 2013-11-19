@@ -18,6 +18,10 @@ XMLHttpRequest.prototype.sendAsBinary = function (sData) {
    }
 
 // Hook into websocket creation to swizzle the system cookies
+// Basically, due to https://bugs.webkit.org/show_bug.cgi?id=124580, we cannot
+// use our cookie code to set our own cookies on the initial WebSocket
+// handshakek request. So instead, we replace the system cookies with our own
+// ones right before the websocket is created, and restore them right after.
 document.addEventListener('DOMContentLoaded', function(event) {
  $(document).on('websocket_preopen.zulip', function (event) {
      if (typeof window.bridge !== 'undefined' &&
