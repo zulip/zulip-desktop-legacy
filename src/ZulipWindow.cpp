@@ -232,6 +232,7 @@ void ZulipWindow::readSettings() {
     bool showSysTray = settings.value("ShowSystemTray", true).toBool();
     m_tray->setVisible(showSysTray);
     m_showSysTray->setChecked(showSysTray);
+    APP->setQuitOnLastWindowClosed(!showSysTray);
 
 #ifdef Q_OS_MAC
     bool bounceDockIcon = settings.value("BounceDockIcon", true).toBool();
@@ -260,6 +261,7 @@ void ZulipWindow::userQuit()
 
 void ZulipWindow::trayClicked()
 {
+    show();
     raise();
     activateWindow();
 }
@@ -364,6 +366,10 @@ void ZulipWindow::setBounceDockIcon(bool bounce) {
 
 void ZulipWindow::showSystemTray(bool show) {
     m_tray->setVisible(show);
+
+    // Quit when the last window is closed only if there is a tray icon,
+    // otherwise there is no way to get it back!
+    APP->setQuitOnLastWindowClosed(!show);
 
     QSettings s;
     s.setValue("ShowSystemTray", show);
