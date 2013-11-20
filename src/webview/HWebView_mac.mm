@@ -7,6 +7,7 @@
 #include "Config.h"
 #include "ZulipApplication.h"
 #include "Utils.h"
+#include "mac/NSArray+Blocks.h"
 
 #include <QMacCocoaViewContainer>
 #include <QVBoxLayout>
@@ -463,6 +464,15 @@ public:
     // Use qDebug() as it ties in to our log handler
     qDebug() << "WebKit Console Message" << toQString(messageString) << "from" << toQString(messageLevel)
              << toQString(sourceURL) << "line" << lineNumber << "col" << columnNumber;
+}
+
+- (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element defaultMenuItems:(NSArray *)defaultMenuItems
+{
+    NSArray *filteredActionNames = @[@"Open Link", @"Open Link in New Window", @"Download Linked File"];
+    NSArray *filteredMenuItems = [defaultMenuItems filter:^BOOL(id obj) {
+        return  [filteredActionNames indexOfObject:[obj title]] == NSNotFound;
+    }];
+    return filteredMenuItems;
 }
 
 - (void)handleInitialLoadFailed {
