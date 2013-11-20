@@ -169,14 +169,33 @@ if (APPLE)
          DESTINATION "${CMAKE_BINARY_DIR}/zulip.app/Contents/Resources")
   FILE(COPY "${CMAKE_SOURCE_DIR}/admin/mac/Growl Registration Ticket.growlRegDict"
          DESTINATION "${CMAKE_BINARY_DIR}/zulip.app/Contents/Resources")
-
-endif (APPLE)
+endif ()
 
 if (WIN32)
     SET(WINDOWS 1)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(LINUX 1)
 endif (WIN32)
+
+if (LINUX)
+  FILE(READ ${CMAKE_SOURCE_DIR}/admin/linux/Zulip.desktop desktopFile)
+  STRING(REPLACE "ZULIP_VERSION"
+              ${ZULIP_VERSION}
+              replacedDesktopFile # save in this variable
+              "${desktopFile}" # from the contents of this var
+          )
+  FILE( WRITE ${CMAKE_BINARY_DIR}/Zulip.desktop "${replacedDesktopFile}" )
+  INSTALL( FILES ${CMAKE_BINARY_DIR}/Zulip.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications )
+
+  FILE(GLOB _icons "${CMAKE_SOURCE_DIR}/admin/icon/zulip-icon-*.png")
+  FOREACH( _file ${_icons} )
+    STRING( REPLACE "${CMAKE_SOURCE_DIR}/admin/icon/zulip-icon-" "" _res ${_file} )
+    STRING( REPLACE ".png" "" _res ${_res} )
+    INSTALL( FILES ${_file} RENAME zulip.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/${_res}/apps )
+  ENDFOREACH( _file )
+
+  INSTALL( FILES ${CMAKE_SOURCE_DIR}/admin/icon/zulip-desktop_32x32.xpm DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pixmaps )
+ endif()
 
 target_link_libraries( zulip
     ${QT_LIBRARIES}
