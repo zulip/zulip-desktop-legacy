@@ -1,0 +1,4 @@
+?package(zulip):needs=X11 \
+section=Applications/Communication\
+title=Zulip command=/usr/bin/zulip \
+icon=/usr/share/pixmaps/zulip-desktop_32x32.xpm
