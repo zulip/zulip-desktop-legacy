@@ -6,6 +6,7 @@
 #include "ZulipApplication.h"
 #include "Utils.h"
 
+#include <QAction>
 #include <QApplication>
 #include <QBuffer>
 #include <QClipboard>
@@ -15,9 +16,11 @@
 #include <QHash>
 #include <QHttpMultiPart>
 #include <QImage>
+#include <QMenu>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QWebView>
+#include <QWebPage>
 #include <QWebFrame>
 #include <QVBoxLayout>
 #include <QKeyEvent>
@@ -347,12 +350,41 @@ private:
     bool m_redirectedRequest;
 };
 
+class ActionlessWebView : public QWebView {
+    Q_OBJECT
+public:
+    explicit ActionlessWebView(QWidget* parent = 0)
+        : QWebView(parent)
+        {
+        }
+
+protected:
+        void contextMenuEvent(QContextMenuEvent * ev) {
+            const  QPoint globalPos = ev->globalPos();
+
+            QMenu *menu = page()->createStandardContextMenu();
+            if (menu) {
+                // Remove actions that don't do anything
+                QStringList blacklisted = QStringList() << "Open Link" <<
+                                                           "Open in New Window" <<
+                                                           "Save Link...";
+                foreach (QAction *action, menu->actions()) {
+                    if (blacklisted.contains(action->text())) {
+                        menu->removeAction(action);
+                    }
+                }
+                menu->exec(globalPos);
+                delete menu;
+            }
+        }
+};
+
 class HWebViewPrivate : public QObject {
     Q_OBJECT
 public:
     HWebViewPrivate(HWebView* qq)
         : QObject(qq),
-          webView(new QWebView(qq)),
+          webView(new ActionlessWebView(qq)),
           q(qq),
           bridge(new ZulipWebBridge(qq))
     {
