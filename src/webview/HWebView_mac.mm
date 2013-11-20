@@ -814,5 +814,8 @@ void HWebView::loadHTML(const QString &html) {
     [[dptr->webView mainFrame] loadHTMLString:content baseURL:[NSURL URLWithString:@"about:zulip"]];
 }
 
+void HWebView::reload() {
+    [[dptr->webView mainFrame] reload];
+}
 
 #include "HWebView_mac.moc"

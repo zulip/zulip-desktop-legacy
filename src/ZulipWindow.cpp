@@ -162,10 +162,15 @@ void ZulipWindow::setupTray() {
     m_showSysTray->setCheckable(true);
     connect(m_showSysTray, SIGNAL(triggered(bool)), this, SLOT(showSystemTray(bool)));
 
+    QAction *reload = new QAction("Reload", this);
+    connect(reload, SIGNAL(triggered(bool)), this, SLOT(reload()));
+
 #if defined(Q_OS_MAC)
     options_menu->addAction(m_showSysTray);
+    options_menu->addAction(reload);
 #else
     menu->insertAction(exit_action, m_showSysTray);
+    menu->insertAction(exit_action, reload);
 #endif
 }
 
@@ -362,6 +367,10 @@ void ZulipWindow::setBounceDockIcon(bool bounce) {
 #ifdef Q_OS_MAC
     APP->setBounceDockIcon(bounce);
 #endif
+}
+
+void ZulipWindow::reload() {
+    webView()->reload();
 }
 
 void ZulipWindow::showSystemTray(bool show) {

@@ -22,6 +22,7 @@ public:
 
     void load(const QUrl& url);
     void setUrl(const QUrl& url);
+    void reload();
 
     void loadHTML(const QString& html);
 

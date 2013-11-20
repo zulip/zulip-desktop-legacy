@@ -49,6 +49,7 @@ private slots:
     void setStartAtLogin(bool start);
     void showSystemTray(bool show);
     void setBounceDockIcon(bool bounce);
+    void reload();
 
     void animateTray();
 

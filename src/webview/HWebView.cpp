@@ -540,4 +540,10 @@ void HWebView::loadHTML(const QString &html) {
     dptr->webView->setHtml(html);
 }
 
+void HWebView::reload()
+{
+    dptr->webView->reload();
+}
+
+
 #include "HWebView.moc"
