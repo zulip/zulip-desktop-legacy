@@ -58,6 +58,7 @@ typedef void(^CSRFSnatcherCallback)(NSString *token);
 - (void)webView:(WebView *)sender resource:(id)identifier didReceiveResponse:(NSURLResponse *)response fromDataSource:(WebDataSource *)dataSource;
 - (void)saveCookies;
 - (void)loadCookies;
+- (void)migrateSystemCookies;
 
 // Methods we're sharing with JavaScript
 - (void)updateCount:(int)newCount;
@@ -549,11 +550,30 @@ public:
     NSString *filePath = [self cookiesFilePath];
 
     if (![[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        [self migrateSystemCookies];
         return;
     }
 
     NSData *data = [[NSFileManager defaultManager] contentsAtPath:filePath];
     self.cookieStorage = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+}
+
+- (void)migrateSystemCookies
+{
+    // One-off migration of cookies for zulip from system cookie jar
+    // to avoid logging user out on update
+    QSettings s;
+    bool alreadyImportedFromSystem = s.value("ImportedFromSystem", false).toBool();
+    if (!alreadyImportedFromSystem) {
+        QString domain = s.value("Domain", "http://zulip.com").toString();
+        NSURL *url = [NSURL URLWithString:fromQString(domain)];
+        qDebug() << "Migrating system cookies on initial Zulip upgrade! (for " << domain << ")";
+        NSArray *systemCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
+        for (NSHTTPCookie *cookie in systemCookies) {
+            [self.cookieStorage setCookie:cookie];
+        }
+        s.setValue("ImportedFromSystem", true);
+    }
 }
 
 - (void)handleInitialLoadFailed {
