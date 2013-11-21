@@ -214,11 +214,11 @@
     for (NSString* cookiePair in cookiesArray) {
         NSArray* pair = [cookiePair componentsSeparatedByString:@"="];
         if (pair.count == 2) {
-            NSString* key = [pair[0] stringByTrimmingCharactersInSet:whitespace];
-            NSString* value = [pair[1] stringByTrimmingCharactersInSet:whitespace];
+            NSString* key = [[pair objectAtIndex:0] stringByTrimmingCharactersInSet:whitespace];
+            NSString* value = [[pair objectAtIndex:1] stringByTrimmingCharactersInSet:whitespace];
             if (key.length > 0 && value.length > 0) {
                 // don't decode the cookie values
-                cookiesDict[key] = value;
+                [cookiesDict setValue:value forKey:key];
             }
         }
     }
@@ -231,13 +231,13 @@
     NSArray* existingCookies = [self cookiesForURL:jsUrl];
     for (NSHTTPCookie* existingCookie in existingCookies) {
         NSString* existingName = existingCookie.name;
-        NSString* updatedValue = cookiesDict[existingName];
+        NSString* updatedValue = [cookiesDict objectForKey:existingName];
         if (updatedValue) {
             if (![updatedValue isEqualToString:existingCookie.value]) {
                 // override
                 NSMutableDictionary* cookieProperties = [NSMutableDictionary dictionaryWithDictionary:existingCookie.properties];
-                cookieProperties[NSHTTPCookieValue] = updatedValue;
-                cookieProperties[NSHTTPCookieExpires] = cookieExpiryDate;
+                [cookieProperties setObject:updatedValue forKey:NSHTTPCookieValue];
+                [cookieProperties setObject:cookieExpiryDate forKey:NSHTTPCookieExpires];
                 NSHTTPCookie* updatedCookie = [NSHTTPCookie cookieWithProperties:cookieProperties];
                 [self setCookie:updatedCookie];
             }
@@ -265,12 +265,12 @@
         NSString* const cookiePath = @"/";
         [cookiesDict enumerateKeysAndObjectsUsingBlock:^(NSString* cookieName, NSString* cookieValue, BOOL *stop) {
             NSMutableDictionary* cookieParams = [NSMutableDictionary dictionaryWithCapacity:6];
-            cookieParams[NSHTTPCookieDomain] = cookieDomain;
-            cookieParams[NSHTTPCookiePath] = cookiePath;
-            cookieParams[NSHTTPCookieExpires] = cookieExpiryDate;
+            [cookieParams setObject:cookieDomain forKey:NSHTTPCookieDomain];
+            [cookieParams setObject:cookiePath forKey:NSHTTPCookiePath];
+            [cookieParams setObject:cookieExpiryDate forKey:NSHTTPCookieExpires];
 
-            cookieParams[NSHTTPCookieName] = cookieName;
-            cookieParams[NSHTTPCookieValue] = cookieValue;
+            [cookieParams setObject:cookieName forKey:NSHTTPCookieName];
+            [cookieParams setObject:cookieValue forKey:NSHTTPCookieValue];
 
             NSHTTPCookie* cookie = [NSHTTPCookie cookieWithProperties:cookieParams];
             [self setCookie:cookie];
