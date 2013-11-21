@@ -33,6 +33,18 @@
 }
 @end
 
+@interface DockClickHandler : NSObject
+- (void)handleDockClick:(NSAppleEventDescriptor *)clickEvent withReply:(NSAppleEventDescriptor *)replyEvent;
+@end
+
+@implementation DockClickHandler
+
+- (void)handleDockClick:(NSAppleEventDescriptor *)clickEvent withReply:(NSAppleEventDescriptor *)replyEvent
+{
+    APP->mainWindow()->trayClicked();
+}
+@end
+
 class PlatformInterfacePrivate : public QObject {
     Q_OBJECT
 public:
@@ -50,11 +62,14 @@ public:
                                                                                                 forKey:@"WebKitDeveloperExtras"]];
         }
 
+        dockClickHandler = [[DockClickHandler alloc] init];
+
         QTimer::singleShot(0, this, SLOT(setupMainWindow()));
     }
 
     ~PlatformInterfacePrivate() {
         [sound release];
+        [dockClickHandler release];
     }
 
 public slots:
@@ -82,6 +97,7 @@ public slots:
 public:
 
     NSSound *sound;
+    DockClickHandler *dockClickHandler;
     PlatformInterface *q;
 };
 
@@ -95,6 +111,18 @@ PlatformInterface::PlatformInterface(QObject *parent)
     [[SUUpdater sharedUpdater] setAutomaticallyDownloadsUpdates:YES];
 
     [GrowlApplicationBridge setGrowlDelegate:[[ZGrowlDelegate alloc] init]];
+
+    // Ugh
+    // So Qt sets an event handler for kAEReopenApplication (which it does nothing with) during
+    // QApplication::exec, which overrides our setting of the event handler here
+    // So we delay our registering until after QApplication::exec() has finished and we're back
+    // on the event loop
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^(void){
+        [[NSAppleEventManager sharedAppleEventManager] setEventHandler:m_d->dockClickHandler
+                                                           andSelector:@selector(handleDockClick:withReply:)
+                                                         forEventClass:kCoreEventClass
+                                                            andEventID:kAEReopenApplication];
+    });
 }
 
 PlatformInterface::~PlatformInterface() {
