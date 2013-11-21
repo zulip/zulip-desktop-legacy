@@ -134,7 +134,7 @@ void PlatformInterface::setStartAtLogin(bool start)
 {
     // Launch at login by using SMLoginItemSetEnabled with our helper app
     // identifier
-    if (!SMLoginItemSetEnabled ((__bridge CFStringRef)@"com.zulip.ZulipAppHelper", start ? YES : NO)) {
+    if (!SMLoginItemSetEnabled ((CFStringRef)@"com.zulip.ZulipAppHelper", start ? YES : NO)) {
         NSLog(@"Unable to add or remove ZulipAppHelper to login item list... wtf?");
     }
 }
