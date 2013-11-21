@@ -41,7 +41,7 @@ fi
 
 mv "$zulip_bin" ~/packages/
 mv "$zulip_sparkle_bin" ~/packages/sparkle
-mv signature.raw "~/packages/sparkle/$zulip_sparkle_bin.sig"
+mv signature.raw ~/packages/sparkle/$zulip_sparkle_bin.sig
 
 popd
 rm -rf zulip-desktop/
