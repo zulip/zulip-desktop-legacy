@@ -5,6 +5,7 @@
 #include "Config.h"
 #include "ZulipApplication.h"
 #include "Utils.h"
+#include "ZulipWindow.h"
 
 #include <QAction>
 #include <QApplication>
@@ -22,6 +23,7 @@
 #include <QWebView>
 #include <QWebPage>
 #include <QWebFrame>
+#include <QSystemTrayIcon>
 #include <QVBoxLayout>
 #include <QKeyEvent>
 
@@ -350,10 +352,10 @@ private:
     bool m_redirectedRequest;
 };
 
-class ActionlessWebView : public QWebView {
+class ZulipActionsWebView : public QWebView {
     Q_OBJECT
 public:
-    explicit ActionlessWebView(QWidget* parent = 0)
+    explicit ZulipActionsWebView(QWidget* parent = 0)
         : QWebView(parent)
         {
         }
@@ -373,6 +375,15 @@ protected:
                         menu->removeAction(action);
                     }
                 }
+
+                // If the system tray is hidden, show the tray actions
+                // in the context menu of the web view
+                QSystemTrayIcon *tray = APP->mainWindow()->trayIcon();
+                if (tray && !tray->isVisible()) {
+                    menu->addSeparator();
+                    menu->addActions(tray->contextMenu()->actions());
+                }
+
                 menu->exec(globalPos);
                 delete menu;
             }
@@ -384,7 +395,7 @@ class HWebViewPrivate : public QObject {
 public:
     HWebViewPrivate(HWebView* qq)
         : QObject(qq),
-          webView(new ActionlessWebView(qq)),
+          webView(new ZulipActionsWebView(qq)),
           q(qq),
           bridge(new ZulipWebBridge(qq))
     {
