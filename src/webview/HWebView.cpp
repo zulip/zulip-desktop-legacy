@@ -423,7 +423,14 @@ public:
 
         webView->installEventFilter(new KeyPressEventFilter(webView));
     }
-    ~HWebViewPrivate() {}
+
+    ~HWebViewPrivate() {
+        // For some reason when deleting the LoggingPage of our QWebView, an internal QNetworkReply
+        // disconnect inside QtWebKit segfaults. To work around this, delay the deletion of our QWebView/LoggingPage
+        // until after HWebView and HWebViewPrivate are already destroyed.
+        webView->setParent(0);
+        webView->deleteLater();
+    }
 
 private slots:
     void addJavaScriptObject() {
