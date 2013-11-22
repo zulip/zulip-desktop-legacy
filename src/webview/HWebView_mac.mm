@@ -33,6 +33,55 @@
 
 typedef void(^CSRFSnatcherCallback)(NSString *token);
 
+#pragma mark - InitialRequest and AskForDomain Callbacks
+
+typedef void(^ConnectionStatusCallback)(Utils::ConnectionStatus status);
+typedef void(^AskForDomainSuccess)(QString domain);
+typedef void(^AskForDomainRetry)();
+
+class ConnectionStatusCallbackWatcher : public QObject {
+    Q_OBJECT
+public:
+    ConnectionStatusCallbackWatcher(ConnectionStatusCallback callback)
+        : QObject(0),
+          m_callback(callback)
+    {
+
+    }
+
+public Q_SLOTS:
+    void connectionStatusSlot(Utils::ConnectionStatus status) {
+        m_callback(status);
+        deleteLater();
+    }
+private:
+    ConnectionStatusCallback m_callback;
+};
+
+class AskForDomainCallbackWatcher : public QObject {
+    Q_OBJECT
+public:
+    AskForDomainCallbackWatcher(AskForDomainSuccess success, AskForDomainRetry retry)
+    : QObject(0),
+      m_success(success),
+      m_retry(retry)
+    {}
+
+public Q_SLOTS:
+    void success(const QString& domain) {
+        m_success(domain);
+        deleteLater();
+    }
+
+    void retry() {
+        m_retry();
+        deleteLater();
+    }
+private:
+    AskForDomainSuccess m_success;
+    AskForDomainRetry m_retry;
+};
+
 #pragma mark - ZulipWebDelegate Interface
 
 @interface ZulipWebDelegate : NSObject
@@ -403,23 +452,26 @@ public:
         // Do a GET to the central Zulip server to determine the domain for this user
         bool requestSuccessful;
         NSString *preflightURL = fromQString(Utils::baseUrlForEmail(0, toQString(email), &requestSuccessful));
+
+        AskForDomainCallbackWatcher *callback = new AskForDomainCallbackWatcher(^(QString domain) {
+            [self snatchCSRFAndRedirect:fromQString(domain)];
+        }, ^{
+            // Retry
+            // Make a strong reference to the parameters
+            // so they are still around when our delayed block gets executed
+            __block WebView* _sender = sender;
+            __block id _identifier = identifier;
+            __block NSURLRequest *_request = request;
+            __block NSURLResponse *_redirectResponse = redirectResponse;
+            __block WebDataSource *_dataSource = dataSource;
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^(void){
+                [self webView:_sender resource:_identifier willSendRequest:_request redirectResponse:_redirectResponse fromDataSource:_dataSource];
+            });
+        });
+
         if (!requestSuccessful) {
             NSLog(@"Error making preflight request, asking");
-            APP->askForCustomServer([=](QString domain) {
-                [self snatchCSRFAndRedirect:fromQString(domain)];
-            }, [=]() {
-                // Retry
-                // Make a strong reference to the parameters
-                // so they are still around when our delayed block gets executed
-                __block WebView* _sender = sender;
-                __block id _identifier = identifier;
-                __block NSURLRequest *_request = request;
-                __block NSURLResponse *_redirectResponse = redirectResponse;
-                __block WebDataSource *_dataSource = dataSource;
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^(void){
-                    [self webView:_sender resource:_identifier willSendRequest:_request redirectResponse:_redirectResponse fromDataSource:_dataSource];
-                });
-            });
+            APP->askForCustomServer(callback);
             return emptyRequest;
         } else if ([preflightURL isEqualToString:@""]) {
             return request;
@@ -585,20 +637,22 @@ public:
         return;
     }
 
-    Utils::connectedToInternet(0, [=](Utils::ConnectionStatus status) {
+    ConnectionStatusCallbackWatcher *watcher = new ConnectionStatusCallbackWatcher(^(Utils::ConnectionStatus status) {
         if (status != Utils::Online) {
             [self askForInitialLoadDomain];
         }
     });
+
+    Utils::connectedToInternet(0, watcher);
 }
 
 - (void)askForInitialLoadDomain {
     NSLog(@"Failed to initially load Zulip (explicit domain %i and origRequest %@", APP->explicitDomain(), self.origRequest);
-    APP->askForCustomServer([=](QString domain) {
+    AskForDomainCallbackWatcher *callback = new AskForDomainCallbackWatcher(^(QString domain) {
         // We don't do anything fancy with the proper domain---we just load
         // it in the webview directly
         [[q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:fromQString(domain)]]];
-    }, [=]() {
+    }, ^{
         // Retry
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^(void){
             // For some reason calling reload: or reloadFromOrigin both don't cause a reload,
@@ -606,6 +660,7 @@ public:
             [[q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:fromQUrl(q->originalURL)]];
         });
     });
+    APP->askForCustomServer(callback);
 }
 
 - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame {

@@ -34,8 +34,9 @@ public:
     // If we were unable to preflight a request,
     // ask the user to enter their custom server if
     // there is one
-    void askForCustomServer(std::function<void (QString)> success,
-                            std::function<void (void)> retry);
+    // Will call: success(QString) or retry() as a
+    // SLOT on the response object
+    void askForCustomServer(QObject *responseObj);
 protected:
 #ifdef Q_OS_MAC
     bool macEventFilter(EventHandlerCallRef, EventRef);
@@ -54,8 +55,7 @@ private:
     // Internal
     QWeakPointer<QDialog> m_customServerDialog;
     QLineEdit * m_customDomain;
-    std::function<void (QString)> m_customDomainSuccess;
-    std::function<void (void)> m_customDomainRetry;
+    QWeakPointer<QObject> m_customServerResponseObj;
 };
 
 #endif // ZULIPAPPLICATION_H

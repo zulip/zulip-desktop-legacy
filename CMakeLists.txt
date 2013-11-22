@@ -11,14 +11,6 @@ set( ZULIP_VERSION_SHORT "${ZULIP_VERSION}" )
 
 set( ZULIP_APPLICATION_NAME "Zulip")
 
-# Yay C++11!
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-# Older OS Xes (10.7) default to gnu libc which is
-# old and doesn't support cpp11
-if (APPLE)
-    set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
-endif()
-
 # enforce proper symbol exporting on all platforms
 add_definitions( "-fvisibility=hidden" )
 # enforce using constBegin, constEnd for const-iterators

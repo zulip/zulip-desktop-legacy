@@ -39,11 +39,9 @@ void ZulipApplication::setExplicitDomain(const QString &domain) {
     }
 }
 
-void ZulipApplication::askForCustomServer(std::function<void (QString)> success,
-                                          std::function<void (void)> retry)
+void ZulipApplication::askForCustomServer(QObject *responseObj)
 {
-    m_customDomainSuccess = success;
-    m_customDomainRetry = retry;
+    m_customServerResponseObj = QWeakPointer<QObject>(responseObj);
 
     m_customServerDialog = QWeakPointer<QDialog>(new QDialog(APP->mainWindow()));
     m_customServerDialog.data()->setWindowFlags(Qt::Sheet);
@@ -90,7 +88,7 @@ void ZulipApplication::askForCustomServer(std::function<void (QString)> success,
 
 void ZulipApplication::customServerOK()
 {
-    if (m_customServerDialog.isNull()) {
+    if (m_customServerDialog.isNull() || m_customServerResponseObj.isNull()) {
         return;
     }
     QString domain = m_customDomain->text().trimmed();
@@ -101,7 +99,7 @@ void ZulipApplication::customServerOK()
     }
 
     setExplicitDomain(domain);
-    m_customDomainSuccess(domain);
+    QMetaObject::invokeMethod(m_customServerResponseObj.data(), "success", Qt::DirectConnection, Q_ARG(QString, domain));
 
     m_customServerDialog.data()->hide();
     m_customServerDialog.data()->deleteLater();
@@ -109,12 +107,12 @@ void ZulipApplication::customServerOK()
 
 void ZulipApplication::customServerCancel()
 {
-    if (m_customServerDialog.isNull()) {
+    if (m_customServerDialog.isNull() || m_customServerResponseObj.isNull()) {
         return;
     }
     // User hit Retry
     m_customServerDialog.data()->hide();
     m_customServerDialog.data()->deleteLater();
 
-    m_customDomainRetry();
+    QMetaObject::invokeMethod(m_customServerResponseObj.data(), "retry", Qt::DirectConnection);
 }

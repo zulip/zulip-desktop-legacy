@@ -246,13 +246,9 @@ protected:
 
             if (!requestSuccessful) {
                 // Failed to load, so we ask the user directly
-                APP->askForCustomServer([=](QString domain) {
-                    m_siteBaseUrl = domain;
-                    snatchCSRFAndRedirect();
-                }, [=] {
-                    // Retry
-                    m_zulipWebView->load(request, op, dataBuffer);
-                });
+                m_savedOriginalOp = op;
+                m_savedOriginalData = dataBuffer;
+                APP->askForCustomServer(this);
             } else if (m_siteBaseUrl.length() == 0) {
                 QByteArray *tempData = new QByteArray(dataBuffer);
                 QBuffer *tempBuffer = new QBuffer(tempData, 0);
@@ -275,6 +271,15 @@ protected:
     }
 
 private slots:
+    void customServerRetry() {
+        m_zulipWebView->load(m_savedOriginalRequest, m_savedOriginalOp, m_savedOriginalData);
+    }
+
+    void customServerSuccess(const QString& domain) {
+        m_siteBaseUrl = domain;
+        snatchCSRFAndRedirect();
+    }
+
     void csrfLoadFinished() {
         const QString csrfToken = csrfTokenFromWebPage(m_csrfWebView->page(), QUrl(m_siteBaseUrl));
 
@@ -347,6 +352,9 @@ private:
 
     QNetworkRequest m_savedOriginalRequest;
     QNetworkRequest m_savedRequest;
+    QByteArray m_savedOriginalData;
+    Operation m_savedOriginalOp;
+
     QHash<QString, QString> m_savedPayload;
 
     bool m_redirectedRequest;
@@ -471,23 +479,29 @@ private slots:
             return;
         }
 
-        Utils::connectedToInternet(webView->page()->networkAccessManager(), [=](Utils::ConnectionStatus status) {
-            if (status != Utils::Online)
-                askForInitialLoadDomain();
-        });
+        Utils::connectedToInternet(webView->page()->networkAccessManager(), this);
+    }
+
+    void connectionStatusSlot(Utils::ConnectionStatus status) {
+        if (status != Utils::Online)
+            askForInitialLoadDomain();
     }
 
     void askForInitialLoadDomain() {
         if (!APP->explicitDomain()) {
             qDebug() << "Failed to load initial Zulip login page, asking directly";
-            APP->askForCustomServer([=](QString domain) {
-                qDebug() << "Got manually entered domain" << domain << ", redirecting";
-                webView->load(QUrl(domain));
-            }, [=] () {
-                // Retry
-                webView->load(startUrl);
-            });
+            APP->askForCustomServer(this);
         }
+    }
+
+    void askForInitialLoadDomainSuccess(const QString& domain) {
+        qDebug() << "Got manually entered domain" << domain << ", redirecting";
+        webView->load(QUrl(domain));
+    }
+
+    void askForInitialLoadDomainRetry() {
+        // Retry
+        webView->load(startUrl);
     }
 
     void urlChanged(const QUrl& url) {
