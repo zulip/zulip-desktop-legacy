@@ -1,3 +1,16 @@
+zulip-desktop (0.4.0) wheezy; urgency=low
+
+  * Show Zulip application with icon in desktop launcher
+  * Start with an initial width wide enough to display both sidebars
+  * Fix crash on exit
+  * Close main window without exiting when the tray icon is shown
+  * Clean up context menu when clicking on links
+  * Fix Google login button
+  * Add support for pasting an image from the clipboard
+  * Add a more visible unread count to tray icon
+
+ -- Leo Franchi <leo@zulip.com>  Mon, 25 Nov 2013 14:46:12 -0500
+
 zulip-desktop (0.3.11) wheezy; urgency=low
 
   * Bring zulip to front when message popup is clicked
