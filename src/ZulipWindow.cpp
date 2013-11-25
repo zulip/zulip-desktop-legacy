@@ -206,8 +206,14 @@ void ZulipWindow::closeEvent(QCloseEvent *ev) {
 
 void ZulipWindow::readSettings() {
     QSettings settings;
-    restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
+    const QByteArray geometry = settings.value("MainWindow/geometry").toByteArray();
+    restoreGeometry(geometry);
     restoreState(settings.value("MainWindow/windowState").toByteArray());
+
+    // If there's no saved geometry, give us enough width to show both sidebars
+    if (geometry.isEmpty()) {
+        resize(1200, rect().height());
+    }
 
     QString domain = settings.value("Domain").toString();
     QString site = domainToUrl(domain);
