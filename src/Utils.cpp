@@ -1,8 +1,11 @@
 #include "Utils.h"
 
+#include <QBuffer>
+#include <QImage>
+#include <QHttpMultiPart>
+
 // Object to stick around with a waiting slot for the network request to finish
 // TODO port ugly synchronous event loop code above to use this
-
 namespace Utils {
     class NetworkWatcher : public QObject {
         Q_OBJECT
@@ -135,6 +138,52 @@ void Utils::connectedToInternet(QNetworkAccessManager *nam, QObject *replyObj) {
     NetworkWatcher *watcher = new NetworkWatcher(reply, replyObj);
 
     QObject::connect(reply, SIGNAL(finished()), watcher, SLOT(execute()));
+}
+
+Utils::UploadData Utils::uploadImage(const QImage &img, const QString& csrfToken, const QString& originURL, QNetworkAccessManager *nam) {
+    // Write image data to QBuffer
+    QByteArray *imgData = new QByteArray(img.byteCount(), Qt::Uninitialized);
+    QBuffer *buffer = new QBuffer(imgData);
+    buffer->open(QIODevice::WriteOnly);
+    img.save(buffer, "PNG");
+    buffer->close();
+    buffer->open(QIODevice::ReadOnly);
+
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    QHttpPart textPart;
+    textPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"csrfmiddlewaretoken\""));
+    textPart.setBody(csrfToken.toUtf8());
+
+    QHttpPart imagePart;
+    imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
+    imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"pasted-image\""));
+    // Set PNG image in QBuffer as body part of QHttpPart
+    imagePart.setBodyDevice(buffer);
+    // The buffer needs to live as long as the HttpPart object, so parent it to the multi part
+    buffer->setParent(multiPart);
+
+    multiPart->append(textPart);
+    multiPart->append(imagePart);
+
+    // Create POST request to /json/upload_file
+    QUrl url(originURL);
+    url.setPath("/json/upload_file");
+    url.addQueryItem("mimetype",  "image/png");
+    QNetworkRequest request(url);
+    request.setRawHeader("Origin", originURL.toUtf8());
+    request.setRawHeader("Referer", originURL.toUtf8());
+
+    if (!nam) {
+        // Delete our created NAM when the reply is deleted
+        nam = new QNetworkAccessManager(multiPart);
+    }
+
+    QNetworkReply *reply = nam->post(request, multiPart);
+    multiPart->setParent(reply); // Delete the QHttpMultiPart with the reply
+
+    Utils::UploadData data(reply, imgData);
+    return data;
 }
 
 #include "Utils.moc"

@@ -9,6 +9,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QEventLoop>
+#include <QPair>
 #include <QDebug>
 #include <QUrl>
 
@@ -28,6 +29,9 @@ namespace Utils {
     };
 
     void connectedToInternet(QNetworkAccessManager *nam, QObject *replyObj);
+
+    typedef QPair<QNetworkReply *, QByteArray *> UploadData;
+    UploadData uploadImage(const QImage &img, const QString &csrfToken, const QString &originURL, QNetworkAccessManager *nam);
 }
 
 #endif // UTILS_H

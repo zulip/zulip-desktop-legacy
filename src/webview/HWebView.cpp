@@ -123,58 +123,19 @@ private slots:
 
 private:
     QNetworkReply* uploadImageFromClipboard(const QString &csrfToken) {
-        QBuffer *buffer;
-        QByteArray *imgData;
-        const QString suffix;
-        const QString mimetype;
+        QClipboard *clipboard = QApplication::clipboard();
 
-        {
-            // Delete QImage after we're done with it
-            QClipboard *clipboard = QApplication::clipboard();
+        // Write image data to QBuffer
+        QImage img = qvariant_cast<QImage>(clipboard->mimeData()->imageData());
+        Utils::UploadData data = Utils::uploadImage(img, csrfToken,
+                                                    m_webView->page()->mainFrame()->url().toString(),
+                                                    m_webView->page()->networkAccessManager());
 
-            // Write image data to QBuffer
-            QImage img = qvariant_cast<QImage>(clipboard->mimeData()->imageData());
-            imgData = new QByteArray(img.byteCount(), Qt::Uninitialized);
-            buffer = new QBuffer(imgData);
-            buffer->open(QIODevice::WriteOnly);
-            img.save(buffer, "PNG");
-            buffer->close();
-            buffer->open(QIODevice::ReadOnly);
-        }
-
-        QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
-        QHttpPart textPart;
-        textPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"csrfmiddlewaretoken\""));
-        textPart.setBody(csrfToken.toUtf8());
-
-        QHttpPart imagePart;
-        imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
-        imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"pasted-image\""));
-        // Set PNG image in QBuffer as body part of QHttpPart
-        imagePart.setBodyDevice(buffer);
-        // The buffer needs to live as long as the HttpPart object, so parent it to the multi part
-        buffer->setParent(multiPart);
-
-        multiPart->append(textPart);
-        multiPart->append(imagePart);
-
-        // Create POST request to /json/upload_file
-        QUrl url(m_webView->page()->mainFrame()->url());
-        url.setPath("/json/upload_file");
-        url.addQueryItem("mimetype",  "image/png");
-        QNetworkRequest request(url);
-        request.setRawHeader("Origin", m_webView->page()->mainFrame()->url().toString().toUtf8());
-        request.setRawHeader("Referer", m_webView->page()->mainFrame()->url().toString().toUtf8());
-
-        QNetworkReply *reply = m_webView->page()->networkAccessManager()->post(request, multiPart);
-        multiPart->setParent(reply); // Delete the QHttpMultiPart with the reply
-
-        s_imageUploadPayloads()->insert(reply, imgData);
+        s_imageUploadPayloads()->insert(data.first, data.second);
 
         // Trigger start
         m_webView->page()->mainFrame()->evaluateJavaScript("compose.uploadStarted();");
-        return reply;
+        return data.first;
     }
 
     QWebView *m_webView;
