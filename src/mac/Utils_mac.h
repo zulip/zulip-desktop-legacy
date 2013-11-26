@@ -27,4 +27,16 @@ static inline QUrl toQUrl(NSURL* url) {
     return QUrl::fromEncoded(toQString([url absoluteString]).toUtf8());
 }
 
+
+static inline QByteArray fromNSData(NSData *data) {
+    if (!data) {
+        return QByteArray();
+    }
+
+    QByteArray qData;
+    qData.resize([data length]);
+    [data getBytes:qData.data() length: qData.size()];
+    return qData;
+}
+
 #endif

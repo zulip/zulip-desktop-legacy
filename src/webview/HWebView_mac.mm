@@ -9,11 +9,14 @@
 #include "Utils.h"
 #include "mac/NSArray+Blocks.h"
 
+#include <QBuffer>
 #include <QDir>
 #include <QDesktopServices>
 #include <QMacCocoaViewContainer>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QNetworkCookie>
+#include <QNetworkCookieJar>
 #include <QClipboard>
 #include <QFile>
 
@@ -32,6 +35,10 @@
 #define KEYCODE_Z 6
 
 typedef void(^CSRFSnatcherCallback)(NSString *token);
+
+// QWebkit, WHY DO YOU MAKE ME DO THIS
+typedef QHash<QNetworkReply *, QByteArray *> PayloadHash;
+Q_GLOBAL_STATIC(PayloadHash, s_imageUploadPayloads);
 
 #pragma mark - InitialRequest and AskForDomain Callbacks
 
@@ -85,9 +92,6 @@ private:
 #pragma mark - ZulipWebDelegate Interface
 
 @interface ZulipWebDelegate : NSObject
-{
-    HWebViewPrivate* q;
-}
 // Init with our reference to our HWebViewPrivate
 - (id)initWithPrivate:(HWebViewPrivate*)q;
 
@@ -109,7 +113,7 @@ private:
 - (void)loadCookies;
 - (void)migrateSystemCookies;
 
-// Methods we're sharing with JavaScript
+// Methods we're sharing with JavaScript
 - (void)updateCount:(int)newCount;
 - (void)updatePMCount:(int)newCount;
 - (void)bell;
@@ -119,6 +123,7 @@ private:
 - (void)websocketPreOpen;
 - (void)websocketPostOpen;
 
+@property (nonatomic) HWebViewPrivate *q;
 
 // For CSRF/Auto-redirecting
 @property (nonatomic, retain)NSURLRequest *origRequest;
@@ -165,6 +170,46 @@ public:
         emit q->desktopNotification(title, content);
     }
 
+public slots:
+    void imageUploadFinished() {
+        QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
+        reply->deleteLater();
+
+        if (s_imageUploadPayloads()->contains(reply)) {
+            delete s_imageUploadPayloads()->take(reply);
+        }
+
+        QJson::Parser p;
+        bool ok;
+        QByteArray payload = reply->readAll();
+        QVariant data = p.parse(payload, &ok);
+
+        if (reply->error() == QNetworkReply::NoError && ok) {
+            QVariantMap result = data.toMap();
+            const QString imageLink = result.value("uri", QString()).toString();
+
+            [webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"compose.uploadFinished(0, undefined, {\"uri\": \"%@\"}, undefined);", fromQString(imageLink)]];
+
+            return;
+        } else {
+            qDebug() << "Image Upload Error:" << reply->errorString() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() << data;
+        }
+        [webView stringByEvaluatingJavaScriptFromString:@"compose.uploadError('Unknown Error');"];
+    }
+
+    void imageUploadProgress(qint64 bytesSent ,qint64 bytesTotal) {
+        // Trigger progress bar change
+        if (bytesTotal > 0) {
+            int percent = (bytesSent * 100 / bytesTotal);
+            [webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"compose.progressUpdated(0, undefined, \"%d\");", percent]];
+        }
+    }
+
+    void imageUploadError(QNetworkReply::NetworkError error) {
+        qDebug() << "Got Upload error:" << error;
+        [webView stringByEvaluatingJavaScriptFromString:@"compose.uploadError('Unknown Error');"];
+    }
+
 public:
     HWebView* q;
     WebView* webView;
@@ -209,21 +254,33 @@ public:
         }
         else if (keyCode == KEYCODE_V)
         {
-            // If the user is trying to paste an image, we grab it from her clipboard
-            // and upload it through the webapp manually.
-            // This is because Safari does not allow the JS to extract binary data (e.g. images)
-            // from the clipboard.
-            NSData *pngImage = [self pngInPasteboard];
-            if (pngImage) {
-                NSString *b64image = [[pngImage base64EncodedString] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-                NSString *uploadCommand = [NSString stringWithFormat:@""
-                                           "var imageData = atob('%@');"
-                                           "var uploadData = {type: 'image/png', data: imageData};"
-                                           "$('#compose').trigger('imagedata-upload.zulip', uploadData);"
-                                           , b64image];
-                [self stringByEvaluatingJavaScriptFromString:uploadCommand];
+            // OS X 10.7's WebKit version does not support image uploading, so
+            // we upload manually
+            // NSAppKitVersionNumber10_8 is not defined on our Lion build machine
+            // since it has too old of an SDK, so we hardcode the version here:
+            // NSApplication.h:44 #define NSAppKitVersionNumber10_8 1187
+            if (NSAppKitVersionNumber < 1187) {
+                qDebug() << "Uploading via QHttpMimeData";
+                [self uploadImageWithQt];
             } else {
-                [self paste:self];
+                qDebug() << "Uploading via WebKit";
+
+                // If the user is trying to paste an image, we grab it from her clipboard
+                // and upload it through the webapp manually.
+                // This is because Safari does not allow the JS to extract binary data (e.g. images)
+                // from the clipboard.
+                NSData *pngImage = [self pngInPasteboard];
+                if (pngImage) {
+                    NSString *b64image = [[pngImage base64EncodedString] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                    NSString *uploadCommand = [NSString stringWithFormat:@""
+                                               "var imageData = atob('%@');"
+                                               "var uploadData = {type: 'image/png', data: imageData};"
+                                               "$('#compose').trigger('imagedata-upload.zulip', uploadData);"
+                                               , b64image];
+                    [self stringByEvaluatingJavaScriptFromString:uploadCommand];
+                } else {
+                    [self paste:self];
+                }
             }
             return YES;
         }
@@ -243,6 +300,57 @@ public:
     }
 
     return NO;
+}
+
+- (void)uploadImageWithQt
+{
+    NSData *pngImage = [self pngInPasteboard];
+    if (pngImage) {
+        // We need to get a QBuffer that contains the image data
+        // QBuffers are wrappers around a QByteArray, so take our
+        // image from the NSData* and stick it in a QByteArray
+        QByteArray *data = new QByteArray;
+        data->resize([pngImage length]);
+        [pngImage getBytes:data->data() length:[pngImage length]];
+        QBuffer *buffer = new QBuffer(data, 0);
+        buffer->open(QIODevice::ReadOnly);
+
+        // Get CSRF token and Session ID
+        ZulipWebDelegate *delegate = (ZulipWebDelegate *)[self frameLoadDelegate];
+        NSArray *cookieList = [delegate.cookieStorage cookiesForURL:fromQUrl(delegate.q->originalURL)];
+        QString csrfToken, sessionID;
+        for (NSHTTPCookie *cookie in cookieList) {
+            if ([[cookie name] isEqualToString:@"csrftoken"]) {
+                csrfToken = toQString([cookie value]);
+            } else if ([[cookie name] isEqualToString:@"sessionid"]) {
+                sessionID = toQString([cookie value]);
+            }
+        }
+
+        // Populate a QNAM with the csrftoken and sessionid cookies
+        QNetworkAccessManager *nam = new QNetworkAccessManager;
+
+        const QString qUrlString = delegate.q->originalURL.toString();
+        QNetworkCookieJar *jar = nam->cookieJar();
+        QNetworkCookie csrfCookie("csrftoken", csrfToken.toUtf8());
+        jar->setCookiesFromUrl(QList<QNetworkCookie>() << QNetworkCookie("csrftoken", csrfToken.toUtf8())
+                                                       << QNetworkCookie("sessionid", sessionID.toUtf8()),
+                               QUrl(qUrlString));
+
+        // Begin the image upload
+        QNetworkReply *imageUpload = Utils::uploadImageFromBuffer(buffer, csrfToken, qUrlString, nam);
+
+        // Delete our created NAM when the reply is deleted
+        QObject::connect(imageUpload, SIGNAL(destroyed(QObject*)), nam, SLOT(deleteLater()));
+
+        QObject::connect(imageUpload, SIGNAL(finished()), delegate.q, SLOT(imageUploadFinished()));
+        QObject::connect(imageUpload, SIGNAL(uploadProgress(qint64,qint64)), delegate.q, SLOT(imageUploadProgress(qint64, qint64)));
+        QObject::connect(imageUpload, SIGNAL(error(QNetworkReply::NetworkError)), delegate.q, SLOT(imageUploadError(QNetworkReply::NetworkError)));
+
+        s_imageUploadPayloads()->insert(imageUpload, data);
+
+        [self stringByEvaluatingJavaScriptFromString:@"compose.uploadStarted()"];
+    }
 }
 
 - (NSData *)pngInPasteboard
@@ -331,9 +439,9 @@ public:
         self.cookieFileSaveDate = nil;
         self.systemCookies = @[];
         self.storedSystemCookies = NO;
+        self.q = qq;
 
         [self loadCookies];
-        q = qq;
     }
     return self;
 }
@@ -407,7 +515,7 @@ public:
 
         // Make our new request in the web frame---this will cause a redirect to the logged-in
         // Zulip at the target site
-        [[q->webView mainFrame] loadRequest:newRequest];
+        [[self.q->webView mainFrame] loadRequest:newRequest];
     }];
 
     return true;
@@ -516,7 +624,7 @@ public:
 }
 
 - (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id < WebPolicyDecisionListener >)listener {
-    q->linkClicked(toQUrl([request URL]));
+    self.q->linkClicked(toQUrl([request URL]));
 
     [listener ignore];
 }
@@ -651,13 +759,13 @@ public:
     AskForDomainCallbackWatcher *callback = new AskForDomainCallbackWatcher(^(QString domain) {
         // We don't do anything fancy with the proper domain---we just load
         // it in the webview directly
-        [[q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:fromQString(domain)]]];
+        [[self.q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:fromQString(domain)]]];
     }, ^{
         // Retry
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^(void){
             // For some reason calling reload: or reloadFromOrigin both don't cause a reload,
             // yet calling loadRequest does.
-            [[q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:fromQUrl(q->originalURL)]];
+            [[self.q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:fromQUrl(self.q->originalURL)]];
         });
     });
     APP->askForCustomServer(callback);
@@ -712,19 +820,19 @@ public:
 }
 
 - (void)updateCount:(int)newCount {
-    q->updateCount(newCount);
+    self.q->updateCount(newCount);
 }
 
 - (void)updatePMCount:(int)newCount {
-    q->updatePMCount(newCount);
+    self.q->updatePMCount(newCount);
 }
 
 -(void)bell {
-    q->bell();
+    self.q->bell();
 }
 
 - (void)desktopNotification:(NSString*)title withContent:(NSString*)content {
-    q->desktopNotification(toQString(title), toQString(content));
+    self.q->desktopNotification(toQString(title), toQString(content));
 }
 
 - (NSString *)desktopAppVersion {
@@ -751,7 +859,7 @@ public:
 // the WebSocket protocol goes through
 - (void)injectOurCookies
 {
-    NSURL *url = [[[[q->webView mainFrame] dataSource] request] URL];
+    NSURL *url = [[[[self.q->webView mainFrame] dataSource] request] URL];
     self.systemCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
     for (NSHTTPCookie *cookie in self.systemCookies) {
         [[NSHTTPCookieStorage sharedHTTPCookieStorage] deleteCookie:cookie];
@@ -776,7 +884,7 @@ public:
     }
     self.storedSystemCookies = NO;
 
-    NSURL *url = [[[[q->webView mainFrame] dataSource] request] URL];
+    NSURL *url = [[[[self.q->webView mainFrame] dataSource] request] URL];
     for (NSHTTPCookie *cookie in [self.cookieStorage cookiesForURL:url]) {
         [[NSHTTPCookieStorage sharedHTTPCookieStorage] deleteCookie:cookie];
     }

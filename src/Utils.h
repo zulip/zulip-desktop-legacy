@@ -7,11 +7,14 @@
 #include <QHash>
 #include <QMetaObject>
 #include <QNetworkAccessManager>
+#include <QImage>
 #include <QNetworkReply>
 #include <QEventLoop>
 #include <QPair>
 #include <QDebug>
 #include <QUrl>
+
+class QBuffer;
 
 namespace Utils {
 
@@ -32,6 +35,8 @@ namespace Utils {
 
     typedef QPair<QNetworkReply *, QByteArray *> UploadData;
     UploadData uploadImage(const QImage &img, const QString &csrfToken, const QString &originURL, QNetworkAccessManager *nam);
+
+    QNetworkReply *uploadImageFromBuffer(QBuffer *buffer, const QString &csrfToken, const QString &originURL, QNetworkAccessManager *nam);
 }
 
 #endif // UTILS_H

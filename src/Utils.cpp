@@ -3,6 +3,7 @@
 #include <QBuffer>
 #include <QImage>
 #include <QHttpMultiPart>
+#include <QNetworkCookieJar>
 
 // Object to stick around with a waiting slot for the network request to finish
 // TODO port ugly synchronous event loop code above to use this
@@ -140,15 +141,8 @@ void Utils::connectedToInternet(QNetworkAccessManager *nam, QObject *replyObj) {
     QObject::connect(reply, SIGNAL(finished()), watcher, SLOT(execute()));
 }
 
-Utils::UploadData Utils::uploadImage(const QImage &img, const QString& csrfToken, const QString& originURL, QNetworkAccessManager *nam) {
-    // Write image data to QBuffer
-    QByteArray *imgData = new QByteArray(img.byteCount(), Qt::Uninitialized);
-    QBuffer *buffer = new QBuffer(imgData);
-    buffer->open(QIODevice::WriteOnly);
-    img.save(buffer, "PNG");
-    buffer->close();
-    buffer->open(QIODevice::ReadOnly);
-
+QNetworkReply *Utils::uploadImageFromBuffer(QBuffer *buffer, const QString &csrfToken, const QString &originURL, QNetworkAccessManager *nam)
+{
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     QHttpPart textPart;
@@ -174,13 +168,23 @@ Utils::UploadData Utils::uploadImage(const QImage &img, const QString& csrfToken
     request.setRawHeader("Origin", originURL.toUtf8());
     request.setRawHeader("Referer", originURL.toUtf8());
 
-    if (!nam) {
-        // Delete our created NAM when the reply is deleted
-        nam = new QNetworkAccessManager(multiPart);
-    }
-
     QNetworkReply *reply = nam->post(request, multiPart);
     multiPart->setParent(reply); // Delete the QHttpMultiPart with the reply
+
+    return reply;
+}
+
+
+Utils::UploadData Utils::uploadImage(const QImage &img, const QString& csrfToken, const QString& originURL, QNetworkAccessManager *nam) {
+    // Write image data to QBuffer
+    QByteArray *imgData = new QByteArray(img.byteCount(), Qt::Uninitialized);
+    QBuffer *buffer = new QBuffer(imgData);
+    buffer->open(QIODevice::WriteOnly);
+    img.save(buffer, "PNG");
+    buffer->close();
+    buffer->open(QIODevice::ReadOnly);
+
+    QNetworkReply *reply = uploadImageFromBuffer(buffer, csrfToken, originURL, nam);
 
     Utils::UploadData data(reply, imgData);
     return data;
