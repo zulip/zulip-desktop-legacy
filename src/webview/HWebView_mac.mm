@@ -261,7 +261,10 @@ public:
             // NSApplication.h:44 #define NSAppKitVersionNumber10_8 1187
             if (NSAppKitVersionNumber < 1187) {
                 qDebug() << "Uploading via QHttpMimeData";
-                [self uploadImageWithQt];
+                const bool isImage = [self uploadImageWithQt];
+                if (!isImage) {
+                    [self paste:self];
+                }
             } else {
                 qDebug() << "Uploading via WebKit";
 
@@ -302,55 +305,59 @@ public:
     return NO;
 }
 
-- (void)uploadImageWithQt
+- (bool)uploadImageWithQt
 {
     NSData *pngImage = [self pngInPasteboard];
-    if (pngImage) {
-        // We need to get a QBuffer that contains the image data
-        // QBuffers are wrappers around a QByteArray, so take our
-        // image from the NSData* and stick it in a QByteArray
-        QByteArray *data = new QByteArray;
-        data->resize([pngImage length]);
-        [pngImage getBytes:data->data() length:[pngImage length]];
-        QBuffer *buffer = new QBuffer(data, 0);
-        buffer->open(QIODevice::ReadOnly);
-
-        // Get CSRF token and Session ID
-        ZulipWebDelegate *delegate = (ZulipWebDelegate *)[self frameLoadDelegate];
-        NSArray *cookieList = [delegate.cookieStorage cookiesForURL:fromQUrl(delegate.q->originalURL)];
-        QString csrfToken, sessionID;
-        for (NSHTTPCookie *cookie in cookieList) {
-            if ([[cookie name] isEqualToString:@"csrftoken"]) {
-                csrfToken = toQString([cookie value]);
-            } else if ([[cookie name] isEqualToString:@"sessionid"]) {
-                sessionID = toQString([cookie value]);
-            }
-        }
-
-        // Populate a QNAM with the csrftoken and sessionid cookies
-        QNetworkAccessManager *nam = new QNetworkAccessManager;
-
-        const QString qUrlString = delegate.q->originalURL.toString();
-        QNetworkCookieJar *jar = nam->cookieJar();
-        QNetworkCookie csrfCookie("csrftoken", csrfToken.toUtf8());
-        jar->setCookiesFromUrl(QList<QNetworkCookie>() << QNetworkCookie("csrftoken", csrfToken.toUtf8())
-                                                       << QNetworkCookie("sessionid", sessionID.toUtf8()),
-                               QUrl(qUrlString));
-
-        // Begin the image upload
-        QNetworkReply *imageUpload = Utils::uploadImageFromBuffer(buffer, csrfToken, qUrlString, nam);
-
-        // Delete our created NAM when the reply is deleted
-        QObject::connect(imageUpload, SIGNAL(destroyed(QObject*)), nam, SLOT(deleteLater()));
-
-        QObject::connect(imageUpload, SIGNAL(finished()), delegate.q, SLOT(imageUploadFinished()));
-        QObject::connect(imageUpload, SIGNAL(uploadProgress(qint64,qint64)), delegate.q, SLOT(imageUploadProgress(qint64, qint64)));
-        QObject::connect(imageUpload, SIGNAL(error(QNetworkReply::NetworkError)), delegate.q, SLOT(imageUploadError(QNetworkReply::NetworkError)));
-
-        s_imageUploadPayloads()->insert(imageUpload, data);
-
-        [self stringByEvaluatingJavaScriptFromString:@"compose.uploadStarted()"];
+    if (!pngImage) {
+        return false;
     }
+
+    // We need to get a QBuffer that contains the image data
+    // QBuffers are wrappers around a QByteArray, so take our
+    // image from the NSData* and stick it in a QByteArray
+    QByteArray *data = new QByteArray;
+    data->resize([pngImage length]);
+    [pngImage getBytes:data->data() length:[pngImage length]];
+    QBuffer *buffer = new QBuffer(data, 0);
+    buffer->open(QIODevice::ReadOnly);
+
+    // Get CSRF token and Session ID
+    ZulipWebDelegate *delegate = (ZulipWebDelegate *)[self frameLoadDelegate];
+    NSArray *cookieList = [delegate.cookieStorage cookiesForURL:fromQUrl(delegate.q->originalURL)];
+    QString csrfToken, sessionID;
+    for (NSHTTPCookie *cookie in cookieList) {
+        if ([[cookie name] isEqualToString:@"csrftoken"]) {
+            csrfToken = toQString([cookie value]);
+        } else if ([[cookie name] isEqualToString:@"sessionid"]) {
+            sessionID = toQString([cookie value]);
+        }
+    }
+
+    // Populate a QNAM with the csrftoken and sessionid cookies
+    QNetworkAccessManager *nam = new QNetworkAccessManager;
+
+    const QString qUrlString = delegate.q->originalURL.toString();
+    QNetworkCookieJar *jar = nam->cookieJar();
+    QNetworkCookie csrfCookie("csrftoken", csrfToken.toUtf8());
+    jar->setCookiesFromUrl(QList<QNetworkCookie>() << QNetworkCookie("csrftoken", csrfToken.toUtf8())
+                           << QNetworkCookie("sessionid", sessionID.toUtf8()),
+                           QUrl(qUrlString));
+
+    // Begin the image upload
+    QNetworkReply *imageUpload = Utils::uploadImageFromBuffer(buffer, csrfToken, qUrlString, nam);
+
+    // Delete our created NAM when the reply is deleted
+    QObject::connect(imageUpload, SIGNAL(destroyed(QObject*)), nam, SLOT(deleteLater()));
+
+    QObject::connect(imageUpload, SIGNAL(finished()), delegate.q, SLOT(imageUploadFinished()));
+    QObject::connect(imageUpload, SIGNAL(uploadProgress(qint64,qint64)), delegate.q, SLOT(imageUploadProgress(qint64, qint64)));
+    QObject::connect(imageUpload, SIGNAL(error(QNetworkReply::NetworkError)), delegate.q, SLOT(imageUploadError(QNetworkReply::NetworkError)));
+
+    s_imageUploadPayloads()->insert(imageUpload, data);
+
+    [self stringByEvaluatingJavaScriptFromString:@"compose.uploadStarted()"];
+
+    return true;
 }
 
 - (NSData *)pngInPasteboard
