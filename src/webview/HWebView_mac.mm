@@ -695,6 +695,9 @@ public:
 - (NSString *)cookiesFilePath
 {
     QDir data_dir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    if (!data_dir.exists()) {
+        data_dir.mkpath(".");
+    }
     return fromQString(data_dir.absoluteFilePath("Zulip_Cookies.dat"));
 }
 
