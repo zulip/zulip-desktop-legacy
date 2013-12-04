@@ -112,6 +112,11 @@ PlatformInterface::PlatformInterface(QObject *parent)
 
     [GrowlApplicationBridge setGrowlDelegate:[[ZGrowlDelegate alloc] init]];
 
+    // Check for updates on each startup
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^(void){
+        [[SUUpdater sharedUpdater] checkForUpdatesInBackground];
+    });
+
     // Ugh
     // So Qt sets an event handler for kAEReopenApplication (which it does nothing with) during
     // QApplication::exec, which overrides our setting of the event handler here
