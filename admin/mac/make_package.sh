@@ -23,6 +23,7 @@ git clone git@git.zulip.net:eng/zulip-desktop.git
 pushd zulip-desktop
 mkdir build
 cd build
+export MACOSX_DEPLOYMENT_TARGET=10.6
 cmake -DCMAKE_BUILD_TYPE=Release "$SSO_CMD"  ..
 make -j3
 ../admin/mac/build-release-osx.sh "$@"
