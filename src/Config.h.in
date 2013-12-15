@@ -17,6 +17,9 @@
 #cmakedefine LINUX
 #cmakedefine WINDOWS
 
+#cmakedefine QT5_BUILD
+#cmakedefine QT4_BUILD
+
 #cmakedefine HAVE_THUMBBUTTON
 
 #endif

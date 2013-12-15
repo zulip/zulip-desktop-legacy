@@ -20,6 +20,7 @@ set( zulip_UIS
 
 set( zulip_RESOURCES resources.qrc )
 
+set( QT5_MODULES Widgets Network Svg )
 if (APPLE)
     set(EXTRA_SRCS ../thirdparty/qocoa/qbutton_mac.mm
                    ../thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.mm
@@ -40,13 +41,16 @@ if (APPLE)
     # Don't ARC PlatformInterface.m since otherwise we can't cast QWidget::winID
     set(EXTRA_SRCS ${EXTRA_SRCS} mac/PlatformInterface.mm)
 
-    qt4_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h PlatformInterface.h)
+    qt_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h PlatformInterface.h)
     set(EXTRA_SRCS ${MAC_EXTRA_MOCS} ${EXTRA_SRCS})
+
+  set( QT5_MODULES ${QT5_MODULES} MacExtras )
 else()
+  set( QT5_MODULES ${QT5_MODULES} WebKitWidgets )
     set(EXTRA_SRCS ../thirdparty/qocoa/qbutton_nonmac.cpp webview/HWebView.cpp)
 endif()
 
-qt4_wrap_cpp(EXTRA_MOCS ../thirdparty/qocoa/qbutton.h)
+qt_wrap_cpp(EXTRA_MOCS ../thirdparty/qocoa/qbutton.h)
 
 if (WIN32)
   set( CMAKE_BUILD_TYPE "Release" )
@@ -84,8 +88,10 @@ if (WIN32)
 
   kde4_add_app_icon( zulip_SRCS "${CMAKE_SOURCE_DIR}/admin/icon/zulip-icon-*.png" )
 
-  qt4_wrap_cpp(WIN_EXTRA_MOCS PlatformInterface.h)
+  qt_wrap_cpp(WIN_EXTRA_MOCS PlatformInterface.h)
   set(EXTRA_SRCS ${WIN_EXTRA_MOCS} ${EXTRA_SRCS})
+
+  set( QT5_MODULES ${QT5_MODULES} WinExtras )
 endif()
 
 if (NOT WIN32 AND NOT APPLE)
@@ -104,8 +110,8 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-qt4_add_resources( zulip_RESOURCES_RCC ${zulip_RESOURCES})
-qt4_wrap_ui( zulip_UI_H ${zulip_UIS} )
+qt_add_resources( zulip_RESOURCES_RCC ${zulip_RESOURCES})
+qt_wrap_ui( zulip_UI_H ${zulip_UIS} )
 
 add_executable( zulip WIN32 MACOSX_BUNDLE ${zulip_SRCS} ${EXTRA_SRCS} ${EXTRA_MOCS} ${zulip_RESOURCES_RCC} ${zulip_UI_H} )
 set_target_properties( zulip
@@ -115,6 +121,11 @@ set_target_properties( zulip
 )
 
 install(TARGETS zulip DESTINATION bin)
+
+if(QT5_BUILD)
+  add_definitions( -DQT_DISABLE_DEPRECATED_BEFORE=0 )
+  qt5_use_modules(zulip ${QT5_MODULES})
+endif()
 
 # Platform specifics
 if (APPLE)

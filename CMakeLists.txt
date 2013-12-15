@@ -19,6 +19,9 @@ add_definitions( "-DQT_STRICT_ITERATORS" )
 # make predefined install dirs available everywhere
 include( GNUInstallDirs )
 
+# Allow building with Qt5
+option(BUILD_WITH_QT5 "Try to find Qt5 and build with it" OFF)
+
 if (APPLE)
     set(QT_USE_QTWEBKIT FALSE)
     set(QT_COMPONENTS QtCore QtGui QtNetwork QtSvg QtXml)
@@ -31,8 +34,49 @@ endif()
 INCLUDE( ZulipCPack.cmake )
 
 # Dependencies
-find_program(QT_QMAKE_EXECUTABLE NAMES qmake4 qmake-qt4 qmake qmake-mac)
-find_package( Qt4 COMPONENTS ${QT_COMPONENTS} REQUIRED )
+
+if(BUILD_WITH_QT5)
+    find_package(Qt5Core QUIET)
+    if( Qt5Core_DIR )
+        find_package(Qt5Widgets QUIET)
+        find_package(Qt5Network QUIET)
+        message(STATUS "Building against Qt5")
+
+        macro(qt_wrap_cpp)
+            qt5_wrap_cpp(${ARGN})
+        endmacro()
+        macro(qt_wrap_ui)
+            qt5_wrap_ui(${ARGN})
+        endmacro()
+        macro(qt_add_resources)
+            qt5_add_resources(${ARGN})
+        endmacro()
+
+        include_directories(${Qt5Core_INCLUDES})
+        include_directories(${Qt5Widgets_INCLUDES})
+        add_definitions(${Qt5Widgets_DEFINITIONS})
+
+        set(QT5_BUILD ON)
+    endif()
+else()
+    find_program(QT_QMAKE_EXECUTABLE NAMES qmake4 qmake-qt4 qmake qmake-mac)
+    find_package( Qt4 COMPONENTS ${QT_COMPONENTS} REQUIRED )
+
+    macro(qt_wrap_cpp)
+        qt4_wrap_cpp(${ARGN})
+    endmacro()
+    macro(qt_wrap_ui)
+        qt4_wrap_ui(${ARGN})
+    endmacro()
+    macro(qt_add_resources)
+        qt4_add_resources(${ARGN})
+    endmacro()
+
+    include( ${QT_USE_FILE} )
+    add_definitions( ${QT_DEFINITIONS} )
+
+    set(QT4_BUILD ON)
+endif()
 
 if(NOT APPLE AND NOT WIN32)
     find_package( Phonon 4.6.0 REQUIRED )
@@ -42,8 +86,6 @@ find_package( QJSON REQUIRED )
 
 # Configure Qt
 set( QT_USE_QTNETWORK TRUE )
-include( ${QT_USE_FILE} )
-add_definitions( ${QT_DEFINITIONS} )
 
 # Output directories
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" )
