@@ -26,11 +26,11 @@ THE SOFTWARE.
 #include <QVBoxLayout>
 #include <QMacCocoaViewContainer>
 
-#if QT5_BUILD
+#include "Config.h"
+
+#ifdef QT5_BUILD
 #include <QtMac>
 #endif
-
-#include "Config.h"
 
 static inline NSString* fromQString(const QString &string)
 {

@@ -26,6 +26,12 @@
 #import "WebKit/WebKit.h"
 #import "AppKit/NSSearchField.h"
 
+#if defined(QT5_BUILD)
+#include <QJsonDocument>
+#elif defined(QT4_BUILD)
+#include "qjsondocument.h"
+#endif
+
 #define KEYCODE_A 0
 #define KEYCODE_X 7
 #define KEYCODE_C 8
@@ -177,13 +183,12 @@ public slots:
             delete s_imageUploadPayloads()->take(reply);
         }
 
-        QJson::Parser p;
-        bool ok;
-        QByteArray payload = reply->readAll();
-        QVariant data = p.parse(payload, &ok);
+        const QByteArray data = reply->readAll();
+        QJsonParseError error;
+        QJsonDocument doc = QJsonDocument::fromJson(data, &error);
 
-        if (reply->error() == QNetworkReply::NoError && ok) {
-            QVariantMap result = data.toMap();
+        if (reply->error() == QNetworkReply::NoError && error.error == QJsonParseError::NoError) {
+            QVariantMap result = doc.toVariant().toMap();
             const QString imageLink = result.value("uri", QString()).toString();
 
             [webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"compose.uploadFinished(0, undefined, {\"uri\": \"%@\"}, undefined);", fromQString(imageLink)]];

@@ -1,8 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <qjson/parser.h>
-
 #include <QStringList>
 #include <QHash>
 #include <QMetaObject>

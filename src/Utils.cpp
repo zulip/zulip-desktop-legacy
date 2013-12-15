@@ -1,9 +1,17 @@
 #include "Utils.h"
 
+#include "Config.h"
+
 #include <QBuffer>
 #include <QImage>
 #include <QHttpMultiPart>
 #include <QNetworkCookieJar>
+
+#if defined(QT5_BUILD)
+#include <QJsonDocument>
+#elif defined(QT4_BUILD)
+#include "qjsondocument.h"
+#endif
 
 // Object to stick around with a waiting slot for the network request to finish
 // TODO port ugly synchronous event loop code above to use this
@@ -113,8 +121,9 @@ QString Utils::baseUrlForEmail(QNetworkAccessManager *nam, const QString& email,
     }
 
     *requestSuccessful = true;
-    QJson::Parser p;
-    QVariantMap result = p.parse(reply).toMap();
+
+    QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+    QVariantMap result = doc.toVariant().toMap();
 
     result = result.value("result", QVariantMap()).toMap();
     QString domain = result.value("base_site_url", QString()).toString();

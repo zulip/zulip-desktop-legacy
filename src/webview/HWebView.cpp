@@ -20,6 +20,8 @@
 #include <QMenu>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
+#include <QNetworkCookie>
+#include <QMimeData>
 #include <QWebView>
 #include <QWebPage>
 #include <QWebFrame>
@@ -27,7 +29,12 @@
 #include <QVBoxLayout>
 #include <QKeyEvent>
 
-#include <qjson/parser.h>
+
+#if defined(QT5_BUILD)
+#include <QJsonDocument>
+#elif defined(QT4_BUILD)
+#include "qjsondocument.h"
+#endif
 
 // QWebkit, WHY DO YOU MAKE ME DO THIS
 typedef QHash<QNetworkReply *, QByteArray *> PayloadHash;
@@ -92,12 +99,11 @@ private slots:
 
         qDebug() << "Image Upload Finished!!";
 
-        QJson::Parser p;
-        bool ok;
-        QVariant data = p.parse(reply, &ok);
+        QJsonParseError error;
+        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &error);
 
-        if (ok) {
-            QVariantMap result = data.toMap();
+        if (error.error == QJsonParseError::NoError) {
+            QVariantMap result = doc.toVariant().toMap();
             const QString imageLink = result.value("uri", QString()).toString();
 
             m_webView->page()->mainFrame()->evaluateJavaScript(QString("compose.uploadFinished(0, undefined, {\"uri\": \"%1\"}, undefined);")

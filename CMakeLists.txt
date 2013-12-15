@@ -82,8 +82,6 @@ if(NOT APPLE AND NOT WIN32)
     find_package( Phonon 4.6.0 REQUIRED )
 endif()
 
-find_package( QJSON REQUIRED )
-
 # Configure Qt
 set( QT_USE_QTNETWORK TRUE )
 

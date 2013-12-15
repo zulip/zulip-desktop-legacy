@@ -101,15 +101,6 @@ if (NOT WIN32 AND NOT APPLE)
     set(EXTRA_LIBS ${EXTRA_LIBS} ${PHONON_LIBS})
 endif()
 
-include_directories(
-    .
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/thirdparty/qtsparkle/src
-    ${QT_INCLUDES}
-    ${QJSON_INCLUDE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-)
-
 qt_add_resources( zulip_RESOURCES_RCC ${zulip_RESOURCES})
 qt_wrap_ui( zulip_UI_H ${zulip_UIS} )
 
@@ -125,7 +116,19 @@ install(TARGETS zulip DESTINATION bin)
 if(QT5_BUILD)
   add_definitions( -DQT_DISABLE_DEPRECATED_BEFORE=0 )
   qt5_use_modules(zulip ${QT5_MODULES})
+else()
+  set( EXTRA_LIBS ${EXTRA_LIBS} json)
+  set( EXTRA_INCLUDES ${EXTRA_INCLUDES} ${CMAKE_SOURCE_DIR}/thirdparty/json)
 endif()
+
+include_directories(
+    .
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/thirdparty/qtsparkle/src
+    ${EXTRA_INCLUDES}
+    ${QT_INCLUDES}
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 # Platform specifics
 if (APPLE)
@@ -218,7 +221,6 @@ if (LINUX)
 
 target_link_libraries( zulip
     ${QT_LIBRARIES}
-    ${QJSON_LIBRARIES}
     ${EXTRA_LIBS}
 )
 

@@ -1,3 +1,6 @@
 if (WIN32)
     add_subdirectory( qtsparkle/src )
 endif()
+if (QT4_BUILD)
+    add_subdirectory(json)
+endif()
