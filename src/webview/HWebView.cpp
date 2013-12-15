@@ -117,6 +117,9 @@ private slots:
 
     void imageUploadProgress(qint64 bytesSent ,qint64 bytesTotal) {
         // Trigger progress bar change
+        if (bytesTotal < 1) {
+            return;
+        }
         int percent = (bytesSent * 100 / bytesTotal);
         m_webView->page()->mainFrame()->evaluateJavaScript(QString("compose.progressUpdated(0, undefined, \"%1\");").arg(percent));
 
