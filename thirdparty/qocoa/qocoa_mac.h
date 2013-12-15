@@ -21,9 +21,16 @@ THE SOFTWARE.
 */
 
 #include <Foundation/NSString.h>
+#include <AppKit/NSImage.h>
 #include <QString>
 #include <QVBoxLayout>
 #include <QMacCocoaViewContainer>
+
+#if QT5_BUILD
+#include <QtMac>
+#endif
+
+#include "Config.h"
 
 static inline NSString* fromQString(const QString &string)
 {
@@ -41,7 +48,11 @@ static inline QString toQString(NSString *string)
 
 static inline NSImage* fromQPixmap(const QPixmap &pixmap)
 {
+#if defined(QT4_BUILD)
     CGImageRef cgImage = pixmap.toMacCGImageRef();
+#elif defined(QT5_BUILD)
+    CGImageRef cgImage = QtMac::toCGImageRef(pixmap);
+#endif
     return [[NSImage alloc] initWithCGImage:cgImage size:NSZeroSize];
 }
 
@@ -50,5 +61,13 @@ static inline void setupLayout(void *cocoaView, QWidget *parent)
     parent->setAttribute(Qt::WA_NativeWindow);
     QVBoxLayout *layout = new QVBoxLayout(parent);
     layout->setMargin(0);
-    layout->addWidget(new QMacCocoaViewContainer(cocoaView, parent));
+
+#if defined(QT4_BUILD)
+    QMacCocoaViewContainer *container = new QMacCocoaViewContainer(cocoaView, parent);
+#elif defined(QT5_BUILD)
+    NSView *view = (__bridge NSView*)cocoaView;
+    QMacCocoaViewContainer *container = new QMacCocoaViewContainer(view, parent);
+#endif
+
+    layout->addWidget(container);
 }

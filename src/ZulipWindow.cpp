@@ -42,7 +42,12 @@ ZulipWindow::ZulipWindow(QWidget *parent) :
 {
     m_ui->setupUi(this);
 
+#if defined(QT4_BUILD)
     QDir data_dir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+#elif defined(QT5_BUILD)
+    QDir data_dir = QStandardPaths::standardLocations(QStandardPaths::DataLocation).first();
+#endif
+
     // Create the directory if it doesn't already exist
     data_dir.mkdir(data_dir.absolutePath());
 

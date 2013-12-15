@@ -3,8 +3,7 @@
 
 #include "Converters.h"
 
-#include <Foundation/NSString.h>
-#include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/Foundation.h>
 
 #include <QUrl>
 

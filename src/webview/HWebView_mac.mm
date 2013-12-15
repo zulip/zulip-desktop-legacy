@@ -22,9 +22,7 @@
 
 #import "thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.h"
 
-#import "Foundation/NSNotification.h"
 #import "AppKit/NSApplication.h"
-#import "Foundation/Foundation.h"
 #import "WebKit/WebKit.h"
 #import "AppKit/NSSearchField.h"
 

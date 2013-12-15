@@ -1,5 +1,7 @@
 #include "Logger.h"
 
+#include "Config.h"
+
 #include <QtGlobal>
 #include <QCoreApplication>
 #include <QDesktopServices>
@@ -41,6 +43,12 @@ void logHandler(QtMsgType type, const char *msg) {
     cout << QTime::currentTime().toString().toUtf8().data() << "\t" << msg << endl << flush;
 }
 
+#ifdef QT5_BUILD
+void qt5LogHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    logHandler(type, msg.toUtf8());
+}
+#endif
 
 QDir
 loggingDirectory()
@@ -62,7 +70,12 @@ void setupLogging() {
     logfile.open( filePath.toLocal8Bit(), ios::app );
 
     cout.flush();
+
+#if defined(QT4_BUILD)
     qInstallMsgHandler( logHandler );
+#elif defined(QT5_BUILD)
+    qInstallMessageHandler( qt5LogHandler );
+#endif
 }
 
 }

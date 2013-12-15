@@ -5,6 +5,10 @@
 #include <QSettings>
 #include <QWeakPointer>
 
+#ifdef Q_OS_MAC
+#include <Carbon/Carbon.h>
+#endif
+
 #define APP static_cast<ZulipApplication*>(qApp)
 
 class ZulipWindow;

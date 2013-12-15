@@ -9,6 +9,7 @@
 #include <QDesktopWidget>
 
 #import "Foundation/Foundation.h"
+#import "AppKit/AppKit.h"
 
 static inline NSPoint flipPoint(const NSPoint& loc) {
     return NSMakePoint(loc.x, QApplication::desktop()->screenGeometry(0).height() - loc.y);

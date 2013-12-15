@@ -30,10 +30,11 @@
 
 #include "cookiejar.h"
 
-#include <QDateTime>
+#include <QtCore/QDateTime>
 #include <QSettings>
 #include <QTimer>
 #include <QDebug>
+#include <QNetworkCookie>
 
 #define COOKIE_JAR_VERSION      1
 
