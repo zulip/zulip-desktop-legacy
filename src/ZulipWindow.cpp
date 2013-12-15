@@ -11,9 +11,7 @@
 #include <QDir>
 #include <QMenuBar>
 #include <QSystemTrayIcon>
-#include <QWebFrame>
 #include <QCloseEvent>
-#include <QWebSettings>
 #include <QNetworkAccessManager>
 #include <QDesktopServices>
 #include <QSystemTrayIcon>

@@ -2,7 +2,6 @@
 #define ZULIPWEBBRIDGE_H
 
 #include <QObject>
-#include <QWebView>
 #include <QVariant>
 
 class ZulipWebBridge : public QObject
