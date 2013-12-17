@@ -7,27 +7,51 @@
 #include <QResource>
 #include <QSystemTrayIcon>
 
+#if defined(QT4_BUILD)
 #include <phonon/MediaObject>
 #include <phonon/MediaSource>
 #include <phonon/AudioOutput>
+#elif defined(QT5_BUILD)
+#include <QMediaPlayer>
+#endif
 
 class PlatformInterfacePrivate {
 public:
     PlatformInterfacePrivate(PlatformInterface * qq) : q(qq) {
-
-        bellsound = new Phonon::MediaObject(q);
-        Phonon::createPath(bellsound, new Phonon::AudioOutput(Phonon::MusicCategory, q));
-
         sound_temp.open();
         QResource memory_soundfile(":/audio/zulip.ogg");
         sound_temp.write((char*) memory_soundfile.data(), memory_soundfile.size());
         sound_temp.flush();
         sound_temp.close();
 
+#if defined(QT4_BUILD)
+        bellsound = new Phonon::MediaObject(q);
+        Phonon::createPath(bellsound, new Phonon::AudioOutput(Phonon::MusicCategory, q));
+
         bellsound->setCurrentSource(Phonon::MediaSource(sound_temp.fileName()));
+#elif defined(QT5_BUILD)
+        player = new QMediaPlayer;
+        player->setMedia(QUrl::fromLocalFile(sound_temp.fileName()));
+        player->setVolume(100);
+#endif
+
+    }
+
+#if defined(QT4_BUILD)
+    void play() {
+        bellsound->play();
     }
 
     Phonon::MediaObject *bellsound;
+#elif defined(QT5_BUILD)
+    void play() {
+        qDebug() << "TRYING TO PLAY!";
+        player->play();
+        qDebug() << player->error() << player->errorString() << player->state();
+    }
+
+    QMediaPlayer *player;
+#endif
     QTemporaryFile sound_temp;
 
     PlatformInterface *q;
@@ -60,9 +84,9 @@ void PlatformInterface::setStartAtLogin(bool start) {
 }
 
 void PlatformInterface::unreadCountUpdated(int, int) {
-  
+
 }
 
 void PlatformInterface::playSound() {
-    m_d->bellsound->play();
+    m_d->play();
 }

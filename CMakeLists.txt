@@ -78,7 +78,7 @@ else()
     set(QT4_BUILD ON)
 endif()
 
-if(NOT APPLE AND NOT WIN32)
+if(QT4_BUILD AND NOT APPLE AND NOT WIN32)
     find_package( Phonon 4.6.0 REQUIRED )
 endif()
 

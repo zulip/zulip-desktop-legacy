@@ -21,6 +21,7 @@ set( zulip_UIS
 set( zulip_RESOURCES resources.qrc )
 
 set( QT5_MODULES Widgets Network Svg )
+
 if (APPLE)
     set(EXTRA_SRCS ../thirdparty/qocoa/qbutton_mac.mm
                    ../thirdparty/BSHTTPCookieStorage/BSHTTPCookieStorage.mm
@@ -97,8 +98,12 @@ endif()
 if (NOT WIN32 AND NOT APPLE)
     set(EXTRA_SRCS ${EXTRA_SRCS} PlatformInterface.cpp)
 
-    include_directories(${PHONON_INCLUDES} ${CMAKE_SOURCE_DIR}/..)
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${PHONON_LIBS})
+    if (QT4_BUILD)
+      include_directories(${PHONON_INCLUDES} ${CMAKE_SOURCE_DIR}/..)
+      set(EXTRA_LIBS ${EXTRA_LIBS} ${PHONON_LIBS})
+    else()
+      set( QT5_MODULES ${QT5_MODULES} Multimedia )
+    endif()
 endif()
 
 qt_add_resources( zulip_RESOURCES_RCC ${zulip_RESOURCES})
