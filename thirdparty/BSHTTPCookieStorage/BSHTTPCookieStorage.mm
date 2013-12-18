@@ -324,15 +324,15 @@
     for (NSString *domain in cookies) {
         NSDictionary *domainCookies = [cookies objectForKey:domain];
         NSMutableDictionary *outDomainCookies = [[NSMutableDictionary alloc] init];
-        outCookies[domain] = outDomainCookies;
+        [outCookies setObject:outDomainCookies forKey:domain];
         for (NSString *path in domainCookies) {
             NSDictionary *pathCookies = [domainCookies objectForKey:path];
             NSMutableDictionary *outPathCookies = [[NSMutableDictionary alloc] init];
-            outDomainCookies[path] = outPathCookies;
+            [outDomainCookies setObject:outPathCookies forKey:path];
             for (NSString *cookieName in pathCookies) {
                 NSHTTPCookie *cookie = [pathCookies objectForKey:cookieName];
                 if (![cookie isSessionOnly]) {
-                    outPathCookies[cookieName] = cookie;
+                    [outPathCookies setObject:cookie forKey:cookieName];
                 }
             }
         }
