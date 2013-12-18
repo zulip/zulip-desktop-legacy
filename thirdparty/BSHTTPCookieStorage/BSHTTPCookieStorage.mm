@@ -317,15 +317,38 @@
     return self;
 }
 
+- (NSDictionary *)removeSessionCookies:(NSDictionary *)cookies {
+    NSMutableDictionary *outCookies = [[NSMutableDictionary alloc] init];
+
+    // ugh, so many nested dicts
+    for (NSString *domain in cookies) {
+        NSDictionary *domainCookies = [cookies objectForKey:domain];
+        NSMutableDictionary *outDomainCookies = [[NSMutableDictionary alloc] init];
+        outCookies[domain] = outDomainCookies;
+        for (NSString *path in domainCookies) {
+            NSDictionary *pathCookies = [domainCookies objectForKey:path];
+            NSMutableDictionary *outPathCookies = [[NSMutableDictionary alloc] init];
+            outDomainCookies[path] = outPathCookies;
+            for (NSString *cookieName in pathCookies) {
+                NSHTTPCookie *cookie = [pathCookies objectForKey:cookieName];
+                if (![cookie isSessionOnly]) {
+                    outPathCookies[cookieName] = cookie;
+                }
+            }
+        }
+    }
+    return outCookies;
+}
 
 -(void)encodeWithCoder:(NSCoder *)aCoder
 {
+    // Only save non-session cookies
     if (_domainGlobalCookies) {
-        [aCoder encodeObject:_domainGlobalCookies forKey:@"domainGlobalCookies"];
+        [aCoder encodeObject:[self removeSessionCookies:_domainGlobalCookies] forKey:@"domainGlobalCookies"];
     }
 
     if (_subdomainCookies) {
-        [aCoder encodeObject:_subdomainCookies forKey:@"subdomainCookies"];
+        [aCoder encodeObject:[self removeSessionCookies:_subdomainCookies] forKey:@"subdomainCookies"];
     }
 }
 
