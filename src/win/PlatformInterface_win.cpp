@@ -183,4 +183,9 @@ QString PlatformInterface::platformWithVersion() {
     return "Windows " + QString::fromUtf8(ZULIP_VERSION_STRING);
 }
 
+QString PlatformInterface::userAgentString() {
+    return QString("ZulipDesktop/%1 (Windows)").arg(QString::fromUtf8(ZULIP_VERSION_STRING));
+}
+
+
 #include "PlatformInterface_win.moc"

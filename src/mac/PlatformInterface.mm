@@ -176,5 +176,8 @@ QString PlatformInterface::platformWithVersion() {
     return "Mac " + QString::fromUtf8(ZULIP_VERSION_STRING);
 }
 
+QString PlatformInterface::userAgentString() {
+    return QString("ZulipDesktop/%1 (Mac)").arg(QString::fromUtf8(ZULIP_VERSION_STRING));
+}
 
 #include "PlatformInterface.moc"

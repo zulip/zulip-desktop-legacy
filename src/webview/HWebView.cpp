@@ -164,6 +164,10 @@ protected:
     void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID ) {
         qDebug() << "WebKit Console Message" << message << "Line" << lineNumber << "sourceID" << sourceID;
     }
+
+    QString userAgentForUrl ( const QUrl & url ) const {
+        return PlatformInterface::userAgentString();
+    }
 };
 
 class ZulipNAM : public QNetworkAccessManager

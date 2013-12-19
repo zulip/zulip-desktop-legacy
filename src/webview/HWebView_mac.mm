@@ -546,6 +546,7 @@ public:
 
     NSMutableURLRequest* modifiedRequest = [request mutableCopy];
     [modifiedRequest setHTTPShouldHandleCookies:NO];
+    [modifiedRequest setValue:fromQString(PlatformInterface::userAgentString()) forHTTPHeaderField:@"User-Agent"];
     [self.cookieStorage handleCookiesInRequest:modifiedRequest];
 
     // Disable automatic redirection for local server until bugs are ironed out

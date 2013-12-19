@@ -21,6 +21,7 @@ public:
 
     void setStartAtLogin(bool start);
 
+    static QString userAgentString();
     static QString platformWithVersion();
 public slots:
     // Noop on linux

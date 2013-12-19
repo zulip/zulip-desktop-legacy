@@ -71,6 +71,10 @@ QString PlatformInterface::platformWithVersion() {
     return "Linux " + QString::fromUtf8(ZULIP_VERSION_STRING);
 }
 
+QString PlatformInterface::userAgentString() {
+    return QString("ZulipDesktop/%1 (Linux)").arg(QString::fromUtf8(ZULIP_VERSION_STRING));
+}
+
 void PlatformInterface::checkForUpdates() {
     // Noop
 }
