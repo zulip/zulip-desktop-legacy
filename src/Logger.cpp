@@ -53,12 +53,12 @@ void qt5LogHandler(QtMsgType type, const QMessageLogContext &context, const QStr
 QDir
 loggingDirectory()
 {
-#ifdef Q_OS_LINUX
-    return QDir::home().filePath( ".local/share/Zulip" );
-#elif defined(Q_OS_WIN)
+#if defined(Q_OS_WIN)
     return QDir(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 #elif defined(Q_OS_MAC)
     return QDir( QDir::homePath() + "/Library/Logs" );
+#else
+    return QDir::home().filePath( ".local/share/Zulip" );
 #endif
 }
 
