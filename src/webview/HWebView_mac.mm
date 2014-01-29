@@ -302,6 +302,8 @@ public:
             else
                 [[self undoManager] undo];
             return YES;
+        } else if (keyCode == 46 /* KEY_M */) {
+            [[NSApp mainWindow] performMiniaturize:nil];
         }
     }
 
