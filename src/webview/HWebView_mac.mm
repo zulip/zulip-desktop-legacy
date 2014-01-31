@@ -304,6 +304,8 @@ public:
             return YES;
         } else if (keyCode == 46 /* KEY_M */) {
             [[NSApp mainWindow] performMiniaturize:nil];
+        } else if (keyCode == 13 /* KEY_W */) {
+            [[NSApp mainWindow] performClose:nil];
         }
     }
 
