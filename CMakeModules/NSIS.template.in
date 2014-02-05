@@ -280,6 +280,9 @@ Section "Zulip" SEC_ZULIP
    ; File "@CPACK_RESOURCE_FILE_LICENSE@"
    ; File /oname=NOTES.txt ${NSI_PATH}\RELEASE_NOTES.txt
 
+   ; Qt4 backport of qt5's Json parsing
+   File "${BUILD_PATH}\libjson.dll"
+
    ;Qt stuff:
    File "${QT_DLL_PATH}\QtCore4.dll"
    File "${QT_DLL_PATH}\QtGui4.dll"
