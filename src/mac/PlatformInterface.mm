@@ -143,11 +143,12 @@ void PlatformInterface::checkForUpdates() {
     [[SUUpdater sharedUpdater] checkForUpdates: NSApp];
 }
 
-void PlatformInterface::desktopNotification(const QString &titleQ, const QString &contentQ) {
-    // Bounce dock icon
-    if (APP->bounceDockIcon()) {
+void PlatformInterface::desktopNotification(const QString &titleQ, const QString &contentQ, const QString &source) {
+    // Bounce dock icon if requested
+    if (shouldBounceFromSource(source)) {
         [NSApp requestUserAttention:NSCriticalRequest];
     }
+
     // Show desktop notification
     NSString *title = fromQString(titleQ);
     NSString *content = fromQString(contentQ);

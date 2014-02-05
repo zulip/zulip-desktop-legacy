@@ -46,7 +46,7 @@ public slots:
     void linkClicked(const QUrl &url);
     void countUpdated(int newCount);
     void pmCountUpdated(int newCount);
-    void displayPopup(const QString& title, const QString& content);
+    void displayPopup(const QString& title, const QString& content, const QString &source);
 
 private slots:
     void domainSelected(const QString& domain);

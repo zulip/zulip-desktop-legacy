@@ -30,11 +30,6 @@ public:
     bool explicitDomain() const;
     void setExplicitDomain(const QString& domain);
 
-#ifdef Q_OS_MAC
-    bool bounceDockIcon() { return m_bounceDockIcon; };
-    void setBounceDockIcon(bool bounce) { m_bounceDockIcon = bounce; }
-#endif
-
     // If we were unable to preflight a request,
     // ask the user to enter their custom server if
     // there is one
@@ -54,7 +49,6 @@ private:
     ZulipWindow* m_mw;
     bool m_debugMode;
     bool m_explicitDomain;
-    bool m_bounceDockIcon;
 
     // Internal
     QWeakPointer<QDialog> m_customServerDialog;

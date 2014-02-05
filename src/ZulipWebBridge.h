@@ -13,7 +13,7 @@ public:
 public slots:
     QVariantMap systemInfo();
 
-    void desktopNotification(const QString &title, const QString &content);
+    void desktopNotification(const QString &title, const QString &content, const QString& source);
     void bell();
     void updateCount(int count);
     void updatePMCount(int count);
@@ -23,7 +23,7 @@ public slots:
 signals:
     void doUpdateCount(int newCount);
     void doUpdatePMCount(int newCount);
-    void doDesktopNotification(const QString& title, const QString& content);
+    void doDesktopNotification(const QString& title, const QString& content, const QString& source);
     void doBell();
 
 };

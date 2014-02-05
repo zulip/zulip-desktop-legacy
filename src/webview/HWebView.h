@@ -32,7 +32,7 @@ signals:
     void linkClicked(const QUrl& url);
 
     // Zulip notifications
-    void desktopNotification(const QString& ,const QString&);
+    void desktopNotification(const QString& ,const QString&, const QString&);
     void updateCount(int);
     void updatePMCount(int);
     void bell();

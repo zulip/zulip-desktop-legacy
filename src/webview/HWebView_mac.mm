@@ -121,7 +121,7 @@ private:
 - (void)updateCount:(int)newCount;
 - (void)updatePMCount:(int)newCount;
 - (void)bell;
-- (void)desktopNotification:(NSString*)title withContent:(NSString*)content;
+- (void)desktopNotification:(NSString*)title withContent:(NSString*)content fromSource:(NSString*)source;
 - (NSString *)desktopAppVersion;
 - (void)log:(NSString *)msg;
 - (void)websocketPreOpen;
@@ -170,8 +170,8 @@ public:
         emit q->bell();
     }
 
-    void desktopNotification(const QString& title, const QString& content) {
-        emit q->desktopNotification(title, content);
+    void desktopNotification(const QString& title, const QString& content, const QString& source) {
+        emit q->desktopNotification(title, content, source);
     }
 
 public slots:
@@ -803,7 +803,7 @@ public:
     if (selector == @selector(updateCount:) ||
         selector == @selector(updatePMCount:) ||
         selector == @selector(bell) ||
-        selector == @selector(desktopNotification:withContent:) ||
+        selector == @selector(desktopNotification:withContent:fromSource:) ||
         selector == @selector(desktopAppVersion) ||
         selector == @selector(log:) ||
         selector == @selector(websocketPreOpen) ||
@@ -823,7 +823,7 @@ public:
         return @"updateCount";
     } else if (sel == @selector(updatePMCount:)) {
         return @"updatePMCount";
-    } else if (sel == @selector(desktopNotification:withContent:)) {
+    } else if (sel == @selector(desktopNotification:withContent:fromSource:)) {
         return @"desktopNotification";
     } else if (sel == @selector(desktopAppVersion)) {
         return @"desktopAppVersion";
@@ -849,8 +849,8 @@ public:
     self.q->bell();
 }
 
-- (void)desktopNotification:(NSString*)title withContent:(NSString*)content {
-    self.q->desktopNotification(toQString(title), toQString(content));
+- (void)desktopNotification:(NSString*)title withContent:(NSString*)content fromSource:(NSString *)source {
+    self.q->desktopNotification(toQString(title), toQString(content), toQString(source));
 }
 
 - (NSString *)desktopAppVersion {

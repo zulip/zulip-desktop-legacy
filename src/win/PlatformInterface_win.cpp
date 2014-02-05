@@ -105,18 +105,20 @@ void PlatformInterface::checkForUpdates() {
         m_d->updater->CheckNow();
 }
 
-void PlatformInterface::desktopNotification(const QString &title, const QString &content) {
+void PlatformInterface::desktopNotification(const QString &title, const QString &content, const QString& source) {
     // On Windows/Linux, let Qt show the (default, crappy) notification message
     // until we have a better one
     APP->mainWindow()->trayIcon()->showMessage(title, content);
 
-    FLASHWINFO finfo;
-    finfo.cbSize = sizeof( FLASHWINFO );
-    finfo.hwnd = APP->mainWindow()->winId();
-    finfo.uCount = 1;         // Flash 40 times
-    finfo.dwTimeout = 400; // Duration in milliseconds between flashes
-    finfo.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG; //Flash all, until window comes to the foreground
-    ::FlashWindowEx( &finfo );
+    if (shouldBounceFromSource(source)) {
+        FLASHWINFO finfo;
+        finfo.cbSize = sizeof( FLASHWINFO );
+        finfo.hwnd = APP->mainWindow()->winId();
+        finfo.uCount = 1;         // Flash 40 times
+        finfo.dwTimeout = 400; // Duration in milliseconds between flashes
+        finfo.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG; //Flash all, until window comes to the foreground
+        ::FlashWindowEx( &finfo );
+    }
 }
 
 void PlatformInterface::unreadCountUpdated(int oldCount, int newCount) {

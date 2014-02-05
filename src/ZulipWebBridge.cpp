@@ -16,9 +16,9 @@ QVariantMap ZulipWebBridge::systemInfo()
     return QVariantMap();
 }
 
-void ZulipWebBridge::desktopNotification(const QString& title, const QString& content)
+void ZulipWebBridge::desktopNotification(const QString& title, const QString& content, const QString &source)
 {
-    emit doDesktopNotification(title, content);
+    emit doDesktopNotification(title, content, source);
 }
 
 void ZulipWebBridge::bell()

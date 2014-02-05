@@ -79,7 +79,7 @@ void PlatformInterface::checkForUpdates() {
     // Noop
 }
 
-void PlatformInterface::desktopNotification(const QString &title, const QString &content) {
+void PlatformInterface::desktopNotification(const QString &title, const QString &content, const QString&) {
     APP->mainWindow()->trayIcon()->showMessage(title, content);
 }
 

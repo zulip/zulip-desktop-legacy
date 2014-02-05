@@ -56,7 +56,7 @@ ZulipWindow::ZulipWindow(QWidget *parent) :
     setupPrefsWindow();
 
     connect(m_ui->webView, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
-    connect(m_ui->webView, SIGNAL(desktopNotification(QString,QString)), this, SLOT(displayPopup(QString,QString)));
+    connect(m_ui->webView, SIGNAL(desktopNotification(QString,QString, QString)), this, SLOT(displayPopup(QString,QString, QString)));
     connect(m_ui->webView, SIGNAL(updateCount(int)), this, SLOT(countUpdated(int)));
     connect(m_ui->webView, SIGNAL(updatePMCount(int)), this, SLOT(pmCountUpdated(int)));
     connect(m_ui->webView, SIGNAL(bell()), m_platform, SLOT(playSound()));
@@ -378,7 +378,7 @@ void ZulipWindow::pmCountUpdated(int newCount)
     }
 }
 
-void ZulipWindow::displayPopup(const QString &title, const QString &content)
+void ZulipWindow::displayPopup(const QString &title, const QString &content, const QString& source)
 {
     // QSystemTrayIcon::showMessage tries to be clever on OS X:
     // If it finds Growl to be installed, it uses AppleScript [!!! >:(]
@@ -388,7 +388,7 @@ void ZulipWindow::displayPopup(const QString &title, const QString &content)
     // Furthermore, if the user has Growl < 1.3 installed, this will display
     // duplicate desktop notifications, as we properly use the Growl framework.
     // So we use Growl on OS X, and showMessage() elsewhere
-    m_platform->desktopNotification(title, content);
+    m_platform->desktopNotification(title, content, source);
 }
 
 void ZulipWindow::domainSelected(const QString &domain) {

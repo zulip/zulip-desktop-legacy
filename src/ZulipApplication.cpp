@@ -17,8 +17,7 @@ ZulipApplication::ZulipApplication(int &argc, char **argv)
     :  QApplication(argc, argv),
       m_mw(0),
       m_debugMode(false),
-      m_explicitDomain(false),
-      m_bounceDockIcon(true)
+      m_explicitDomain(false)
 {
 }
 
