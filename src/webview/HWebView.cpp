@@ -6,6 +6,7 @@
 #include "ZulipApplication.h"
 #include "Utils.h"
 #include "ZulipWindow.h"
+#include "PlatformInterface.h"
 
 #include <QAction>
 #include <QApplication>

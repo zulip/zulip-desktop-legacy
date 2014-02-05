@@ -12,11 +12,15 @@ set( zulip_SRCS
       Logger.cpp
       ZulipApplication.cpp
       Utils.cpp
+      preferences/GeneralPreferences.cpp
+      preferences/NotificationPreferences.cpp
       main.cpp )
 
 set( zulip_UIS
     ZulipWindow.ui
-    ZulipAboutDialog.ui )
+    ZulipAboutDialog.ui
+    preferences/GeneralPreferences.ui
+    preferences/NotificationPreferences.ui )
 
 set( zulip_RESOURCES resources.qrc )
 
@@ -39,8 +43,8 @@ if (APPLE)
 
     CTObjCARCSetEnabled(TRUE SOURCES ${EXTRA_SRCS})
 
-    # Don't ARC PlatformInterface.m since otherwise we can't cast QWidget::winID
-    set(EXTRA_SRCS ${EXTRA_SRCS} mac/PlatformInterface.mm)
+    # Don't ARC PlatformInterface.m or qtoolbartabdialog_mac.mm since otherwise we can't cast QWidget::winID
+    set(EXTRA_SRCS ${EXTRA_SRCS} mac/PlatformInterface.mm ../thirdparty/qocoa/qtoolbartabdialog_mac.mm)
 
     qt_wrap_cpp(MAC_EXTRA_MOCS webview/HWebView.h PlatformInterface.h)
     set(EXTRA_SRCS ${MAC_EXTRA_MOCS} ${EXTRA_SRCS})
@@ -48,10 +52,10 @@ if (APPLE)
   set( QT5_MODULES ${QT5_MODULES} MacExtras )
 else()
   set( QT5_MODULES ${QT5_MODULES} WebKitWidgets )
-    set(EXTRA_SRCS ../thirdparty/qocoa/qbutton_nonmac.cpp webview/HWebView.cpp)
+    set(EXTRA_SRCS ../thirdparty/qocoa/qbutton_nonmac.cpp ../thirdparty/qocoa/qtoolbartabdialog_nonmac.cpp webview/HWebView.cpp)
 endif()
 
-qt_wrap_cpp(EXTRA_MOCS ../thirdparty/qocoa/qbutton.h)
+qt_wrap_cpp(EXTRA_MOCS ../thirdparty/qocoa/qbutton.h ../thirdparty/qocoa/qtoolbartabdialog.h)
 
 if (WIN32)
   set( CMAKE_BUILD_TYPE "Release" )

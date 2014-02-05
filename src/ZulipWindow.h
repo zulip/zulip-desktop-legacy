@@ -19,6 +19,9 @@ class HWebView;
 class QSignalMapper;
 class IconRenderer;
 class PlatformInterface;
+class QToolbarTabDialog;
+class GeneralPreferences;
+class NotificationPreferences;
 
 class ZulipWindow : public QMainWindow
 {
@@ -38,6 +41,7 @@ public slots:
 
     void userQuit();
     void showAbout();
+    void showPrefs();
     void trayClicked();
     void linkClicked(const QUrl &url);
     void countUpdated(int newCount);
@@ -46,15 +50,16 @@ public slots:
 
 private slots:
     void domainSelected(const QString& domain);
-    void setStartAtLogin(bool start);
-    void showSystemTray(bool show);
-    void setBounceDockIcon(bool bounce);
     void reload();
 
     void animateTray();
 
+    void savePreferences();
+    void preferencesLinkClicked(const QString& hashLink);
+
 private:
     void setupTray();
+    void setupPrefsWindow();
 
     void startTrayAnimation(const QList<QIcon>& stages);
     void stopTrayAnimation();
@@ -74,10 +79,9 @@ private:
     // Menu
     QSignalMapper *m_domainMapper;
     QHash<QString, QAction*> m_domains;
-    QAction *m_checkForUpdates;
-    QAction *m_startAtLogin;
-    QAction *m_showSysTray;
-    QAction *m_bounceDock;
+    QWeakPointer <QToolbarTabDialog> m_preferencesDialog;
+    QWeakPointer <GeneralPreferences> m_generalPrefs;
+    QWeakPointer <NotificationPreferences> m_notificationPrefs;
 
     CookieJar *m_cookies;
     QUrl m_start;

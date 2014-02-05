@@ -7,5 +7,7 @@
         <file>audio/zulip.ogg</file>
         <file>audio/zulip.wav</file>
         <file>mac/JSExtras.js</file>
+        <file>images/prefs_general_64x64.png</file>
+        <file>images/prefs_notifications_64x64.png</file>
     </qresource>
 </RCC>

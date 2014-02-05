@@ -1,5 +1,4 @@
-/*
-Copyright (C) 2011 by Mike McQuaid
+/*opyright (C) 2011 by Mike McQuaid
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +25,16 @@ THE SOFTWARE.
 #include "Config.h"
 
 #include <Foundation/NSString.h>
+#include <Foundation/NSGeometry.h>
+#include <AppKit/NSImage.h>
 #include <QString>
 #include <QVBoxLayout>
 #include <QMacCocoaViewContainer>
 #include <QUrl>
+
+#if defined(QT5_BUILD)
+#include <QtMacExtras>
+#endif
 
 static inline NSString* fromQString(const QString &string)
 {
@@ -43,6 +48,16 @@ static inline QString toQString(NSString *string)
     if (!string)
         return QString();
     return QString::fromUtf8([string UTF8String]);
+}
+
+static inline QPixmap toPixmap(NSImage *image) {
+    NSRect r = NSMakeRect(0, 0, 128, 128);
+    CGImageRef ref = [image CGImageForProposedRect:&r context:nil hints: nil];
+#if defined(QT4_BUILD)
+    return QPixmap::fromMacCGImageRef(ref);
+#elif defined(QT5_BUILD)
+    return QtMac::fromCGImageRef(ref);
+#endif
 }
 
 static inline void setupLayout(void *cocoaView, QWidget *parent)

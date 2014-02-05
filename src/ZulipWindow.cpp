@@ -7,6 +7,9 @@
 #include "ui_ZulipWindow.h"
 #include "Config.h"
 #include "PlatformInterface.h"
+#include "preferences/GeneralPreferences.h"
+#include "preferences/NotificationPreferences.h"
+#include "thirdparty/qocoa/qtoolbartabdialog.h"
 
 #include <QDir>
 #include <QMenuBar>
@@ -30,10 +33,6 @@ ZulipWindow::ZulipWindow(QWidget *parent) :
     m_trayTimer(new QTimer(this)),
     m_animationStep(0),
     m_domainMapper(new QSignalMapper(this)),
-    m_checkForUpdates(0),
-    m_startAtLogin(0),
-    m_showSysTray(0),
-    m_bounceDock(0),
     m_unreadCount(0),
     m_unreadPMCount(0),
     m_platform(new PlatformInterface(this))
@@ -54,6 +53,7 @@ ZulipWindow::ZulipWindow(QWidget *parent) :
     statusBar()->hide();
 
     setupTray();
+    setupPrefsWindow();
 
     connect(m_ui->webView, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
     connect(m_ui->webView, SIGNAL(desktopNotification(QString,QString)), this, SLOT(displayPopup(QString,QString)));
@@ -98,10 +98,12 @@ void ZulipWindow::setupTray() {
     about_action->setMenuRole(QAction::AboutRole);
     connect(about_action, SIGNAL(triggered()), this, SLOT(showAbout()));
 
-#ifdef Q_OS_WIN
-    m_startAtLogin = menu->addAction("Start at Login");
-    m_startAtLogin->setCheckable(true);
-    connect(m_startAtLogin, SIGNAL(triggered(bool)), this, SLOT(setStartAtLogin(bool)));
+    QAction *prefs_action = new QAction("Preferences", 0);
+    prefs_action->setMenuRole(QAction::PreferencesRole);
+    connect(prefs_action, SIGNAL(triggered()), this, SLOT(showPrefs()));
+
+#ifndef Q_OS_MAC
+    menu->addAction(prefs_action);
 #endif
 
     if (APP->debugMode()) {
@@ -146,35 +148,32 @@ void ZulipWindow::setupTray() {
     // Similar "check for updates" action, but in a different menu
     QMenu* about_menu = menuBar()->addMenu("Zulip");
     about_menu->addAction(about_action);
+    about_menu->addAction(prefs_action);
 
     QAction* checkForUpdates = about_menu->addAction("Check for Updates...");
     checkForUpdates->setMenuRole(QAction::ApplicationSpecificRole);
     connect(checkForUpdates, SIGNAL(triggered()), m_platform, SLOT(checkForUpdates()));
-
-    QMenu *options_menu = menuBar()->addMenu("Options");
-    m_startAtLogin = options_menu->addAction("Start at Login");
-    m_startAtLogin->setCheckable(true);
-    connect(m_startAtLogin, SIGNAL(triggered(bool)), this, SLOT(setStartAtLogin(bool)));
-
-    m_bounceDock = options_menu->addAction("Bounce Dock Icon");
-    m_bounceDock->setCheckable(true);
-    connect(m_bounceDock, SIGNAL(triggered(bool)), this, SLOT(setBounceDockIcon(bool)));
 #endif
-
-    m_showSysTray = new QAction("Show Tray Icon", this);
-    m_showSysTray->setCheckable(true);
-    connect(m_showSysTray, SIGNAL(triggered(bool)), this, SLOT(showSystemTray(bool)));
 
     QAction *reload = new QAction("Reload", this);
     connect(reload, SIGNAL(triggered(bool)), this, SLOT(reload()));
 
-#if defined(Q_OS_MAC)
-    options_menu->addAction(m_showSysTray);
-    options_menu->addAction(reload);
-#else
-    menu->insertAction(exit_action, m_showSysTray);
     menu->insertAction(exit_action, reload);
-#endif
+}
+
+void ZulipWindow::setupPrefsWindow() {
+    m_preferencesDialog = QWeakPointer<QToolbarTabDialog>(new QToolbarTabDialog());
+
+    m_generalPrefs = QWeakPointer<GeneralPreferences>(new GeneralPreferences());
+    m_preferencesDialog.data()->addTab(m_generalPrefs.data(), QPixmap(":/images/prefs_general_64x64.png"), "General", "General Preferences");
+
+    m_notificationPrefs = QWeakPointer<NotificationPreferences>(new NotificationPreferences());
+    connect(m_notificationPrefs.data(), SIGNAL(linkClicked(QString)), this, SLOT(preferencesLinkClicked(QString)));
+
+    m_preferencesDialog.data()->addTab(m_notificationPrefs.data(), QPixmap(":/images/prefs_notifications_64x64.png"), "Notifications", "Notification Preferences");
+
+    m_preferencesDialog.data()->setCurrentIndex(0);
+    connect(m_preferencesDialog.data(), SIGNAL(accepted()), this, SLOT(savePreferences()));
 }
 
 void ZulipWindow::startTrayAnimation(const QList<QIcon> &stages) {
@@ -238,21 +237,49 @@ void ZulipWindow::readSettings() {
         m_domains[domain]->setChecked(true);
 
     bool startAtLoginSetting = settings.value("LaunchAtLogin", true).toBool();
-    if (m_startAtLogin) {
-        m_startAtLogin->setChecked(startAtLoginSetting);
-    }
     m_platform->setStartAtLogin(startAtLoginSetting);
 
     bool showSysTray = settings.value("ShowSystemTray", true).toBool();
     m_tray->setVisible(showSysTray);
-    m_showSysTray->setChecked(showSysTray);
     APP->setQuitOnLastWindowClosed(!showSysTray);
+}
 
-#ifdef Q_OS_MAC
-    bool bounceDockIcon = settings.value("BounceDockIcon", true).toBool();
-    APP->setBounceDockIcon(bounceDockIcon);
-    m_bounceDock->setChecked(bounceDockIcon);
-#endif
+void ZulipWindow::preferencesLinkClicked(const QString &hashLink) {
+    m_preferencesDialog.data()->hide();
+
+    const QUrl currentUrl = webView()->url();
+
+    if (currentUrl.isEmpty()) {
+        qDebug() << "Unable to get valid current URL for pref hotlink";
+        return;
+    }
+
+    // Build a new URL without any path or hash, to go directly to desired place
+    const QString urlString = currentUrl.scheme() + "://" + currentUrl.host() + "/" + hashLink;
+    const QUrl newUrl(urlString);
+
+    webView()->load(newUrl);
+}
+
+void ZulipWindow::savePreferences() {
+    QSettings s;
+
+    const bool showTrayIcon = m_generalPrefs.data()->showTrayIcon();
+    const bool startAtLogin = m_generalPrefs.data()->startAtLogin();
+
+    m_tray->setVisible(showTrayIcon);
+
+    // Quit when the last window is closed only if there is a tray icon,
+    // otherwise there is no way to get it back!
+    APP->setQuitOnLastWindowClosed(!showTrayIcon);
+
+    m_platform->setStartAtLogin(startAtLogin);
+
+    s.setValue("ShowSystemTray", showTrayIcon);
+    s.setValue("LaunchAtLogin", startAtLogin);
+
+    const NotificationPreferences::BounceSetting bounceSetting = m_notificationPrefs.data()->bounceSetting();
+    s.setValue("BounceDockIcon", bounceSetting);
 }
 
 void ZulipWindow::setUrl(const QUrl &url)
@@ -266,6 +293,24 @@ void ZulipWindow::showAbout()
 {
     ZulipAboutDialog *d = new ZulipAboutDialog(this);
     d->show();
+}
+
+void ZulipWindow::showPrefs()
+{
+    if (m_preferencesDialog.isNull()) {
+        // Still loading?
+        return;
+    }
+    QSettings s;
+
+    m_generalPrefs.data()->setShowTrayIcon(s.value("ShowSystemTray", true).toBool());
+    m_generalPrefs.data()->setStartAtLogin(s.value("LaunchAtLogin", true).toBool());
+
+    // Default bounce setting is PM/@-notifications only
+    m_notificationPrefs.data()->setBounceSetting((NotificationPreferences::BounceSetting)s.value("BounceDockIcon", NotificationPreferences::BounceOnPM).toInt());
+
+    m_preferencesDialog.data()->setCurrentIndex(0);
+    m_preferencesDialog.data()->show();
 }
 
 void ZulipWindow::userQuit()
@@ -361,36 +406,8 @@ void ZulipWindow::domainSelected(const QString &domain) {
     setUrl(site);
 }
 
-void ZulipWindow::setStartAtLogin(bool start) {
-    qDebug () << "Window setting start at login:" << start;
-    m_platform->setStartAtLogin(start);
-
-    QSettings s;
-    s.setValue("LaunchAtLogin", start);
-}
-
-void ZulipWindow::setBounceDockIcon(bool bounce) {
-    QSettings s;
-    s.setValue("BounceDockIcon", bounce);
-
-#ifdef Q_OS_MAC
-    APP->setBounceDockIcon(bounce);
-#endif
-}
-
 void ZulipWindow::reload() {
     webView()->reload();
-}
-
-void ZulipWindow::showSystemTray(bool show) {
-    m_tray->setVisible(show);
-
-    // Quit when the last window is closed only if there is a tray icon,
-    // otherwise there is no way to get it back!
-    APP->setQuitOnLastWindowClosed(!show);
-
-    QSettings s;
-    s.setValue("ShowSystemTray", show);
 }
 
 QString ZulipWindow::domainToUrl(const QString& domain) const {
