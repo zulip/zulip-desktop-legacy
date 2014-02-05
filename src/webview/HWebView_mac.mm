@@ -987,7 +987,8 @@ void HWebView::setUrl(const QUrl &url) {
 }
 
 QUrl HWebView::url() const {
-    return QUrl();
+    NSURL *url = [[[[dptr->webView mainFrame] dataSource] request] URL];
+    return toQUrl(url);
 }
 
 void HWebView::loadHTML(const QString &html) {
