@@ -7,6 +7,11 @@ GeneralPreferences::GeneralPreferences(QWidget *parent) :
     ui(new Ui::GeneralPreferences)
 {
     ui->setupUi(this);
+
+#if !defined(Q_OS_MAC) && !defined (Q_OS_WIN)
+    // No start-on-login support on non mac/win
+    ui->startAtLogin->hide();
+#endif
 }
 
 GeneralPreferences::~GeneralPreferences()
