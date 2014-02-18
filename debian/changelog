@@ -1,3 +1,10 @@
+zulip-desktop (0.4.3) wheezy; urgency=high
+
+  * Session cookies no longer persist after app close
+  * Add preferences dialog
+
+ -- Luke Faraone <lfaraone@zulip.com>  Tue, 18 Feb 2014 14:48:24 -0500
+
 zulip-desktop (0.4.0) wheezy; urgency=low
 
   * Show Zulip application with icon in desktop launcher
