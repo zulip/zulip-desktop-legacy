@@ -129,10 +129,6 @@ PlatformInterface::PlatformInterface(QObject *parent)
                                                          forEventClass:kCoreEventClass
                                                             andEventID:kAEReopenApplication];
     });
-
-    NSImage *img = [NSImage imageNamed:NSImageNameCaution];
-    QPixmap pm = toPixmap(img);
-    pm.save("/tmp/out.png");
 }
 
 PlatformInterface::~PlatformInterface() {
