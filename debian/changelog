@@ -1,3 +1,9 @@
+zulip-desktop (0.4.4) wheezy; urgency=medium
+
+  * Documentation improvements
+
+ -- Luke Faraone <lfaraone@zulip.com>  Fri, 21 Feb 2014 10:10:43 -0500
+
 zulip-desktop (0.4.3) wheezy; urgency=high
 
   * Session cookies no longer persist after app close
