@@ -80,10 +80,11 @@ if (WIN32)
 
   set( EXTRA_LIBS
       ${EXTRA_LIBS}
+      Qt5::WinMain
       qtsparkle
       "secur32.dll"
       "crypt32.dll"
-      "iphlpapi.a"
+      "iphlpapi"
       "ws2_32.dll"
       "dnsapi.dll"
       "dsound.dll"

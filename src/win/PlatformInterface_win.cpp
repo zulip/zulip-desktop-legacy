@@ -19,6 +19,7 @@
 #include <QTemporaryFile>
 #include <QResource>
 #include <QSystemTrayIcon>
+#include <QtWinExtras>
 
 class PlatformInterfacePrivate : public QObject {
     Q_OBJECT
@@ -58,8 +59,8 @@ public:
 
     void setOverlayIcon(const QIcon& icon, const QString& description) {
         if (m_taskbarInterface) {
-            HICON overlay_icon = icon.isNull() ? NULL : icon.pixmap(48).toWinHICON();
-            m_taskbarInterface->SetOverlayIcon(APP->mainWindow()->winId(), overlay_icon, description.toStdWString().c_str());
+            HICON overlay_icon = icon.isNull() ? NULL : QtWin::toHICON(icon.pixmap(48));
+            m_taskbarInterface->SetOverlayIcon((HWND)APP->mainWindow()->winId(), overlay_icon, description.toStdWString().c_str());
 
             if (overlay_icon) {
                 DestroyIcon(overlay_icon);
@@ -113,7 +114,7 @@ void PlatformInterface::desktopNotification(const QString &title, const QString 
     if (shouldBounceFromSource(source)) {
         FLASHWINFO finfo;
         finfo.cbSize = sizeof( FLASHWINFO );
-        finfo.hwnd = APP->mainWindow()->winId();
+        finfo.hwnd = (HWND)APP->mainWindow()->winId();
         finfo.uCount = 1;         // Flash 40 times
         finfo.dwTimeout = 400; // Duration in milliseconds between flashes
         finfo.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG; //Flash all, until window comes to the foreground
@@ -168,10 +169,9 @@ void PlatformInterface::setStartAtLogin(bool start) {
 
     if (start) {
         const QString path = QCoreApplication::applicationFilePath().replace('/', '\\');
-        wchar_t winPath[path.size()];
-        path.toWCharArray(winPath);
+		std::wstring wpath = path.toStdWString();
 
-       ret = RegSetValueEx(runFolder, L"Zulip", 0, REG_SZ , (BYTE*)winPath, sizeof(winPath));
+		ret = RegSetValueEx(runFolder, L"Zulip", 0, REG_SZ, (const BYTE*)wpath.c_str() , wpath.length());
        handleSystemError(ret);
     } else {
         ret = RegDeleteValue(runFolder, L"Zulip");
