@@ -1,5 +1,5 @@
 #include "qtoolbartabdialog.h"
-#include <QtGui/QAction>
+#include <QAction>
 
 #include <QToolBar>
 #include <QStackedWidget>
