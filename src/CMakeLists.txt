@@ -62,7 +62,6 @@ if (WIN32)
 
   add_definitions( /DNOMINMAX )
   add_definitions( /DWIN32_LEAN_AND_MEAN )
-  add_definitions( -static-libgcc )
   add_definitions( -DUNICODE )
 
   include (CheckCXXSourceCompiles)
