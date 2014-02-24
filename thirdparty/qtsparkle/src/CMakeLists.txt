@@ -25,14 +25,19 @@ set(UI_SOURCES
   updatedialog.ui
 )
 
-qt4_wrap_cpp(MOC ${MOC_SOURCES})
-qt4_wrap_ui(UIC ${UI_SOURCES})
+qt_wrap_cpp(MOC ${MOC_SOURCES})
+qt_wrap_ui(UIC ${UI_SOURCES})
 
 add_library(qtsparkle
+  ${QT_INCLUDES}
   ${SOURCES}
   ${MOC}
   ${UIC}
 )
+
+if (QT5_BUILD)
+    qt5_use_modules(qtsparkle Core Widgets Network Svg)
+endif()
 
 target_link_libraries(qtsparkle
   ${QT_LIBRARIES}
