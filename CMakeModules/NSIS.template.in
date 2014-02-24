@@ -15,16 +15,17 @@
 ;-----------------------------------------------------------------------------
 ; Some paths.
 ;-----------------------------------------------------------------------------
-!ifndef MING_PATH
-    !define MING_PATH "/usr/i686-w64-mingw32/sys-root/mingw"
+!ifndef QT_DIR
+    !define QT_DIR "C:\Qt\Qt5.2-openssl\qtbase"
 !endif
-!define MING_BIN "${MING_PATH}/bin"
-!define MING_LIB "${MING_PATH}/lib"
+!define QT_BIN "${QT_DIR}/bin"
+!define QT_LIB "${QT_DIR}/lib"
 !define BUILD_PATH "@CMAKE_BINARY_DIR@"
 !define SOURCE_PATH "@CMAKE_SOURCE_DIR@"
-!define QT_DLL_PATH "${MING_BIN}"
-!define SQLITE_DLL_PATH "${MING_LIB}/qt4/plugins/sqldrivers"
-!define IMAGEFORMATS_DLL_PATH "${MING_LIB}/qt4/plugins/imageformats"
+!define QT_DLL_PATH "${QT_BIN}"
+;!define SQLITE_DLL_PATH "${QT_LIB}/qt4/plugins/sqldrivers"
+!define IMAGEFORMATS_DLL_PATH "${QT_DIR}/plugins/imageformats"
+!define ICU_DLL_PATH "C:\Qt\icu52-1-msvc2013\lib"
 
 !define NSI_PATH "${SOURCE_PATH}/admin/win/nsi"
 
@@ -280,49 +281,38 @@ Section "Zulip" SEC_ZULIP
    ; File "@CPACK_RESOURCE_FILE_LICENSE@"
    ; File /oname=NOTES.txt ${NSI_PATH}\RELEASE_NOTES.txt
 
-   ; Qt4 backport of qt5's Json parsing
-   File "${BUILD_PATH}\libjson.dll"
-
    ;Qt stuff:
-   File "${QT_DLL_PATH}\QtCore4.dll"
-   File "${QT_DLL_PATH}\QtGui4.dll"
-   File "${QT_DLL_PATH}\QtNetwork4.dll"
-   File "${QT_DLL_PATH}\QtWebKit4.dll"
-   File "${QT_DLL_PATH}\QtSvg4.dll"
-   File "${QT_DLL_PATH}\QtXml4.dll"
-
-   ;SQLite driver
-   ;SetOutPath "$INSTDIR\sqldrivers"
-   ;File "${SQLITE_DLL_PATH}\qsqlite4.dll"
-   ;SetOutPath "$INSTDIR"
+   File "${QT_DLL_PATH}\Qt5Core.dll"
+   File "${QT_DLL_PATH}\Qt5Gui.dll"
+   File "${QT_DLL_PATH}\Qt5Multimedia.dll"
+   File "${QT_DLL_PATH}\Qt5Network.dll"
+   File "${QT_DLL_PATH}\Qt5Sql.dll"
+   File "${QT_DLL_PATH}\Qt5Svg.dll"
+   File "${QT_DLL_PATH}\Qt5WebKit.dll"
+   File "${QT_DLL_PATH}\Qt5WebKitWidgets.dll"
+   File "${QT_DLL_PATH}\Qt5Widgets.dll"
+   File "${QT_DLL_PATH}\Qt5WinExtras.dll"
+   File "${QT_DLL_PATH}\Qt5MultimediaWidgets.dll"
+   File "${QT_DLL_PATH}\Qt5OpenGL.dll"
+   File "${QT_DLL_PATH}\Qt5PrintSupport.dll"
+   File "${QT_DLL_PATH}\Qt5Sensors.dll"
+   File "${QT_DLL_PATH}\Qt5Quick.dll"
+   File "${QT_DLL_PATH}\Qt5Positioning.dll"
+   File "${QT_DLL_PATH}\Qt5QML.dll"
+   File "${QT_DLL_PATH}\libEGL.dll"
+   File "${QT_DLL_PATH}\libGLESV2.dll"
 
    ;Image plugins
    SetOutPath "$INSTDIR\imageformats"
-   File "${IMAGEFORMATS_DLL_PATH}\qgif4.dll"
-   File "${IMAGEFORMATS_DLL_PATH}\qjpeg4.dll"
-   File "${IMAGEFORMATS_DLL_PATH}\qsvg4.dll"
+   File "${IMAGEFORMATS_DLL_PATH}\qgif.dll"
+   File "${IMAGEFORMATS_DLL_PATH}\qjpeg.dll"
+   File "${IMAGEFORMATS_DLL_PATH}\qsvg.dll"
    SetOutPath "$INSTDIR"
 
-   ;Cygwin/c++ stuff
-   ;File "${MING_BIN}\cygmad-0.dll"
-   ;File "${MING_BIN}\libgcc_s_dw2-1.dll"
-   ;File "${MING_BIN}\mingwm10.dll"
-   File "${MING_BIN}\libgcc_s_sjlj-1.dll"
-   File "${MING_BIN}\libstdc++-6.dll"
-
-   ; Other
-   File "${MING_BIN}\libpng15-15.dll"
-   File "${MING_BIN}\libjpeg-8.dll"
-   File "${MING_BIN}\zlib1.dll"
-   File "${MING_BIN}\libqjson.dll"
-
-   ; Crypto
-   File "${MING_BIN}\libqca.dll"
-   SetOutPath "$INSTDIR\crypto"
-   File "${MING_LIB}\qt4\plugins\crypto\libqca-ossl.dll"
-   SetOutPath "$INSTDIR"
-   File "${MING_BIN}\libssl-8.dll"
-   File "${MING_BIN}\libcrypto-8.dll"
+   ;ICU
+   File "${ICU_DLL_PATH}\icuin52.dll"
+   File "${ICU_DLL_PATH}\icuuc52.dll"
+   File "${ICU_DLL_PATH}\icudt52.dll"
 SectionEnd
 
 SectionGroup "Shortcuts"
