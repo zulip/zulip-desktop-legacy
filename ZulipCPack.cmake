@@ -34,7 +34,7 @@ SET( CPACK_SOURCE_PACKAGE_FILE_NAME zulip-${ZULIP_VERSION} ) # Name of the sourc
 # CPACK_RESOURCE_FILE_WELCOME     Welcome file for the project, used by PackageMaker generator.   /home/andy/vtk/CMake/Templates/CPack.GenericWelcome.txt
 SET( CPACK_PACKAGE_VERSION  ${ZULIP_VERSION} )
 
-SET( CPACK_TOPLEVEL_TAG "narf" ) # Directory for the installed files.  - needed to provide anything to avoid an error# CPACK_INSTALL_COMMANDS  Extra commands to install components.
+SET( CPACK_TOPLEVEL_TAG "Zulip" ) # Directory for the installed files.  - needed to provide anything to avoid an error# CPACK_INSTALL_COMMANDS  Extra commands to install components.
 # CPACK_INSTALL_DIRECTORIES   Extra directories to install.
 # CPACK_MONOLITHIC_INSTALL    When set disables the component-based installer.
 # CPACK_PACKAGING_INSTALL_PREFIX  Sets the default root that the generated package installs into, '/usr' is the default for the debian and redhat generators  /usr/local
