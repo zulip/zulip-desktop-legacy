@@ -29,6 +29,7 @@
 #include <QSystemTrayIcon>
 #include <QVBoxLayout>
 #include <QKeyEvent>
+#include <QSslError>
 
 
 #if defined(QT5_BUILD)
@@ -394,6 +395,7 @@ public:
         webView->page()->setNetworkAccessManager(nam);
         webView->page()->networkAccessManager()->setCookieJar(m_cookies);
 
+        connect(nam, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), this, SLOT(sslErrors(QNetworkReply*, QList<QSslError>)));
         connect(webView, SIGNAL(linkClicked(QUrl)), q, SIGNAL(linkClicked(QUrl)));
         connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(zulipLoadFinished(bool)));
         connect(bridge, SIGNAL(doDesktopNotification(QString,QString, QString)), q, SIGNAL(desktopNotification(QString,QString, QString)));
@@ -416,6 +418,13 @@ public:
     }
 
 private slots:
+    void sslErrors(QNetworkReply* r, QList<QSslError> errors) {
+        qDebug() << "SSL ERRORS for reply:" << r << r->url().toString();
+        foreach(QSslError error, errors) {
+            qDebug() << "Error:" << error << error.errorString() << error.certificate();
+        }
+    }
+
     void addJavaScriptObject() {
         // Ref: http://www.developer.nokia.com/Community/Wiki/Exposing_QObjects_to_Qt_Webkit
 
