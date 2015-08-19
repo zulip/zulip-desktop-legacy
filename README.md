@@ -1,3 +1,5 @@
+# Zulip Desktop
+
 Zulip Desktop is a Qt/C++ application that serves as a shell around a web view.
 
 # Dependencies
@@ -8,7 +10,6 @@ Qt4 OR Qt5
 Linux Qt4: Phonon
 
 # Installation
-
 
 `mkdir build`
 `cd build`
