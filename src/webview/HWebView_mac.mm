@@ -594,7 +594,6 @@ public:
 
         if (!requestSuccessful) {
             NSLog(@"Error making preflight request, asking");
-            APP->askForCustomServer(callback);
             return emptyRequest;
         } else if ([preflightURL isEqualToString:@""]) {
             return request;
@@ -740,6 +739,7 @@ public:
 {
     // One-off migration of cookies for zulip from system cookie jar
     // to avoid logging user out on update
+    // effectively dead code
     QSettings s;
     bool alreadyImportedFromSystem = s.value("ImportedFromSystem", false).toBool();
     if (!alreadyImportedFromSystem) {
@@ -757,7 +757,7 @@ public:
 - (void)handleInitialLoadFailed {
     // If we failed to load Zulip **and** we don't have an explicit domain set,
     // prompt for a custom domain. An intranet with a local Zulip install might block
-    // the zulip.com default page load
+    // the default page load
 
     if (APP->explicitDomain() || self.origRequest) {
         return;
@@ -786,7 +786,6 @@ public:
             [[self.q->webView mainFrame] loadRequest:[NSURLRequest requestWithURL:fromQUrl(self.q->originalURL)]];
         });
     });
-    APP->askForCustomServer(callback);
 }
 
 - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame {

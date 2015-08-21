@@ -2,8 +2,6 @@
 
 #include "ZulipWindow.h"
 
-#include "../thirdparty/qocoa/qbutton.h"
-
 #include <QDebug>
 #include <QDialog>
 #include <QLabel>
@@ -12,6 +10,9 @@
 #include <QWeakPointer>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QDialogButtonBox>
+
+#include <iostream>
 
 ZulipApplication::ZulipApplication(int &argc, char **argv)
     :  QApplication(argc, argv),
@@ -38,80 +39,89 @@ void ZulipApplication::setExplicitDomain(const QString &domain) {
     }
 }
 
-void ZulipApplication::askForCustomServer(QObject *responseObj)
+
+void ZulipApplication::askForDomain(bool isInitialDomain)
 {
-    m_customServerResponseObj = QWeakPointer<QObject>(responseObj);
+    m_initialDomainDialog = QWeakPointer<QDialog>(new QDialog(APP->mainWindow()));
+    //m_initialDomainDialog.data()->setWindowModality(Qt::WindowModal);
+    m_initialDomainDialog.data()->setLayout(new QVBoxLayout());
 
-    m_customServerDialog = QWeakPointer<QDialog>(new QDialog(APP->mainWindow()));
-    m_customServerDialog.data()->setWindowFlags(Qt::Sheet);
-    m_customServerDialog.data()->setWindowModality(Qt::WindowModal);
-    m_customServerDialog.data()->setLayout(new QVBoxLayout());
+    m_initialDomainDialog.data()->setWindowTitle("Add Zulip Domain");
+    QLabel *msgLabel = new QLabel(m_initialDomainDialog.data());
+    if (isInitialDomain) {
+      msgLabel->setText("<h3>Welcome to Zulip.</h3>"
+                  "It looks like you are using Zulip app for the first time.<br>"
+                  "Please enter the domain for your Zulip server below.<br>");
+    } else {
+      msgLabel->setText("<h3>Add New Domain</h3>"
+                  "Please enter the domain for your Zulip server below.<br>");
+    }
 
-    m_customServerDialog.data()->setWindowTitle("Zulip Domain Selection");
-    QLabel *msgLabel = new QLabel(m_customServerDialog.data());
-    msgLabel->setText("<h3>We take your security as seriously as you do.</h3>"
-                "We were unable to contact <code>zulip.com</code>. It's likely the case<br>"
-                "that either you are not connected to the Internet (in which case<br>"
-                "\"Retry\" below), or you are trying to access a self-hosted<br>"
-                "installation of Zulip behind a strict firewall.<br><br>"
-                "In that case, we appreciate your security consciousness! Please<br>"
-                "enter the domain for your Zulip installation below.");
-    m_customServerDialog.data()->layout()->addWidget(msgLabel);
+    m_initialDomainDialog.data()->layout()->addWidget(msgLabel);
 
     QHBoxLayout *domainEntry = new QHBoxLayout();
     domainEntry->setSpacing(2);
-    QLabel *domainLabel = new QLabel("https://", m_customServerDialog.data());
-    m_customDomain = new QLineEdit(m_customServerDialog.data());
-    m_customDomain->setPlaceholderText("zulip.com");
+    QLabel *domainLabel = new QLabel("https://", m_initialDomainDialog.data());
+    m_customDomain = new QLineEdit(m_initialDomainDialog.data());
+    m_customDomain->setPlaceholderText("your_zulip_server_domain.com");
     domainEntry->addWidget(domainLabel);
     domainEntry->addWidget(m_customDomain);
-    m_customServerDialog.data()->layout()->addItem(domainEntry);
+    m_initialDomainDialog.data()->layout()->addItem(domainEntry);
 
-    QHBoxLayout *buttons = new QHBoxLayout();
-    QButton *cancelButton = new QButton(m_customServerDialog.data());
-    cancelButton->setText("Retry");
-    QButton *okButton = new QButton(m_customServerDialog.data());
-    okButton->setText("Go");
+    QDialogButtonBox::StandardButtons buttons = isInitialDomain ?
+      QDialogButtonBox::Ok :
+      QDialogButtonBox::Ok | QDialogButtonBox::Cancel;
 
-    buttons->addSpacing(60);
-    buttons->addWidget(cancelButton);
-    buttons->addWidget(okButton);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(buttons);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(askForDomainOK()));
+    if (!isInitialDomain) {
+      connect(buttonBox, SIGNAL(rejected()), this, SLOT(askForDomainCancel()));
+    } else {
+      connect(m_initialDomainDialog.data(), SIGNAL(rejected()), this, SLOT(quit()));
+    }
 
-    m_customServerDialog.data()->layout()->addItem(buttons);
-    m_customServerDialog.data()->show();
-
-    connect(okButton, SIGNAL(clicked()), this, SLOT(customServerOK()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(customServerCancel()));
-
+    m_initialDomainDialog.data()->layout()->addWidget(buttonBox);
+    m_initialDomainDialog.data()->show();
 }
 
-void ZulipApplication::customServerOK()
+void ZulipApplication::askForDomainOK()
 {
-    if (m_customServerDialog.isNull() || m_customServerResponseObj.isNull()) {
+    if (m_initialDomainDialog.isNull()) {
         return;
     }
     QString domain = m_customDomain->text().trimmed();
-    if (domain.startsWith("http://")) {
+    if (domain.length() == 0) {
+      return;
+    }
+
+    if (domain.startsWith("localhost")) {
+      domain = "http://" + domain;
+    } else if (domain.startsWith("http://localhost")) {
+      // this is fine
+    } else if (domain.startsWith("https://localhost")) {
+      domain.replace("https://", "http://");
+    } else if (domain.startsWith("http://")) {
         domain.replace("http://", "https://");
     } else if (domain.length() > 0 && !domain.startsWith("https://")) {
         domain = "https://" + domain;
     }
 
-    setExplicitDomain(domain);
-    QMetaObject::invokeMethod(m_customServerResponseObj.data(), "success", Qt::DirectConnection, Q_ARG(QString, domain));
+    m_mw->addNewDomainSelection(domain);
 
-    m_customServerDialog.data()->hide();
-    m_customServerDialog.data()->deleteLater();
+    m_mw->setUrl(QUrl(domain));
+    setExplicitDomain(domain);
+
+    m_initialDomainDialog.data()->hide();
+    m_initialDomainDialog.data()->deleteLater();
+
+    m_mw->show();
 }
 
-void ZulipApplication::customServerCancel()
+void ZulipApplication::askForDomainCancel()
 {
-    if (m_customServerDialog.isNull() || m_customServerResponseObj.isNull()) {
-        return;
+    if (m_initialDomainDialog.isNull()) {
+      return;
     }
-    // User hit Retry
-    m_customServerDialog.data()->hide();
-    m_customServerDialog.data()->deleteLater();
-
-    QMetaObject::invokeMethod(m_customServerResponseObj.data(), "retry", Qt::DirectConnection);
+    m_initialDomainDialog.data()->hide();
+    m_initialDomainDialog.data()->deleteLater();
 }

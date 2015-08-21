@@ -23,8 +23,7 @@
 #include <QFontDatabase>
 #include <QDebug>
 
-static QString s_defaultZulipURL = "https://zulip.com/desktop_home";
-static QString s_defaultZulipSSOURL = "https://zulip.com/accounts/deployment_dispatch";
+static QString s_defaultZulipSSOURL = "https://zulip.org/accounts/deployment_dispatch";
 
 ZulipWindow::ZulipWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -106,32 +105,32 @@ void ZulipWindow::setupTray() {
     menu->addAction(prefs_action);
 #endif
 
-    if (APP->debugMode()) {
-        QMenu* domain_menu = new QMenu("Domain", menu);
+    QMenu* domain_menu = new QMenu("Domain", menu);
+    QAction* addNewAction = domain_menu->addAction("Add new domain");
+    addNewAction->setCheckable(false);
+    connect(addNewAction, SIGNAL(triggered()), this, SLOT(addNewDomain()));
 
-        QAction* prod = domain_menu->addAction("Production");
-        prod->setCheckable(true);
-        connect(prod, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
-        m_domains["https://zulip.com"] = prod;
+    QSettings settings;
+    int numerOfDomains = settings.beginReadArray("InstanceDomains");
+    if (numerOfDomains)
+    {
+      for (int index = 0; index < numerOfDomains; index++)
+      {
+          settings.setArrayIndex(index);
+          QString domainUrl = settings.value("url").toString();
 
-        QAction* staging = domain_menu->addAction("Staging");
-        staging->setCheckable(true);
-        connect(staging, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
-        m_domains["https://staging.zulip.com"] = staging;
+          QAction* domainAction = domain_menu->addAction(domainUrl);
+          domainAction->setCheckable(true);
+          connect(domainAction, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
+          m_domains[domainUrl] = domainAction;
 
-        QAction* dev = domain_menu->addAction("Local");
-        dev->setCheckable(true);
-        connect(dev, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
-        m_domains["http://localhost:9991"] = dev;
-
-        m_domainMapper->setMapping(prod, "https://zulip.com");
-        m_domainMapper->setMapping(staging, "https://staging.zulip.com");
-        m_domainMapper->setMapping(dev, "http://localhost:9991");
-
-        connect(m_domainMapper, SIGNAL(mapped(QString)), this, SLOT(domainSelected(QString)));
-
-        menu->addMenu(domain_menu);
-    }
+          m_domainMapper->setMapping(domainAction, domainUrl);
+      }
+  }
+  settings.endArray();
+  connect(m_domainMapper, SIGNAL(mapped(QString)), this, SLOT(domainSelected(QString)));
+  menu->addMenu(domain_menu);
+  m_domain_menu =  QWeakPointer<QMenu>(domain_menu);
 
 #ifdef Q_OS_WIN
     QAction* checkForUpdates = menu->addAction("Check for Updates...");
@@ -159,6 +158,30 @@ void ZulipWindow::setupTray() {
     connect(reload, SIGNAL(triggered(bool)), this, SLOT(reload()));
 
     menu->insertAction(exit_action, reload);
+}
+
+void ZulipWindow::addNewDomain() {
+  APP->askForDomain(false);
+}
+
+void ZulipWindow::addNewDomainSelection(const QString& url) {
+  if (m_domain_menu.isNull()) {
+    return;
+  }
+
+  QSettings settings;
+  int numerOfDomains = settings.beginReadArray("InstanceDomains");
+  settings.endArray();
+  settings.beginWriteArray("InstanceDomains");
+  settings.setArrayIndex(numerOfDomains);
+  settings.setValue("url", url);
+  settings.endArray();
+
+  QAction* domainAction = m_domain_menu.data()->addAction(url);
+  domainAction->setCheckable(true);
+  connect(domainAction, SIGNAL(triggered()), m_domainMapper, SLOT(map()));
+  m_domains[url] = domainAction;
+  m_domainMapper->setMapping(domainAction, url);
 }
 
 void ZulipWindow::setupPrefsWindow() {
@@ -218,19 +241,16 @@ void ZulipWindow::readSettings() {
     }
 
     QString domain = settings.value("Domain").toString();
-    QString site = domainToUrl(domain);
-    if (site.isEmpty()) {
-        domain = "prod";
+
+    if (domain.isEmpty()) {
 #ifdef SSO_BUILD
-        site = s_defaultZulipSSOURL;
-#else
-        site = s_defaultZulipURL;
+        domain = s_defaultZulipSSOURL;
 #endif
     } else {
-        APP->setExplicitDomain(site);
+        APP->setExplicitDomain(domain);
     }
 
-    m_start = site;
+    m_start = domain;
     m_ui->webView->load(m_start);
 
     if (m_domains.contains(domain))
@@ -285,7 +305,6 @@ void ZulipWindow::savePreferences() {
 void ZulipWindow::setUrl(const QUrl &url)
 {
     m_start = url;
-
     m_ui->webView->load(url);
 }
 
@@ -336,7 +355,7 @@ void ZulipWindow::linkClicked(const QUrl& url)
         }
     }
 
-    // We need the check for m_start.host() (to make sure we don't display non-zulip.com
+    // We need the check for m_start.host() (to make sure we don't display non-zulip
     // hosts in the app), and additionally we allow / (the main zulip page) and whitelisted
     // pages (that we need to show in-app, such as Google openid auth)
     if (url.host() == m_start.host() &&
@@ -392,8 +411,7 @@ void ZulipWindow::displayPopup(const QString &title, const QString &content, con
 }
 
 void ZulipWindow::domainSelected(const QString &domain) {
-    QString site = domainToUrl(domain);
-    if (site.isEmpty())
+    if (domain.isEmpty())
         return;
 
     foreach (QAction *action, m_domains.values()) {
@@ -403,26 +421,9 @@ void ZulipWindow::domainSelected(const QString &domain) {
 
     QSettings s;
     s.setValue("Domain", domain);
-    setUrl(site);
+    setUrl(domain);
 }
 
 void ZulipWindow::reload() {
     webView()->reload();
-}
-
-QString ZulipWindow::domainToUrl(const QString& domain) const {
-    if (domain.isEmpty()) {
-        return QString();
-    } else if (domain == "prod") {
-        return "https://zulip.com";
-    } else if (domain == "staging") {
-        return "https://staging.zulip.com";
-    } else if (domain == "dev") {
-        return "http://localhost:9991";
-    } else if (domain.contains("http")) {
-        return domain;
-    } else {
-        qWarning() << "Selected invalid domain?" << domain;
-        return QString();
-    }
 }

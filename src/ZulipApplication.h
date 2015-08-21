@@ -30,20 +30,16 @@ public:
     bool explicitDomain() const;
     void setExplicitDomain(const QString& domain);
 
-    // If we were unable to preflight a request,
-    // ask the user to enter their custom server if
-    // there is one
-    // Will call: success(QString) or retry() as a
-    // SLOT on the response object
-    void askForCustomServer(QObject *responseObj);
+    void askForDomain(bool isInitialDomain);
+
 protected:
 #ifdef Q_OS_MAC
     bool macEventFilter(EventHandlerCallRef, EventRef);
 #endif
 
 private slots:
-    void customServerOK();
-    void customServerCancel();
+    void askForDomainOK();
+    void askForDomainCancel();
 
 private:
     ZulipWindow* m_mw;
@@ -52,6 +48,7 @@ private:
 
     // Internal
     QWeakPointer<QDialog> m_customServerDialog;
+    QWeakPointer<QDialog> m_initialDomainDialog;
     QLineEdit * m_customDomain;
     QWeakPointer<QObject> m_customServerResponseObj;
 };

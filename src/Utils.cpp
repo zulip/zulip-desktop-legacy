@@ -91,6 +91,7 @@ QString Utils::parametersDictToString(const QHash<QString, QString>& parameters)
 }
 
 QString Utils::baseUrlForEmail(QNetworkAccessManager *nam, const QString& email, bool *requestSuccessful) {
+    // effectively dead code - 
     QString fetchURL = QString("https://zulip.com/api/v1/deployments/endpoints?email=%1").arg(email);
 
     bool createdNam = false;
@@ -112,7 +113,6 @@ QString Utils::baseUrlForEmail(QNetworkAccessManager *nam, const QString& email,
 
     // If we get anything outside a 404 (user deployment not known) or 200,
     // we assume that our attempt at preflight failed because we could not connect
-    // to zulip.com
     if (reply->error() != QNetworkReply::NoError &&
         reply->error() != QNetworkReply::ContentNotFoundError &&
         reply->error() != QNetworkReply::UnknownContentError) { /*  UnknownContentError is a server 503 */

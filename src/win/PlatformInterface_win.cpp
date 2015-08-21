@@ -74,9 +74,9 @@ public:
 private slots:
     void setupQtSparkle() {
 #ifdef SSO_BUILD
-        updater = new qtsparkle::Updater(QUrl("https://zulip.com/dist/apps/sso/win/sparkle.xml"), APP->mainWindow());
+        updater = new qtsparkle::Updater(QUrl("https://zulip.org/dist/apps/sso/win/sparkle.xml"), APP->mainWindow());
 #else
-        updater = new qtsparkle::Updater(QUrl("https://zulip.com/dist/apps/win/sparkle.xml"), APP->mainWindow());
+        updater = new qtsparkle::Updater(QUrl("https://zulip.org/dist/apps/win/sparkle.xml"), APP->mainWindow());
 #endif
     }
 

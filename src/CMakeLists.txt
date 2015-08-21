@@ -176,9 +176,9 @@ if (APPLE)
   endif (DARWIN_VERSION GREATER 11)
 
  if (SSO_BUILD)
-    SET(SPARKLE_URL "https://zulip.com/dist/apps/sso/mac/sparkle.xml")
+    SET(SPARKLE_URL "https://zulip.org/dist/apps/sso/mac/sparkle.xml")
   else()
-    SET(SPARKLE_URL "https://zulip.com/dist/apps/mac/sparkle.xml")
+    SET(SPARKLE_URL "https://zulip.org/dist/apps/mac/sparkle.xml")
   endif()
 
   FILE(READ ${CMAKE_SOURCE_DIR}/admin/mac/Info.plist plist)

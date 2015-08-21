@@ -224,7 +224,6 @@ protected:
                 // Failed to load, so we ask the user directly
                 m_savedOriginalOp = op;
                 m_savedOriginalData = dataBuffer;
-                APP->askForCustomServer(this);
             } else if (m_siteBaseUrl.length() == 0) {
                 QByteArray *tempData = new QByteArray(dataBuffer);
                 QBuffer *tempBuffer = new QBuffer(tempData, 0);
@@ -473,8 +472,7 @@ private slots:
 
     void askForInitialLoadDomain() {
         if (!APP->explicitDomain()) {
-            qDebug() << "Failed to load initial Zulip login page, asking directly";
-            APP->askForCustomServer(this);
+            qDebug() << "Failed to load initial Zulip login page";
         }
     }
 

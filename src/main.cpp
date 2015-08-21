@@ -3,12 +3,14 @@
 #include "Config.h"
 #include "Logger.h"
 
+#include <QDebug>
+
 int main(int argc, char *argv[])
 {
     ZulipApplication a(argc, argv);
     a.setApplicationName("Zulip Desktop");
     a.setOrganizationName("Zulip");
-    a.setOrganizationDomain("zulip.com");
+    a.setOrganizationDomain("zulip.org");
     a.setApplicationVersion(ZULIP_VERSION_STRING);
 
     Logging::setupLogging();
@@ -18,15 +20,31 @@ int main(int argc, char *argv[])
     }
 
     ZulipWindow w;
-    if (argc == 3 && QString(argv[1]) == QString("--site")) {
-        const QString domain = argv[2];
-        w.setUrl(QUrl(domain));
-        a.setExplicitDomain(domain);
-    }
 
     a.setMainWindow(&w);
 
-    w.show();
+    QSettings settings;
+    int numerOfDomains = settings.beginReadArray("InstanceDomains");
+    settings.endArray();
+
+    if (numerOfDomains) {
+      QString domain = settings.value("Domain").toString();
+      if (!domain.length()) {
+        settings.beginReadArray("InstanceDomains");
+        settings.setArrayIndex(numerOfDomains-1);
+        QString domainUrl = settings.value("url").toString();
+        settings.endArray();
+        w.setUrl(QUrl(domainUrl));
+        a.setExplicitDomain(domainUrl);
+        w.show();
+      } else {
+        w.setUrl(QUrl(domain));
+        a.setExplicitDomain(domain);
+        w.show();
+      }
+    } else {
+      a.askForDomain(true);
+    }
 
     return a.exec();
 }

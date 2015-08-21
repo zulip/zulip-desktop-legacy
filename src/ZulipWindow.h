@@ -35,6 +35,7 @@ public:
     HWebView* webView() const;
     IconRenderer *iconRenderer() const;
     QSystemTrayIcon *trayIcon() const;
+    void addNewDomainSelection(const QString& url);
 
 public slots:
     void closeEvent(QCloseEvent *);
@@ -47,6 +48,7 @@ public slots:
     void countUpdated(int newCount);
     void pmCountUpdated(int newCount);
     void displayPopup(const QString& title, const QString& content, const QString &source);
+    void addNewDomain();
 
 private slots:
     void domainSelected(const QString& domain);
@@ -65,7 +67,6 @@ private:
     void stopTrayAnimation();
 
     void readSettings();
-    QString domainToUrl(const QString& domain) const;
 
     Ui::ZulipWindow *m_ui;
 
@@ -82,6 +83,7 @@ private:
     QWeakPointer <QToolbarTabDialog> m_preferencesDialog;
     QWeakPointer <GeneralPreferences> m_generalPrefs;
     QWeakPointer <NotificationPreferences> m_notificationPrefs;
+    QWeakPointer <QMenu> m_domain_menu;
 
     CookieJar *m_cookies;
     QUrl m_start;

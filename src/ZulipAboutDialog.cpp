@@ -26,7 +26,7 @@ ZulipAboutDialog::ZulipAboutDialog(QWidget *parent) :
 #ifdef SSO_BUILD
         license = "the Zulip Enterprise License Agreement";
 #else
-        license = "the license described in the <a href=\"https://zulip.com/terms\" target='_blank'>Zulip Terms of Service</a>";
+        license = "the license described in the <a href=\"https://zulip.org/terms\" target='_blank'>Zulip Terms of Service</a>";
 #endif
         contents = contents.replace("{{ZULIP_VERSION_STRING}}", ZULIP_VERSION_STRING);
         contents = contents.replace("{{ZULIP_LICENSE_AGREEMENT}}", license);
