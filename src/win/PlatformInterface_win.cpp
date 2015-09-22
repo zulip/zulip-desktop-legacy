@@ -19,7 +19,10 @@
 #include <QTemporaryFile>
 #include <QResource>
 #include <QSystemTrayIcon>
+
+#ifdef QT5_BUILD
 #include <QtWinExtras>
+#endif
 
 class PlatformInterfacePrivate : public QObject {
     Q_OBJECT
@@ -59,9 +62,13 @@ public:
 
     void setOverlayIcon(const QIcon& icon, const QString& description) {
         if (m_taskbarInterface) {
+#ifdef QT5_BUILD
             HICON overlay_icon = icon.isNull() ? NULL : QtWin::toHICON(icon.pixmap(48));
             m_taskbarInterface->SetOverlayIcon((HWND)APP->mainWindow()->winId(), overlay_icon, description.toStdWString().c_str());
-
+#else
+            HICON overlay_icon = icon.isNull() ? NULL : icon.pixmap(48).toWinHICON();
+            m_taskbarInterface->SetOverlayIcon(APP->mainWindow()->winId(), overlay_icon, description.toStdWString().c_str());
+#endif
             if (overlay_icon) {
                 DestroyIcon(overlay_icon);
                 return;

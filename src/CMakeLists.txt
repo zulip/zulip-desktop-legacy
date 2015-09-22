@@ -79,7 +79,6 @@ if (WIN32)
 
   set( EXTRA_LIBS
       ${EXTRA_LIBS}
-      Qt5::WinMain
       qtsparkle
       "secur32.dll"
       "crypt32.dll"
@@ -90,6 +89,10 @@ if (WIN32)
       "winmm.dll"
       "advapi32.dll"
   )
+
+  if (QT5_BUILD)
+    set( EXTRA_LIBS ${EXTRA_LIBS} Qt5::WinMain)
+  endif()
 
   kde4_add_app_icon( zulip_SRCS "${CMAKE_SOURCE_DIR}/admin/icon/zulip-icon-*.png" )
 
