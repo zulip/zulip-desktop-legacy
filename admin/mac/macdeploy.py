@@ -19,6 +19,7 @@ import re
 import subprocess
 import commands
 import sys
+import glob
 
 FRAMEWORK_SEARCH_PATH=[
     '/Library/Frameworks',
@@ -69,14 +70,16 @@ if len(sys.argv) < 2:
   print 'Usage: %s <bundle.app>' % sys.argv[0]
 
 bundle_dir = sys.argv[1]
-
 bundle_name = os.path.basename(bundle_dir).split('.')[0]
 
 commands = []
+framework_paths = []
 
 binary_dir = os.path.join(bundle_dir, 'Contents', 'MacOS')
 frameworks_dir = os.path.join(bundle_dir, 'Contents', 'Frameworks')
 commands.append(['mkdir', '-p', frameworks_dir])
+vlcplugins_dir = os.path.join(frameworks_dir, 'vlc', 'plugins')
+commands.append(['mkdir', '-p', vlcplugins_dir])
 resources_dir = os.path.join(bundle_dir, 'Contents', 'Resources')
 commands.append(['mkdir', '-p', resources_dir])
 plugins_dir = os.path.join(bundle_dir, 'Contents', 'qt-plugins')
@@ -188,6 +191,23 @@ def FixLibrary(path):
   for library in broken_libs['libs']:
     FixLibraryInstallPath(library, new_path)
 
+def FixVLCPlugin(abs_path):
+  broken_libs = GetBrokenLibraries(abs_path)
+  FixAllLibraries(broken_libs)
+
+  #print "Copying plugin....%s %s %s" % (plugins_dir, subdir, os.path.join(abs_path.split('/')[-2:]))
+  new_path = os.path.join(vlcplugins_dir, os.path.basename(abs_path))
+  args = ['mkdir', '-p', os.path.dirname(new_path)]
+  commands.append(args)
+  args = ['ditto', '--arch=i386', '--arch=x86_64', abs_path, new_path]
+  commands.append(args)
+  args = ['chmod', 'u+w', new_path]
+  commands.append(args)
+  for framework in broken_libs['frameworks']:
+    FixFrameworkInstallPath(framework, new_path)
+  for library in broken_libs['libs']:
+    FixLibraryInstallPath(library, new_path)
+
 def FixPlugin(abs_path, subdir):
   broken_libs = GetBrokenLibraries(abs_path)
   FixAllLibraries(broken_libs)
@@ -229,7 +249,14 @@ def CopyFramework(path):
   for i, part in enumerate(parts):
     if re.match(r'\w+\.framework', part):
       full_path = os.path.join(frameworks_dir, *parts[i:-1])
+      framework_name = part.split(".framework")[0]
       break
+
+  if full_path in framework_paths:
+    return os.path.join(full_path, parts[-1])
+
+  framework_paths.append(full_path)
+
   args = ['mkdir', '-p', full_path]
   commands.append(args)
   args = ['ditto', '--arch=i386', '--arch=x86_64', path, full_path]
@@ -239,8 +266,42 @@ def CopyFramework(path):
 
   menu_nib = os.path.join(os.path.split(path)[0], 'Resources', 'qt_menu.nib')
   if os.path.exists(menu_nib):
-    args = ['cp', '-r', menu_nib, resources_dir]
+    args = ['cp', '-rf', menu_nib, resources_dir]
     commands.append(args)
+
+  # Fix framework structure for signing
+  path_base_dir = os.path.join(os.path.split(path)[0], '..', '..')
+  path_versions_dir = os.path.join(path_base_dir, 'Versions')
+
+  if not os.path.exists(os.path.join(full_path, 'Versions', 'Current')):
+    framework_base_dir = os.path.join(full_path, '..', '..')
+    framework_versions_dir = os.path.join(framework_base_dir, 'Versions')
+
+    versionParts = glob.glob(path_versions_dir+'/*')[0].split(os.sep)
+    args = ['ln', '-s', versionParts[-1], framework_versions_dir+'/Current']
+    commands.append(args)
+
+    args = ['ln', '-s', 'Versions/Current/'+framework_name, framework_base_dir+'/'+framework_name]
+    commands.append(args)
+
+    args = ['ln', '-s', 'Versions/Current/Resources', framework_base_dir+'/Resources']
+    commands.append(args)
+
+  # Copy Contents/Info.plist to Resources/Info.plist if Resources/Info.plist does not exist
+  # If Contents/Info.plist doesn't exist either, error out. If we actually see this, we can copy QtCore's Info.plist
+  info_plist_in_resources = os.path.join(os.path.split(path)[0], '..', '..', 'Resources', 'Info.plist')
+  info_plist_in_contents = os.path.join(os.path.split(path)[0], '..', '..', 'Contents', 'Info.plist')
+  framework_resources_dir = os.path.join(framework_versions_dir, versionParts[-1], 'Resources')
+  args = ['mkdir', '-p', framework_resources_dir]
+  commands.append(args)
+  if os.path.exists(info_plist_in_contents):
+    args = ['cp', '-rf', info_plist_in_contents, framework_resources_dir]
+    commands.append(args)
+    args = ['chmod', '+rw', os.path.join(framework_resources_dir, 'Info.plist')]
+    commands.append(args)
+  elif not os.path.exists(info_plist_in_resources):
+    print "%s: Framework does not contain an Info.plist file in Contents/ folder." % (path)
+    sys.exit(-1)
 
   return os.path.join(full_path, parts[-1])
 
@@ -283,7 +344,6 @@ def FixFrameworkInstallPath(library_path, library):
       break
   new_path = '@executable_path/../Frameworks/%s' % full_path
   FixInstallPath(library_path, library, new_path)
-
 def FindQtPlugin(name):
   for path in QT_PLUGINS_SEARCH_PATH:
     if os.path.exists(path):

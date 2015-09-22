@@ -1,6 +1,10 @@
 #! /usr/bin/env bash
 #
 # Builds a zulip desktop app package for OS X
+# Call it like this: make_package.sh 0.5.0 "Zulip, Inc"
+# Where the first argument is the name to sign with, and the second is the version
+
+set -x;
 
 if [ -z "$1" ]
 then
@@ -8,7 +12,7 @@ then
 	exit 1
 fi
 
-if [ -n "$2" ]
+if [ -n "$3" ]
 then
 	echo "Starting SSO build"
         ENABLE_SSO=1

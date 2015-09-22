@@ -1,9 +1,10 @@
 #!/bin/bash
 #
-# Usage: ./admin/mac/build-release-osx.sh [--no-clean]
+# Usage: ./admin/mac/build-release-osx.sh VERSION CODE_SIGNER_NAME [--no-clean]
 #
 ################################################################################
 
+set -x;
 
 function header {
     echo -e "\033[0;34m==>\033[0;0;1m $1 \033[0;0m"
@@ -24,6 +25,7 @@ fi
 
 ROOT=`pwd`
 VERSION=$1
+CERT_SIGNER=$2
 
 ################################################################################
 
@@ -45,14 +47,15 @@ VERSION=$1
     cd ..
 
     header "Copying launch helper app to main app bundle"
-    codesign -s "Developer ID Application: Zulip, Inc" -f -v ./ZulipAppHelper.app
-
     mkdir -p Zulip.app/Contents/Library/LoginItems
     cp -R ZulipAppHelper.app Zulip.app/Contents/Library/LoginItems/
 
 
     header "Signing bundle"
-    codesign -s "Developer ID Application: Zulip, Inc" -f -v ./Zulip.app
+    if [ -f $ROOT/../admin/mac/zulip_sign_step.sh ];
+    then
+        $ROOT/../admin/mac/zulip_sign_step.sh "$CERT_SIGNER" "Zulip.app" || true
+    fi
 
     header "Creating DMG"
     $ROOT/../admin/mac/create-dmg.sh Zulip.app
