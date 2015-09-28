@@ -27,23 +27,32 @@ int main(int argc, char *argv[])
     int numerOfDomains = settings.beginReadArray("InstanceDomains");
     settings.endArray();
 
-    if (numerOfDomains) {
-      QString domain = settings.value("Domain").toString();
-      if (!domain.length()) {
+    QString settingsDomain = settings.value("Domain").toString();
+
+    // Priority order:
+    // 1. --site command-line flag
+    // 2. Domain= explicit setting
+    // 3. Last domain in the InstanceDomains list
+    QString domain;
+    if (argc == 3 && QString(argv[1]) == QString("--site")) {
+        domain = argv[2];
+    } else if (!settingsDomain.isEmpty()) {
+        domain = settingsDomain;
+    } else if (numerOfDomains > 0) {
         settings.beginReadArray("InstanceDomains");
         settings.setArrayIndex(numerOfDomains-1);
-        QString domainUrl = settings.value("url").toString();
+        domain = settings.value("url").toString();
         settings.endArray();
-        w.setUrl(QUrl(domainUrl));
-        a.setExplicitDomain(domainUrl);
-        w.show();
-      } else {
+    }
+
+    // If we still don't have a domain to use, prompt for one
+    if (!domain.isEmpty()) {
         w.setUrl(QUrl(domain));
         a.setExplicitDomain(domain);
+
         w.show();
-      }
     } else {
-      a.askForDomain(true);
+        a.askForDomain(true);
     }
 
     return a.exec();
