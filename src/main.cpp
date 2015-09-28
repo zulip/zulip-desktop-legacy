@@ -52,6 +52,8 @@ int main(int argc, char *argv[])
 
         w.show();
     } else {
+        // Hide tray icon until the domain has been selected
+        w.trayIcon()->hide();
         a.askForDomain(true);
     }
 

@@ -43,7 +43,6 @@ void ZulipApplication::setExplicitDomain(const QString &domain) {
 void ZulipApplication::askForDomain(bool isInitialDomain)
 {
     m_initialDomainDialog = QWeakPointer<QDialog>(new QDialog(APP->mainWindow()));
-    //m_initialDomainDialog.data()->setWindowModality(Qt::WindowModal);
     m_initialDomainDialog.data()->setLayout(new QVBoxLayout());
 
     m_initialDomainDialog.data()->setWindowTitle("Add Zulip Domain");
@@ -68,9 +67,7 @@ void ZulipApplication::askForDomain(bool isInitialDomain)
     domainEntry->addWidget(m_customDomain);
     m_initialDomainDialog.data()->layout()->addItem(domainEntry);
 
-    QDialogButtonBox::StandardButtons buttons = isInitialDomain ?
-      QDialogButtonBox::Ok :
-      QDialogButtonBox::Ok | QDialogButtonBox::Cancel;
+    QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok | QDialogButtonBox::Cancel;
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(buttons);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(askForDomainOK()));
@@ -78,6 +75,7 @@ void ZulipApplication::askForDomain(bool isInitialDomain)
       connect(buttonBox, SIGNAL(rejected()), this, SLOT(askForDomainCancel()));
     } else {
       connect(m_initialDomainDialog.data(), SIGNAL(rejected()), this, SLOT(quit()));
+      connect(buttonBox, SIGNAL(rejected()), this, SLOT(quit()));
     }
 
     m_initialDomainDialog.data()->layout()->addWidget(buttonBox);
@@ -113,6 +111,8 @@ void ZulipApplication::askForDomainOK()
 
     m_initialDomainDialog.data()->hide();
     m_initialDomainDialog.data()->deleteLater();
+
+    m_mw->trayIcon()->show();
 
     m_mw->show();
 }
