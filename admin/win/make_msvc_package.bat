@@ -38,7 +38,8 @@ SignTool sign /f C:\Users\zulip\signkey.pfx /p berainyacliplachwayacome /t http:
 echo Building NSIS package
 nmake package
 
-SignTool sign /f C:\Users\zulip\signkey.pfx /p berainyacliplachwayacome /t http://timestamp.verisign.com/scripts/timstamp.dll /d "Zulip" /du "https://zulip.com" "zulip-%1.exe"
+:: To sign the executable, uncomment the following line. This requires a signing key zulip.pfx in your home dir
+:: SignTool sign /f C:\Users\zulip\signkey.pfx /p PW_HERE /t http://timestamp.verisign.com/scripts/timstamp.dll /d "Zulip" /du "https://zulip.com" "zulip-%1.exe"
 
 mv "zulip-%1.exe" C:\Users\Zulip\Packages
 
