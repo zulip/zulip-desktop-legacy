@@ -35,6 +35,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <QNetworkCookie>
+#include <QDataStream>
 
 #define COOKIE_JAR_VERSION      1
 
