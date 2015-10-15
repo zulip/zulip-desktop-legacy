@@ -171,6 +171,13 @@ void ZulipWindow::addNewDomainSelection(const QString& url) {
 
   QSettings settings;
   int numerOfDomains = settings.beginReadArray("InstanceDomains");
+  for (int i = 0; i < numerOfDomains; ++i) {
+	  settings.setArrayIndex(i);
+	  QString settingsurl = settings.value("url").toString();
+	  if (settingsurl == url) {
+		  return;
+	  }
+  }
   settings.endArray();
   settings.beginWriteArray("InstanceDomains");
   settings.setArrayIndex(numerOfDomains);
