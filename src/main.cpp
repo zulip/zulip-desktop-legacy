@@ -4,6 +4,7 @@
 #include "Logger.h"
 
 #include <QDebug>
+#include <QSslConfiguration>
 
 int main(int argc, char *argv[])
 {
@@ -15,9 +16,30 @@ int main(int argc, char *argv[])
 
     Logging::setupLogging();
 
-    if (argc == 2 && QString(argv[1]) == QString("--debug")) {
-        a.setDebugMode(true);
-    }
+	QString cmdlinedomain = "";
+	bool allow_insecure = false;
+	if (argc > 1) {
+		int i = 1;
+		while (i < argc) {
+			if (QString(argv[i]).toLower() == QString("--debug").toLower()) {
+				a.setDebugMode(true);
+			}
+			else if (QString(argv[i]).toLower() == QString("--site").toLower() && (i+1 < argc) ) {
+				cmdlinedomain = argv[i + 1];
+				++i;
+			}
+			else if (QString(argv[i]).toLower() == QString("--allow-insecure").toLower()) {
+				allow_insecure = true;
+			}
+			++i;
+		}
+	}
+
+	if (allow_insecure) {
+		QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
+		sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
+		QSslConfiguration::setDefaultConfiguration(sslConf);
+	}
 
     ZulipWindow w;
 
@@ -34,8 +56,8 @@ int main(int argc, char *argv[])
     // 2. Domain= explicit setting
     // 3. Last domain in the InstanceDomains list
     QString domain;
-    if (argc == 3 && QString(argv[1]) == QString("--site")) {
-        domain = argv[2];
+    if (cmdlinedomain != QString("")) {
+        domain = cmdlinedomain;
     } else if (!settingsDomain.isEmpty()) {
         domain = settingsDomain;
     } else if (numerOfDomains > 0) {
