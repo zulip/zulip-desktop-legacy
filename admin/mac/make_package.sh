@@ -23,7 +23,7 @@ fi
 
 cd /tmp
 rm -rf zulip-desktop
-git clone git@git.zulip.net:eng/zulip-desktop.git
+git clone https://github.com/zulip/zulip-desktop.git
 pushd zulip-desktop
 mkdir build
 cd build
