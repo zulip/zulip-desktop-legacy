@@ -127,34 +127,36 @@ QPixmap IconRenderer::render(const QSize &size, int unreadNormal, int unreadPMs)
     QPen textPen(Qt::black, 1, Qt::SolidLine);
     p.setPen(textPen);
     QFont f = APP->font();
+    f.setBold(false);
 
     m_renderer->render(&p);
 
     if (unreadNormal > 0) {
         const int padding = 1;
 
+        QRectF textRect = image.rect();
+        textRect.setSize(textRect.size() * 7 / 10);
+        textRect.moveBottomRight(image.rect().bottomRight());
+
         // Add a half-transparent white layer
-        QBrush translucentWhite(QColor(255, 255, 255, 200));
+        QBrush countBackground(QColor(178, 225, 102, 255));
         p.save();
-        p.setBrush(translucentWhite);
+        p.setBrush(countBackground);
         p.setPen(Qt::NoPen);
-        p.drawEllipse((QPointF)image.rect().center() + QPointF(padding, padding), size.width()/2, size.width()/2);
+        p.drawEllipse((QPointF)textRect.center(), textRect.width() / 2, textRect.width() / 2);
+        p.setPen(Qt::PenStyle::SolidLine);
+        p.setBrush(Qt::NoBrush);
+        p.drawEllipse((QPointF)textRect.center(), textRect.width() / 2, textRect.width() / 2);
         p.restore();
 
         // Unicode ∞ if greater than 99 unread msgs
         const QString disp = unreadNormal > 99 ? QChar(0x221e) : QString::number(unreadNormal);
 
-        QRectF textRect = image.rect();
-        textRect.translate(0, 1);
 
-#ifdef Q_OS_LINUX
-        textRect.translate(0, -1);
-        textRect.adjust(2, 2, -2, -2);
-#endif
-
-        f.setPixelSize(textRect.height() - 4);
+        f.setPixelSize(textRect.height()*2/3);
         p.setFont(f);
 
+        textRect.translate(1, 1);
         p.drawText(textRect, Qt::AlignCenter, disp);
     }
 
