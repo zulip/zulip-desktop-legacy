@@ -32,6 +32,19 @@ make
 
 To build with Qt5, pass `-DBUILD_WITH_QT5=On` to `cmake`.
 
+# Use With Custom Servers
+
+The desktop client accepts the following switches:
+
+```
+--debug                          | Log debug info
+--site https://yourdomain.com    | Connect to a custom domain
+--allow-insecure                 | Don't verify SSL certificates
+```
+
+To use with your own domain, start the desktop client using the `--site` option.
+
+
 ## Architecture
 
 Though the desktop app is written in C++ using the Qt toolkit, the Mac version of the desktop app does not use the QtWebkit included with Qt: it instead uses a native Cocoa WebView that is embedded inside the main Qt app with a QMacCocoaViewContainer bridge.
