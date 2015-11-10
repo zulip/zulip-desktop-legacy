@@ -228,7 +228,8 @@ if (LINUX)
     INSTALL( FILES ${_file} RENAME zulip.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/${_res}/apps )
   ENDFOREACH( _file )
 
-  INSTALL( FILES ${CMAKE_SOURCE_DIR}/admin/icon/zulip-desktop_32x32.xpm DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pixmaps )
+  INSTALL( FILES ${CMAKE_SOURCE_DIR}/admin/icon/zulip.xpm DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pixmaps )
+  INSTALL( FILES ${CMAKE_SOURCE_DIR}/admin/icon/zulip.svg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/hicolor/scalable/apps )
  endif()
 
 target_link_libraries( zulip
