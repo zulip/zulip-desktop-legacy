@@ -1,11 +1,10 @@
 [Desktop Entry]
-Version=ZULIP_VERSION
 Type=Application
 Name=Zulip
 Comment=Workplace chat that improves your productivity
 GenericName=Workplace chat that improves your productivity
 Exec=zulip
-Icon=zulip.png
+Icon=zulip
 Terminal=False
 Encoding=UTF-8
 Categories=Network;InstantMessaging;
