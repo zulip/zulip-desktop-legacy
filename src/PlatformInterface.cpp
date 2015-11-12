@@ -153,8 +153,6 @@ PlatformInterface::PlatformInterface(QObject *parent)
     : QObject(parent)
     , m_d(new PlatformInterfacePrivate(this))
 {
-    desktopNotification("test", "test1", "");
-    desktopNotification("test", "test2", "");
 }
 
 PlatformInterface::~PlatformInterface() {
