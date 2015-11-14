@@ -48,6 +48,7 @@ public:
                 this, SLOT(notificationAction(uint,QString)));
         resetLastNotification();
         m_unreadCount = 0;
+        m_notificationInProgress = false;
     }
 
     ~PlatformInterfacePrivate() {
@@ -72,32 +73,28 @@ public:
         }
     }
 
-    void setUnreadCount(int unread) {
-        m_unreadCount = unread;
-    }
-
     /**
      * @brief Asynchronously calls the notifications service with current message data.
      * It may either create a new notification or replace one if it exists already.
+     * The notification will be ignored in case there's already a call to notifications service in progress.
      */
     void showNotification() {
-        QStringList actions;
-        QVariantMap hints;
-        // Default action is usually a click on the notification
-        actions << "default" << "default";
-        // Assign normal urgency
-        hints["urgency"] = 1;
-        QDBusPendingReply<uint> reply = m_notifications->Notify(qAppName(), m_lastNotificationId, "zulip",
-                                                                m_lastNotificationTitle, m_lastNotificationContent,
-                                                                actions, hints, -1);
-        // This call is blocking as we require the notification ID value before the next call, which in case
-        // of async call might appear earlier than a reply on the previous call arrives
-        reply.waitForFinished();
-        if (reply.isError()) {
-            // Fallback to tray messages if this didn't work out as expected
-            APP->mainWindow()->trayIcon()->showMessage(m_lastNotificationTitle, m_lastNotificationContent);
-        } else {
-            m_lastNotificationId = reply.value();
+        if (!m_notificationInProgress) {
+            m_notificationInProgress = true;
+
+            QStringList actions;
+            QVariantMap hints;
+            // Default action is usually a click on the notification
+            actions << "default" << "default";
+            // Assign normal urgency
+            hints["urgency"] = 1;
+
+            QDBusPendingCall call = m_notifications->Notify(qAppName(), m_lastNotificationId, "zulip",
+                                                            m_lastNotificationTitle, m_lastNotificationContent,
+                                                            actions, hints, -1);
+            QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
+            connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
+                    this, SLOT(notificationFinished(QDBusPendingCallWatcher*)));
         }
     }
 
@@ -117,6 +114,7 @@ public:
     QMediaPlayer *player;
 #endif
     QTemporaryFile sound_temp;
+    int m_unreadCount;
 
     PlatformInterface *q;
 
@@ -125,7 +123,7 @@ private:
     uint m_lastNotificationId;
     QString m_lastNotificationTitle;
     QString m_lastNotificationContent;
-    int m_unreadCount;
+    bool m_notificationInProgress;
 
     void resetLastNotification() {
         m_lastNotificationId = 0;
@@ -146,6 +144,18 @@ private slots:
         if (id == m_lastNotificationId && key == "default") {
             APP->mainWindow()->trayClicked();
         }
+    }
+
+    void notificationFinished(QDBusPendingCallWatcher *call) {
+        QDBusPendingReply<uint> reply = *call;
+        if (reply.isError()) {
+            // Fallback to tray messages if this didn't work out as expected
+            APP->mainWindow()->trayIcon()->showMessage(m_lastNotificationTitle, m_lastNotificationContent);
+        } else {
+            m_lastNotificationId = reply.value();
+        }
+        m_notificationInProgress = false;
+        call->deleteLater();
     }
 };
 
@@ -181,7 +191,7 @@ void PlatformInterface::setStartAtLogin(bool start) {
 }
 
 void PlatformInterface::unreadCountUpdated(int oldCount, int newCount) {
-    m_d->setUnreadCount(newCount);
+    m_d->m_unreadCount = newCount;
 }
 
 void PlatformInterface::playSound() {

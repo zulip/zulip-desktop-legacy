@@ -28,6 +28,9 @@ if (APPLE)
 else()
     set(QT_USE_QTWEBKIT TRUE)
     set(QT_COMPONENTS QtCore QtGui QtNetwork QtSvg QtXml QtWebkit)
+    if (NOT WIN32)
+        set(QT_COMPONENTS ${QT_COMPONENTS} QtDBus)
+    endif()
 endif()
 
 # Generates windows installer with NSIS
@@ -78,8 +81,12 @@ else()
     set(QT4_BUILD ON)
 endif()
 
-if(QT4_BUILD AND NOT APPLE AND NOT WIN32)
-    find_package( Phonon 4.6.0 REQUIRED )
+if(NOT APPLE AND NOT WIN32)
+    if(QT4_BUILD)
+        find_package(Phonon 4.6.0 REQUIRED)
+    else()
+        find_package(Qt5DBus REQUIRED)
+    endif()
 endif()
 
 # Configure Qt
