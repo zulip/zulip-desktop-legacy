@@ -10,8 +10,6 @@ set(JSON_SRCS qjson.cpp
     qjsonwriter.cpp
     qjsonparser.cpp)
 
-add_library(json SHARED ${JSON_SRCS})
+add_library(json STATIC ${JSON_SRCS})
 
 target_link_libraries(json ${QT_LIBRARIES})
-
-install(TARGETS json DESTINATION lib)
