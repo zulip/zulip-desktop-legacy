@@ -144,7 +144,7 @@ QPixmap IconRenderer::render(const QSize &size, int unreadNormal, int unreadPMs)
         p.setBrush(countBackground);
         p.setPen(Qt::NoPen);
         p.drawEllipse((QPointF)textRect.center(), textRect.width() / 2, textRect.width() / 2);
-        p.setPen(Qt::PenStyle::SolidLine);
+        p.setPen(Qt::SolidLine);
         p.setBrush(Qt::NoBrush);
         p.drawEllipse((QPointF)textRect.center(), textRect.width() / 2, textRect.width() / 2);
         p.restore();
