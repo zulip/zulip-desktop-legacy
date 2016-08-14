@@ -138,6 +138,7 @@
     if (range.location != NSNotFound) {
         NSString* globalDomain = [cookieDomain substringFromIndex:range.location];
         cookieFinder(globalDomain,self.domainGlobalCookies);
+        cookieFinder([NSString stringWithFormat:@".%@", cookieDomain], self.domainGlobalCookies);
     }
 
     // subdomain cookies will override the domain-global ones.
