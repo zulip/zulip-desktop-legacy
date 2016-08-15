@@ -41,10 +41,12 @@ QT_PLUGINS = [
 ZULIP_PLUGINS = [
 ]
 
-QT_PLUGINS_SEARCH_PATH=[
-    '/usr/local/Cellar/qt/4.8.4/plugins',
-]
+qt_search_prefix = '/usr/local/Cellar/qt/'
+latest_version = sorted([i for i in os.listdir(a) if i.startswith("4.")])
 
+QT_PLUGINS_SEARCH_PATH=[
+    qt_search_prefix + latest_version + '/plugins',
+]
 
 class Error(Exception):
   pass
