@@ -21,15 +21,22 @@ import commands
 import sys
 import glob
 
+
+def find_latest(path_prefix, version_prefix, subdir):
+    versions = [v for v in os.listdir(path_prefix) if v.startswith(version_prefix)]
+    return path_prefix + "/" + versions[-1] + "/" + subdir
+
 FRAMEWORK_SEARCH_PATH=[
     '/Library/Frameworks',
     os.path.join(os.environ['HOME'], 'Library/Frameworks')
 ]
 
-LIBRARY_SEARCH_PATH=['/usr/local/lib', '/usr/local/Cellar/gettext/0.18.1.1/lib', '.']
+gettext_path = find_latest('/usr/local/Cellar/gettext/', '0.', 'lib')
+
+LIBRARY_SEARCH_PATH=['/usr/local/lib', gettext_path, '.']
 
 QT_PLUGINS = [
-    'crypto/libqca-ossl.dylib',
+  #  'crypto/libqca-ossl.dylib',
   #  'sqldrivers/libqsqlite.dylib',
     'imageformats/libqgif.dylib',
     'imageformats/libqico.dylib',
@@ -41,11 +48,8 @@ QT_PLUGINS = [
 ZULIP_PLUGINS = [
 ]
 
-qt_search_prefix = '/usr/local/Cellar/qt/'
-latest_version = sorted([i for i in os.listdir(a) if i.startswith("4.")])
-
 QT_PLUGINS_SEARCH_PATH=[
-    qt_search_prefix + latest_version + '/plugins',
+    find_latest('/usr/local/Cellar/qt', '4.', 'plugins')
 ]
 
 class Error(Exception):
@@ -129,12 +133,15 @@ def GetBrokenLibraries(binary):
   return broken_libs
 
 def FindFramework(path):
+  
+  if path.startswith("@rpath/"):
+    path = path[7:]
   for search_path in FRAMEWORK_SEARCH_PATH:
     abs_path = os.path.join(search_path, path)
     if os.path.exists(abs_path):
       return abs_path
 
-  raise CouldNotFindFrameworkError(path)
+  raise Exception(path)
 
 def FindLibrary(path):
   if os.path.exists(path):

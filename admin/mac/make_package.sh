@@ -4,7 +4,7 @@
 # Call it like this: make_package.sh 0.5.0 "Zulip, Inc"
 # Where the first argument is the name to sign with, and the second is the version
 
-set -x;
+set -xe;
 
 if [ -z "$1" ]
 then
@@ -21,13 +21,19 @@ else
 	echo "Starting non-SSO build"
 fi
 
+
+rm -rf /tmp/zulip-desktop
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+cp -a $DIR/../.. /tmp/zulip-desktop
+rm -rf /tmp/zulip-desktop/build
 cd /tmp
-rm -rf zulip-desktop
-git clone https://github.com/zulip/zulip-desktop.git
+
 pushd zulip-desktop
 mkdir build
 cd build
 export MACOSX_DEPLOYMENT_TARGET=10.6
+
 cmake -DCMAKE_BUILD_TYPE=Release "$SSO_CMD"  ..
 make -j3
 ../admin/mac/build-release-osx.sh "$@"
@@ -49,6 +55,5 @@ mv "$zulip_sparkle_bin" ~/packages/sparkle
 mv signature.raw ~/packages/sparkle/$zulip_sparkle_bin.sig
 
 popd
-rm -rf zulip-desktop/
 
 echo "Generated DMG $zulip_sparkle and $zulip_sparkle_bin in ~/packages!"
