@@ -5,6 +5,9 @@
 
 #include <QDebug>
 #include <QSslConfiguration>
+#include <QFile>
+#include <QSslKey>
+#include <QSslCertificate>
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +20,8 @@ int main(int argc, char *argv[])
     Logging::setupLogging();
 
 	QString cmdlinedomain = "";
+	QString keyfilename = "";
+	QString certfilename = "";
 	bool allow_insecure = false;
 	if (argc > 1) {
 		int i = 1;
@@ -28,6 +33,16 @@ int main(int argc, char *argv[])
 				cmdlinedomain = argv[i + 1];
 				++i;
 			}
+
+			else if (QString(argv[i]).toLower() == QString("--key").toLower() && (i+1 < argc) ) {
+				keyfilename = argv[i + 1];
+				++i;
+			}
+			else if (QString(argv[i]).toLower() == QString("--cert").toLower() && (i+1 < argc) ) {
+				certfilename = argv[i + 1];
+				++i;
+			}
+
 			else if (QString(argv[i]).toLower() == QString("--allow-insecure").toLower()) {
 				allow_insecure = true;
 			}
@@ -40,6 +55,7 @@ int main(int argc, char *argv[])
 		sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
 		QSslConfiguration::setDefaultConfiguration(sslConf);
 	}
+ 
 
     ZulipWindow w;
 
@@ -77,6 +93,45 @@ int main(int argc, char *argv[])
         // Hide tray icon until the domain has been selected
         w.trayIcon()->hide();
         a.askForDomain(true);
+    }
+
+
+    QString settingscertfilename = settings.value("CertificateFile").toString();
+    QString settingskeyfilename = settings.value("KeyFile").toString();
+
+    if (certfilename != settingscertfilename || keyfilename != settingskeyfilename) {
+       if (certfilename != QString("") || keyfilename != QString("")) {
+          settings.setValue("CertificateFile", certfilename);
+          settings.setValue("KeyFile", keyfilename);
+       }
+    }
+
+
+    if (keyfilename == QString("")) {
+      keyfilename=settingskeyfilename;
+    }
+    if (certfilename == QString("")) {
+      certfilename=settingscertfilename;
+    }
+    if (keyfilename != QString("") || certfilename != QString("")) {
+	if (keyfilename != QString("") && certfilename != QString("")) {
+		QFile keyfile(keyfilename);
+		QFile certfile(certfilename);
+
+		QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
+
+		keyfile.open(QIODevice::ReadOnly);
+		QSslKey key(&keyfile,QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey);
+		sslConf.setPrivateKey(key);
+
+		certfile.open(QIODevice::ReadOnly);
+		QSslCertificate cert(&certfile);
+		sslConf.setLocalCertificate(cert);
+
+		QSslConfiguration::setDefaultConfiguration(sslConf);
+	} else {
+	   // both keyfile and certfile need to be set
+	}
     }
 
     return a.exec();
