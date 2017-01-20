@@ -5,7 +5,33 @@
 
 #include <QDebug>
 #include <QSslConfiguration>
+#include <QNetworkProxy>
 
+void setProxy() {
+    QSettings settings;
+    bool ok = false;
+
+    settings.beginGroup("Proxy");
+    QNetworkProxy::ProxyType proxyType = static_cast<QNetworkProxy::ProxyType>(settings.value("ProxyType").toInt());
+    QString proxyHostName = settings.value("ProxyHostName").toString();
+    qint16 proxyPort = settings.value("ProxyPort").toInt();
+    QString proxyUserName = settings.value("ProxyUserName").toString();
+    QString proxyPassword = settings.value("ProxyPassword").toString();
+    settings.endGroup();
+
+    if (proxyType != QNetworkProxy::NoProxy) {
+        QNetworkProxy proxy;
+        proxy.setType(proxyType);  
+        proxy.setHostName(proxyHostName);
+        proxy.setPort(proxyPort);
+
+        if (!proxyUserName.isEmpty())        proxy.setUser(proxyUserName);
+        if (!proxyPassword.isEmpty())         proxy.setPassword(proxyPassword);
+        QNetworkProxy::setApplicationProxy(proxy);
+
+    }
+
+}
 int main(int argc, char *argv[])
 {
     ZulipApplication a(argc, argv);
@@ -50,6 +76,8 @@ int main(int argc, char *argv[])
     settings.endArray();
 
     QString settingsDomain = settings.value("Domain").toString();
+
+   setProxy(); 
 
     // Priority order:
     // 1. --site command-line flag
