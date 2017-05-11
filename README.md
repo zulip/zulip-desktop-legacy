@@ -1,6 +1,8 @@
-# Zulip Desktop
+# Zulip legacy desktop app
 
-The Zulip desktop app is a C++ application written with the Qt toolkit. It is a lightweight wrapper around a Webkit web view: it loads the zulip webapp as a single page full-screen webpage. The desktop app provides some native integrations: tray icon and Dock support, notifications, and more.
+The legacy Zulip desktop app is a C++ application written with the Qt toolkit. It is a lightweight wrapper around a Webkit web view: it loads the zulip webapp as a single page full-screen webpage. The desktop app provides some native integrations: tray icon and Dock support, notifications, and more.
+
+It is deprecated in favor of the [new electron implementation](https://github.com/zulip/zulip-electron).
 
 # Dependencies
 
